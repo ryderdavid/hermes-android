@@ -73,3 +73,5 @@
 
 sync:
     remote: "git+https://github.com/rusty4444/hermes-android.git"
+export:
+    auto: true
