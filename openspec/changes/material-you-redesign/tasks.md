@@ -4,7 +4,7 @@
 
 - [ ] 1.1 Change `applicationId` to `com.ryderdavid.hermes_you` (keep `.dev` debug suffix) and launcher label to "Hermes"; verify `flutter build apk --debug` installs beside upstream on a device.
 - [ ] 1.2 Point `app_update_service.dart` release URL at the fork's GitHub releases and add fork + upstream links to the About card; verify with a widget test that mocks the releases API.
-- [ ] 1.3 Add `scripts/sync-upstream.sh` (fetch `upstream`, rebase `main`, run `flutter analyze && flutter test`) and document it in `docs/FORK.md`; verify by running it once against upstream `master`.
+- [ ] 1.3 Add `scripts/sync-upstream.sh` (fetch `upstream`, rebase `main`, run `flutter analyze && flutter test`) and document it in `docs/FORK.md`; verify by running it once against upstream `main`.
 - [ ] 1.4 Fill in the Build & Test and Architecture sections of `CLAUDE.md`/`AGENTS.md` with the Flutter commands; verify an agent can run `flutter analyze && flutter test` from those instructions.
 
 ## 2. Color foundation
