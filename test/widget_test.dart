@@ -8,16 +8,37 @@ import 'package:hermes_android/core/theme/hermes_theme.dart';
 import 'package:hermes_android/l10n/app_localizations.dart';
 
 void main() {
-  test('user bubble foreground passes WCAG AA in light and dark themes', () {
-    final ratio = _contrastRatio(
-      hermesUserMessageForeground,
-      hermesUserMessageBubbleBackground,
-    );
-
-    expect(ratio, greaterThanOrEqualTo(4.5));
-    // The pair is theme-independent, so the verified ratio applies to both.
-    expect(hermesUserMessageBubbleBackground, const Color(0xFFD4AF37));
-    expect(hermesUserMessageForeground, const Color(0xFF1C1B1F));
+  test('bubbles use scheme roles and pass WCAG AA for every seed', () {
+    for (final brightness in Brightness.values) {
+      for (final seed in [HermesSeeds.hermesGold, ...HermesSeeds.presets]) {
+        final scheme = hermesColorScheme(brightness, seed: seed);
+        expect(
+          hermesUserMessageBubbleBackground(scheme),
+          scheme.primaryContainer,
+        );
+        expect(hermesUserMessageForeground(scheme), scheme.onPrimaryContainer);
+        expect(
+          hermesAssistantMessageBubbleBackground(scheme),
+          scheme.surfaceContainerHigh,
+        );
+        expect(
+          _contrastRatio(
+            hermesUserMessageForeground(scheme),
+            hermesUserMessageBubbleBackground(scheme),
+          ),
+          greaterThanOrEqualTo(4.5),
+          reason: '$brightness $seed user bubble',
+        );
+        expect(
+          _contrastRatio(
+            scheme.onSurface,
+            hermesAssistantMessageBubbleBackground(scheme),
+          ),
+          greaterThanOrEqualTo(4.5),
+          reason: '$brightness $seed assistant bubble',
+        );
+      }
+    }
   });
 
   testWidgets('message bubble copies its original Markdown content', (
@@ -125,10 +146,13 @@ void main() {
       return true;
     });
 
-    // The prose must not reuse the user-bubble foreground, which is hardcoded
-    // for the gold bubble and disappears on the dark dialog surface.
+    // The prose must not reuse the user-bubble foreground, which is tuned
+    // for the bubble and can vanish on the dialog surface.
     expect(leafColor, isNotNull);
-    expect(leafColor, isNot(hermesUserMessageForeground));
+    final scheme = Theme.of(
+      tester.element(find.byType(SelectableText)),
+    ).colorScheme;
+    expect(leafColor, isNot(hermesUserMessageForeground(scheme)));
   });
 
   testWidgets('assistant message exposes a read aloud action', (

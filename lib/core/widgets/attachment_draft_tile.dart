@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../theme/hermes_theme.dart';
 
 import '../models/attachment_draft.dart';
 
@@ -92,9 +93,9 @@ class AttachmentDraftTile extends StatelessWidget {
         dimension: 22,
         child: CircularProgressIndicator(strokeWidth: 2),
       ),
-      AttachmentDraftStatus.attached => const Icon(
+      AttachmentDraftStatus.attached => Icon(
         Icons.check_circle_outline,
-        color: Colors.green,
+        color: HermesTokens.of(context).success,
       ),
       AttachmentDraftStatus.failed => Icon(
         Icons.error_outline,

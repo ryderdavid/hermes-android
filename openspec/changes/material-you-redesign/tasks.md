@@ -25,11 +25,11 @@
 
 ## 4. Remove hardcoded colors
 
-- [ ] 4.1 `main.dart` (29 uses incl. `HermesHeader` black/gold at :508/:521, :1175): replace with scheme roles; verify `grep -nE "Color\(0x|Colors\." lib/main.dart` returns only allowed exceptions.
-- [ ] 4.2 `chat_screen.dart` (19 uses): user bubble → `primaryContainer`/`onPrimaryContainer`, assistant bubble → `surfaceContainerHigh`/`onSurface`, orange snackbars → themed SnackBar; update `test/widget_test.dart` bubble assertions.
-- [ ] 4.3 `cron_screen.dart`, `settings_screen.dart`, `session_list_screen.dart`, `memory_screen.dart`, `skills_screen.dart`: replace `Colors.red/orange/green/grey` with error/tertiary/harmonized-success/onSurfaceVariant; verify grep is clean.
-- [ ] 4.4 Remaining widgets (`markdown_code_block`, `media_artifact_card`, `config_backup_card`, `hermes_components`, gateway cards, `attachment_draft_tile`, `workspace_sessions_screen`); code blocks use `surfaceContainerHighest` with a syntax palette derived from scheme; update `test/hermes_components_test.dart`.
-- [ ] 4.5 Add a CI lint script `tools/check_no_hardcoded_colors.sh` (allow-list: theme module) and run it in `flutter test` workflow; verify it fails on a planted `Colors.red`.
+- [x] 4.1 `main.dart` (29 uses incl. `HermesHeader` black/gold at :508/:521, :1175): replace with scheme roles; verify `grep -nE "Color\(0x|Colors\." lib/main.dart` returns only allowed exceptions.
+- [x] 4.2 `chat_screen.dart` (19 uses): user bubble → `primaryContainer`/`onPrimaryContainer`, assistant bubble → `surfaceContainerHigh`/`onSurface`, orange snackbars → themed SnackBar; update `test/widget_test.dart` bubble assertions.
+- [x] 4.3 `cron_screen.dart`, `settings_screen.dart`, `session_list_screen.dart`, `memory_screen.dart`, `skills_screen.dart`: replace `Colors.red/orange/green/grey` with error/tertiary/harmonized-success/onSurfaceVariant; verify grep is clean.
+- [x] 4.4 Remaining widgets (`markdown_code_block`, `media_artifact_card`, `config_backup_card`, `hermes_components`, gateway cards, `attachment_draft_tile`, `workspace_sessions_screen`); code blocks use `surfaceContainerHighest` with a syntax palette derived from scheme; update `test/hermes_components_test.dart`.
+- [x] 4.5 Add a CI lint script `tools/check_no_hardcoded_colors.sh` (allow-list: theme module) and run it in `flutter test` workflow; verify it fails on a planted `Colors.red`.
 
 ## 5. Shared states and Settings
 

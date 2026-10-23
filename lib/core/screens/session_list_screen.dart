@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../theme/hermes_theme.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/session_search_hit.dart';
@@ -1107,9 +1108,13 @@ class _SessionListScreenState extends State<SessionListScreen> {
         actions: [
           _buildProfileSelector(),
           if (!_healthOk)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(right: 8),
-              child: Icon(Icons.warning_amber, color: Colors.orange, size: 20),
+              child: Icon(
+                Icons.warning_amber,
+                color: HermesTokens.of(context).warning,
+                size: 20,
+              ),
             ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -1121,7 +1126,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
       floatingActionButton: FloatingActionButton(
         tooltip: context.l10n.new_chat,
         onPressed: _createNewSession,
-        child: const Icon(Icons.chat, color: Colors.black),
+        child: const Icon(Icons.chat),
       ),
       body: _buildBody(),
     );
@@ -1136,7 +1141,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.surfaceContainer,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -1147,14 +1152,17 @@ class _SessionListScreenState extends State<SessionListScreen> {
                       fontFamily: 'Cinzel',
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFFD4AF37),
+                      color: Theme.of(context).colorScheme.primary,
                       letterSpacing: 4,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     widget.connection.label,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -1261,7 +1269,11 @@ class _SessionListScreenState extends State<SessionListScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.orange),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(
               context.l10n.connection_issue,
@@ -1291,7 +1303,11 @@ class _SessionListScreenState extends State<SessionListScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey),
+            Icon(
+              Icons.chat_bubble_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
             Text(
               context.l10n.no_sessions_yet,
@@ -1596,8 +1612,8 @@ class _SessionListScreenState extends State<SessionListScreen> {
                       ? Icons.chat
                       : Icons.chat_bubble_outline,
                   color: locallyPinned || session.isActive
-                      ? const Color(0xFFD4AF37)
-                      : Colors.grey,
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 trailing: isDeleting || isBranching || isRenaming
                     ? const SizedBox(
@@ -1687,7 +1703,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[500],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                   ],

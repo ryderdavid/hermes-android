@@ -66,12 +66,11 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final background = isDark
-        ? const Color(0xFF141414)
-        : const Color(0xFFF2F2F2);
-    final header = isDark ? const Color(0xFF232323) : const Color(0xFFE4E4E4);
-    final foreground = isDark ? Colors.white70 : Colors.black87;
+    // Code sits on the highest tonal container with on-surface text; the
+    // language label carries the scheme's primary as its only accent.
+    final background = theme.colorScheme.surfaceContainerHighest;
+    final header = theme.colorScheme.surfaceContainerHigh;
+    final foreground = theme.colorScheme.onSurface;
 
     final body = _wrap
         ? SelectableText(

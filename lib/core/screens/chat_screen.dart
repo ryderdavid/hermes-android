@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../theme/hermes_theme.dart';
 import '../widgets/session_name_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -61,10 +62,17 @@ import '../widgets/voice_composer_controls.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
 
-/// These colors remain identical in light and dark themes. Their 8.15:1
-/// contrast ratio keeps normal user-message text above WCAG AA.
-const hermesUserMessageBubbleBackground = Color(0xFFD4AF37);
-const hermesUserMessageForeground = Color(0xFF1C1B1F);
+/// The user's bubble sits on the scheme's primary container with its paired
+/// on-color, so it follows the active palette and keeps the contrast Material
+/// guarantees for that pair.
+Color hermesUserMessageBubbleBackground(ColorScheme scheme) =>
+    scheme.primaryContainer;
+Color hermesUserMessageForeground(ColorScheme scheme) =>
+    scheme.onPrimaryContainer;
+
+/// The assistant's bubble: a tonal surface container with on-surface text.
+Color hermesAssistantMessageBubbleBackground(ColorScheme scheme) =>
+    scheme.surfaceContainerHigh;
 
 /// Recovery v2 opens a new server session and cannot yet target an existing
 /// Gateway session. Keep it confined to locally-created drafts; a session from
@@ -2296,9 +2304,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void _showAttachmentError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.orange),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _removeAttachment(AttachmentDraft draft) async {
@@ -3971,7 +3979,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(context.l10n.could_not_deny_the_command(error)),
-              backgroundColor: Colors.orange,
             ),
           );
         }
@@ -4273,7 +4280,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(context.l10n.could_not_skip_the_hermes_question),
-              backgroundColor: Colors.orange,
             ),
           );
         }
@@ -4368,7 +4374,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           content: Text(
             context.l10n.response_closed_locally_gateway_stop_failed(error),
           ),
-          backgroundColor: Colors.orange,
           duration: const Duration(seconds: 6),
         ),
       );
@@ -4451,7 +4456,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.l10n.send_failed(e)),
-          backgroundColor: Colors.orange,
           duration: const Duration(seconds: 6),
         ),
       );
@@ -4672,8 +4676,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Widget _buildGatewayNotification(GatewayNotification notification) {
     final scheme = Theme.of(context).colorScheme;
     final color = switch (notification.level) {
-      GatewayNotificationLevel.success => Colors.green,
-      GatewayNotificationLevel.warning => Colors.orange,
+      GatewayNotificationLevel.success => HermesTokens.of(context).success,
+      GatewayNotificationLevel.warning => HermesTokens.of(context).warning,
       GatewayNotificationLevel.error => scheme.error,
       GatewayNotificationLevel.info => scheme.primary,
     };
@@ -4709,7 +4713,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
-          BoxShadow(blurRadius: 4, color: Colors.black.withValues(alpha: 0.1)),
+          BoxShadow(
+            blurRadius: 4,
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+          ),
         ],
       ),
       child: SafeArea(
@@ -5026,7 +5033,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.warning_amber, size: 48, color: Colors.orange),
+              Icon(
+                Icons.warning_amber,
+                size: 48,
+                color: HermesTokens.of(context).warning,
+              ),
               const SizedBox(height: 16),
               Text(
                 context.l10n.failed_to_load_messages,
@@ -5289,43 +5300,51 @@ class MessageBubble extends StatelessWidget {
     return MarkdownStyleSheet(
       p: (isUser
           ? theme.textTheme.bodyMedium?.copyWith(
-              color: hermesUserMessageForeground,
+              color: hermesUserMessageForeground(theme.colorScheme),
             )
           : theme.textTheme.bodyMedium?.copyWith(color: assistantTextColor)),
       code: TextStyle(
-        backgroundColor: (isUser ? Colors.white : Colors.black).withValues(
-          alpha: 0.12,
-        ),
+        backgroundColor: isUser
+            ? hermesUserMessageForeground(
+                theme.colorScheme,
+              ).withValues(alpha: 0.12)
+            : theme.colorScheme.surfaceContainerHighest,
         fontFamily: 'monospace',
-        color: isUser ? hermesUserMessageForeground : null,
+        color: isUser ? hermesUserMessageForeground(theme.colorScheme) : null,
       ),
       a: TextStyle(
-        color: isUser ? hermesUserMessageForeground : theme.colorScheme.primary,
+        color: isUser
+            ? hermesUserMessageForeground(theme.colorScheme)
+            : theme.colorScheme.primary,
       ),
       h1: isUser
           ? theme.textTheme.headlineSmall?.copyWith(
-              color: hermesUserMessageForeground,
+              color: hermesUserMessageForeground(theme.colorScheme),
             )
           : theme.textTheme.headlineSmall,
       h2: isUser
           ? theme.textTheme.titleLarge?.copyWith(
-              color: hermesUserMessageForeground,
+              color: hermesUserMessageForeground(theme.colorScheme),
             )
           : theme.textTheme.titleLarge,
       h3: isUser
           ? theme.textTheme.titleMedium?.copyWith(
-              color: hermesUserMessageForeground,
+              color: hermesUserMessageForeground(theme.colorScheme),
             )
           : theme.textTheme.titleMedium,
       blockquote: TextStyle(
-        color: isUser ? hermesUserMessageForeground : Colors.grey,
+        color: isUser
+            ? hermesUserMessageForeground(theme.colorScheme)
+            : theme.colorScheme.onSurfaceVariant,
         fontStyle: FontStyle.italic,
       ),
       blockquoteDecoration: BoxDecoration(
         border: Border(
           left: BorderSide(
             color: isUser
-                ? hermesUserMessageForeground.withValues(alpha: 0.65)
+                ? hermesUserMessageForeground(
+                    theme.colorScheme,
+                  ).withValues(alpha: 0.65)
                 : theme.colorScheme.primary,
             width: 3,
           ),
@@ -5334,13 +5353,13 @@ class MessageBubble extends StatelessWidget {
       em: isUser
           ? theme.textTheme.bodyMedium?.copyWith(
               fontStyle: FontStyle.italic,
-              color: hermesUserMessageForeground,
+              color: hermesUserMessageForeground(theme.colorScheme),
             )
           : theme.textTheme.bodyMedium?.copyWith(fontStyle: FontStyle.italic),
       strong: isUser
           ? theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: hermesUserMessageForeground,
+              color: hermesUserMessageForeground(theme.colorScheme),
             )
           : theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
     );
@@ -5546,14 +5565,15 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     // Bubble colors
-    const userBubbleColor = hermesUserMessageBubbleBackground;
-    final assistantBubbleColor = isDark
-        ? const Color(0xFF2A2A2A)
-        : const Color(0xFFEAEAEA);
-    final assistantTextColor = isDark ? Colors.white : Colors.black87;
+    final userBubbleColor = hermesUserMessageBubbleBackground(
+      theme.colorScheme,
+    );
+    final assistantBubbleColor = hermesAssistantMessageBubbleBackground(
+      theme.colorScheme,
+    );
+    final assistantTextColor = theme.colorScheme.onSurface;
 
     // Collect extra metadata for verbose mode
     final List<String> metaLines = [];
@@ -5600,7 +5620,9 @@ class MessageBubble extends StatelessWidget {
                   isUser ? 'You' : 'Hermes',
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: isUser
-                        ? hermesUserMessageForeground.withValues(alpha: 0.75)
+                        ? hermesUserMessageForeground(
+                            theme.colorScheme,
+                          ).withValues(alpha: 0.75)
                         : theme.colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.4,
@@ -5613,9 +5635,11 @@ class MessageBubble extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (isUser ? Colors.white : Colors.black).withValues(
-                    alpha: 0.1,
-                  ),
+                  color:
+                      (isUser
+                              ? hermesUserMessageForeground(theme.colorScheme)
+                              : theme.colorScheme.onSurface)
+                          .withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Column(
@@ -5629,10 +5653,8 @@ class MessageBubble extends StatelessWidget {
                             fontSize: 11,
                             fontFamily: 'monospace',
                             color: isUser
-                                ? hermesUserMessageForeground
-                                : (isDark
-                                      ? Colors.grey[400]
-                                      : Colors.grey[600]),
+                                ? hermesUserMessageForeground(theme.colorScheme)
+                                : theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                       )

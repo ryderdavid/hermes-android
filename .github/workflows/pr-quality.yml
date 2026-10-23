@@ -90,6 +90,9 @@ jobs:
           exit ${PIPESTATUS[0]}
 
       # ── Step 2: Run tests ────────────────────────────────
+      - name: No hardcoded colors
+        run: tools/check_no_hardcoded_colors.sh
+
       - name: Run tests
         id: test
         continue-on-error: true

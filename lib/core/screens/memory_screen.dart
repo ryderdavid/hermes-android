@@ -118,7 +118,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
             if (_source != null)
               Text(
                 context.l10n.source(_source ?? ''),
-                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
           ],
         ),
@@ -145,7 +145,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.orange),
+              Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.error),
               const SizedBox(height: 16),
               Text(
                 context.l10n.failed_to_load_memory,
@@ -173,7 +173,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.psychology, size: 48, color: Colors.grey),
+            Icon(Icons.psychology, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
               context.l10n.no_memory_entries,
@@ -185,7 +185,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+              ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -219,8 +219,8 @@ class _MemoryScreenState extends State<MemoryScreen> {
                         padding: EdgeInsets.zero,
                         visualDensity: VisualDensity.compact,
                         backgroundColor: target == 'user'
-                            ? Colors.blue.shade800
-                            : Colors.grey.shade800,
+                            ? Theme.of(context).colorScheme.secondaryContainer
+                            : Theme.of(context).colorScheme.surfaceContainerHighest,
                       ),
                     ],
                   ),

@@ -8,6 +8,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../theme/hermes_theme.dart';
 
 import '../services/connection_manager.dart';
 import '../services/gateway_turn_application_controller.dart';
@@ -146,7 +147,7 @@ class _CronScreenState extends State<CronScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.failed(e)), backgroundColor: Colors.orange),
+          SnackBar(content: Text(context.l10n.failed(e))),
         );
       }
     }
@@ -169,7 +170,7 @@ class _CronScreenState extends State<CronScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error, foregroundColor: Theme.of(context).colorScheme.onError),
             child: Text(context.l10n.delete),
           ),
         ],
@@ -191,7 +192,6 @@ class _CronScreenState extends State<CronScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.l10n.delete_failed(e)),
-            backgroundColor: Colors.orange,
           ),
         );
       }
@@ -211,7 +211,7 @@ class _CronScreenState extends State<CronScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.failed(e)), backgroundColor: Colors.orange),
+          SnackBar(content: Text(context.l10n.failed(e))),
         );
       }
     }
@@ -284,12 +284,12 @@ class _CronScreenState extends State<CronScreen> {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
-            const Icon(Icons.error_outline, size: 16, color: Colors.orange),
+            Icon(Icons.error_outline, size: 16, color: Theme.of(context).colorScheme.error),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 context.l10n.couldn_t_load_runs(error),
-                style: const TextStyle(fontSize: 12, color: Colors.orange),
+                style: TextStyle(fontSize: 12, color: HermesTokens.of(context).warning),
               ),
             ),
             TextButton(
@@ -306,7 +306,7 @@ class _CronScreenState extends State<CronScreen> {
         padding: EdgeInsets.symmetric(vertical: 8),
         child: Text(
           context.l10n.no_runs_yet,
-          style: TextStyle(fontSize: 12, color: Colors.grey),
+          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       );
     }
@@ -323,7 +323,7 @@ class _CronScreenState extends State<CronScreen> {
                   ? Icons.play_circle_outline
                   : Icons.check_circle_outline,
               size: 18,
-              color: run.isActive ? Colors.green : Colors.grey,
+              color: run.isActive ? HermesTokens.of(context).success : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             title: Text(
               run.title.isEmpty ? context.l10n.cron_run : run.title,
@@ -337,11 +337,11 @@ class _CronScreenState extends State<CronScreen> {
                     run.preview,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
             trailing: Text(
               formatRelativeTime(now, run.lastActive),
-              style: const TextStyle(fontSize: 11, color: Colors.grey),
+              style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             onTap: () => _openRun(run),
           ),
@@ -379,7 +379,6 @@ class _CronScreenState extends State<CronScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.l10n.failed_to_add_job(e)),
-            backgroundColor: Colors.orange,
           ),
         );
       }
@@ -412,7 +411,6 @@ class _CronScreenState extends State<CronScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.l10n.failed_to_update_job(e)),
-            backgroundColor: Colors.orange,
           ),
         );
       }
@@ -556,7 +554,7 @@ class _CronScreenState extends State<CronScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.orange),
+              Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.error),
               const SizedBox(height: 16),
               Text(
                 context.l10n.failed_to_load_cron_jobs,
@@ -581,7 +579,7 @@ class _CronScreenState extends State<CronScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.schedule, size: 48, color: Colors.grey[600]),
+            Icon(Icons.schedule, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(context.l10n.no_cron_jobs, style: Theme.of(context).textTheme.titleLarge),
           ],
@@ -623,7 +621,7 @@ class _CronScreenState extends State<CronScreen> {
                       children: [
                         Icon(
                           paused ? Icons.pause_circle : Icons.play_circle,
-                          color: paused ? Colors.orange : Colors.green,
+                          color: paused ? HermesTokens.of(context).warning : HermesTokens.of(context).success,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
@@ -638,7 +636,7 @@ class _CronScreenState extends State<CronScreen> {
                         Icon(
                           expanded ? Icons.expand_less : Icons.expand_more,
                           size: 20,
-                          color: Colors.grey,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         if (isNoAgent)
                           Container(
@@ -648,14 +646,14 @@ class _CronScreenState extends State<CronScreen> {
                             ),
                             margin: const EdgeInsets.only(right: 4),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withValues(alpha: 0.2),
+                              color: Theme.of(context).colorScheme.secondaryContainer,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Text(
+                            child: Text(
                               'script',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Colors.blue,
+                                color: Theme.of(context).colorScheme.onSecondaryContainer,
                               ),
                             ),
                           ),
@@ -707,12 +705,12 @@ class _CronScreenState extends State<CronScreen> {
                                   Icon(
                                     Icons.delete,
                                     size: 18,
-                                    color: Colors.red,
+                                    color: Theme.of(context).colorScheme.error,
                                   ),
                                   SizedBox(width: 8),
                                   Text(
                                     context.l10n.delete,
-                                    style: TextStyle(color: Colors.red),
+                                    style: TextStyle(color: Theme.of(context).colorScheme.error),
                                   ),
                                 ],
                               ),
@@ -725,7 +723,7 @@ class _CronScreenState extends State<CronScreen> {
                       const SizedBox(height: 6),
                       Text(
                         prompt,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -737,7 +735,7 @@ class _CronScreenState extends State<CronScreen> {
                           Icon(
                             Icons.schedule,
                             size: 14,
-                            color: Colors.grey[600],
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(width: 4),
                           Expanded(
@@ -746,7 +744,7 @@ class _CronScreenState extends State<CronScreen> {
                               style: TextStyle(
                                 fontFamily: 'monospace',
                                 fontSize: 12,
-                                color: Colors.grey[500],
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -757,13 +755,13 @@ class _CronScreenState extends State<CronScreen> {
                       const SizedBox(height: 2),
                       Text(
                         context.l10n.last(lastRun),
-                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                     if (nextRun != null && nextRun.isNotEmpty)
                       Text(
                         context.l10n.next(nextRun),
-                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     if (expanded) ...[
                       const Divider(height: 16),

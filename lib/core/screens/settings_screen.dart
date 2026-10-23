@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../widgets/hermes_components.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/appearance_preferences.dart';
@@ -197,10 +198,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.error_outline,
                     size: 48,
-                    color: Colors.orange,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -280,9 +281,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         context.l10n.context_tokens(
                           _modelInfo!['effective_context_length'],
                         ),
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                 ],
@@ -349,23 +350,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         // Success/error messages
         if (_successMsg != null)
           Card(
-            color: Colors.green.shade900,
+            color: Theme.of(context).colorScheme.tertiaryContainer,
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Text(
                 _successMsg!,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onTertiaryContainer,
+                ),
               ),
             ),
           ),
         if (_error != null && _modelOptions != null)
-          Card(
-            color: Colors.red.shade900,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(_error!, style: const TextStyle(color: Colors.white)),
-            ),
-          ),
+          InlineErrorBanner(message: _error!),
 
         const SizedBox(height: 16),
 
@@ -498,9 +495,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           width: 80,
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w500,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ),
@@ -633,7 +630,9 @@ class _AboutCardState extends State<_AboutCard> {
               context
                   .l10n
                   .browse_and_manage_your_hermes_agent_sessions_from_your_phone,
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const Divider(height: 24),
             ListTile(
@@ -881,7 +880,9 @@ class _VoicePickerState extends State<_VoicePicker> {
           padding: EdgeInsets.all(16),
           child: Text(
             context.l10n.no_tts_voices_found_ninstall_google_text_to_speech_and,
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       );
@@ -991,7 +992,10 @@ class _SessionSourcesFilterState extends State<_SessionSourcesFilter> {
             title: Text(label),
             subtitle: Text(
               source,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             value: isVisible,
             onChanged: (val) => _toggle(source, val ?? true),

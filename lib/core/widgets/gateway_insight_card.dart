@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/hermes_theme.dart';
 
 import '../models/gateway_insight.dart';
 
@@ -110,7 +111,7 @@ class GatewaySubagentCard extends StatelessWidget {
             ListTile(
               dense: true,
               leading: activity.isComplete
-                  ? const Icon(Icons.check_circle_outline, color: Colors.green)
+                  ? Icon(Icons.check_circle_outline, color: HermesTokens.of(context).success)
                   : const SizedBox.square(
                       dimension: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),

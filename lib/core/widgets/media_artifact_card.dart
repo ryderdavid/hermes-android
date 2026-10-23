@@ -166,7 +166,8 @@ class _MediaArtifactCardState extends State<MediaArtifactCard> {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => Dialog.fullscreen(
-        backgroundColor: Colors.black,
+        // A media viewer stays black in every theme, like Photos.
+        backgroundColor: Colors.black, // allow-hardcoded-color
         child: Stack(
           children: [
             Positioned.fill(
@@ -179,7 +180,10 @@ class _MediaArtifactCardState extends State<MediaArtifactCard> {
               top: 8,
               right: 8,
               child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
+                icon: const Icon(
+                  Icons.close,
+                  color: Colors.white, // allow-hardcoded-color
+                ),
                 onPressed: () => Navigator.of(dialogContext).pop(),
               ),
             ),

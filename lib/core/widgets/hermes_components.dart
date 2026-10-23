@@ -297,6 +297,42 @@ class ErrorState extends StatelessWidget {
   }
 }
 
+/// A compact error message inside a form or dialog, on the scheme's error
+/// container so it reads as an error in every color scheme.
+class InlineErrorBanner extends StatelessWidget {
+  final String message;
+
+  const InlineErrorBanner({required this.message, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(HermesSpacing.md),
+      margin: const EdgeInsets.only(bottom: HermesSpacing.md),
+      decoration: BoxDecoration(
+        color: scheme.errorContainer,
+        borderRadius: HermesRadius.card,
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: scheme.onErrorContainer, size: 18),
+          const SizedBox(width: HermesSpacing.sm),
+          Expanded(
+            child: Text(
+              message,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: scheme.onErrorContainer),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Placeholder rows shown while real content loads.
 ///
 /// Preferred over a spinner: it preserves layout, so content does not jump

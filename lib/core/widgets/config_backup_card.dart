@@ -78,7 +78,7 @@ class _ExportPassphraseSheetState extends State<ExportPassphraseSheet> {
           const SizedBox(height: 8),
           Text(
             context.l10n.the_file_contains_your_api_keys_and_dashboard_password_so,
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
           TextField(
@@ -396,7 +396,7 @@ class _ConfigBackupCardState extends State<ConfigBackupCard> {
             const SizedBox(height: 8),
             Text(
               context.l10n.save_your_connections_and_settings_to_an_encrypted_file_then,
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
             if (_busy)
