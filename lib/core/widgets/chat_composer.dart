@@ -287,42 +287,48 @@ class ChatComposer extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  // 8dp inside the field with vertically centred text: one
-                  // line fills the 48dp pill, and at the field's minimum
-                  // height the editable keeps more than a line of viewport.
-                  child: Semantics(
-                    label: context.l10n.message,
-                    textField: true,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: fieldHeight,
-                        maxHeight: (availableHeight * 0.30).clamp(
-                          fieldHeight,
-                          160.0,
-                        ),
-                      ),
-                      child: TextField(
-                        key: const Key('chat-message-composer'),
-                        controller: textController,
-                        decoration: InputDecoration(
-                          hintText: context.l10n.message_hermes,
-                          filled: false,
-                          border: noBorder,
-                          enabledBorder: noBorder,
-                          focusedBorder: noBorder,
-                          disabledBorder: noBorder,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 8,
+                  // The field is centred in the 48dp pill: a field stretched
+                  // by an outer constraint puts all its spare height below
+                  // the text. Merged semantics keep the whole pill height as
+                  // the field's touch target, and at the minimum height the
+                  // editable keeps more than a line of viewport.
+                  child: MergeSemantics(
+                    child: Semantics(
+                      label: context.l10n.message,
+                      textField: true,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: fieldHeight,
+                          maxHeight: (availableHeight * 0.30).clamp(
+                            fieldHeight,
+                            160.0,
                           ),
-                          isDense: true,
                         ),
-                        textAlignVertical: TextAlignVertical.center,
-                        minLines: 1,
-                        maxLines: 5,
-                        textCapitalization: TextCapitalization.sentences,
-                        keyboardType: TextInputType.multiline,
-                        textInputAction: TextInputAction.newline,
-                        enabled: textEnabled,
+                        child: Align(
+                          heightFactor: 1,
+                          child: TextField(
+                            key: const Key('chat-message-composer'),
+                            controller: textController,
+                            decoration: InputDecoration(
+                              hintText: context.l10n.message_hermes,
+                              filled: false,
+                              border: noBorder,
+                              enabledBorder: noBorder,
+                              focusedBorder: noBorder,
+                              disabledBorder: noBorder,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                              ),
+                              isDense: true,
+                            ),
+                            minLines: 1,
+                            maxLines: 5,
+                            textCapitalization: TextCapitalization.sentences,
+                            keyboardType: TextInputType.multiline,
+                            textInputAction: TextInputAction.newline,
+                            enabled: textEnabled,
+                          ),
+                        ),
                       ),
                     ),
                   ),

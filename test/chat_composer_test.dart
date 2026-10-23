@@ -172,4 +172,30 @@ void main() {
     expect(field.maxLines, 5);
     expect(field.textCapitalization, TextCapitalization.sentences);
   });
+
+  for (final scale in [1.0, 1.3, 2.0]) {
+    testWidgets('one-line text is vertically centred in the field at $scale', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: hermesTheme(Brightness.light),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: TextScaler.linear(scale)),
+            child: child!,
+          ),
+          home: ComposerScaffold(host: ComposerHost()),
+        ),
+      );
+      await tester.pump();
+
+      final field = tester.getRect(_field);
+      final text = tester.getRect(find.byType(EditableText));
+      expect(text.center.dy, moreOrLessEquals(field.center.dy, epsilon: 0.5));
+    });
+  }
 }
