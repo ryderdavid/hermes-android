@@ -751,7 +751,6 @@ class _ThemeToggle extends StatelessWidget {
           onSelectionChanged: (selection) async => AppearancePreferences(
             await SharedPreferences.getInstance(),
           ).setThemeMode(selection.first),
-          style: const ButtonStyle(visualDensity: VisualDensity.compact),
         ),
       ),
     );

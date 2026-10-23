@@ -446,7 +446,10 @@ ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
       ),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
-      style: SegmentedButton.styleFrom(minimumSize: buttonMinimumSize),
+      style: SegmentedButton.styleFrom(
+        minimumSize: buttonMinimumSize,
+        tapTargetSize: MaterialTapTargetSize.padded,
+      ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -551,6 +554,21 @@ ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
     ),
     extensions: <ThemeExtension<dynamic>>[tokens],
   );
+}
+
+/// [foreground] nudged toward [ink] until it reaches [minimum] contrast on
+/// [background], so tinted status text stays legible on any palette.
+Color legibleOn(
+  Color foreground,
+  Color background, {
+  required Color ink,
+  double minimum = 4.5,
+}) {
+  for (var t = 0.0; t <= 1.0; t += 0.1) {
+    final candidate = Color.lerp(foreground, ink, t)!;
+    if (contrastRatio(candidate, background) >= minimum) return candidate;
+  }
+  return ink;
 }
 
 /// WCAG 2.1 relative luminance contrast ratio between two opaque colors.

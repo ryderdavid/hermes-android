@@ -60,6 +60,32 @@ flutter test --update-goldens test/goldens   # only after checking the diff is i
 
 ## Accessibility audit
 
-Results of task 8.2 are recorded below.
+Audited 2026-10-23 for task 8.2 with Flutter's Android guideline matchers
+(`test/accessibility_guidelines_test.dart`), which CI runs with the rest of
+the suite. Screens: chat composer, a loaded chat, the Chats list, Settings
+and the Cron error state, each in light and dark with the fallback blue and
+Hermes gold schemes.
 
-_Pending._
+| Check | Rule | Result |
+|---|---|---|
+| Text contrast | 4.5:1 body text, 3:1 large text (`textContrastGuideline`) | Pass |
+| Touch targets | 48 × 48 dp (`androidTapTargetGuideline`) | Pass |
+| TalkBack labels | every tappable node labelled (`labeledTapTargetGuideline`) | Pass |
+| Composer labels | Choose chat model, Spoken replies, Add attachment, Message, Start voice input, Send message | Pass |
+| Bubble and status colors | 4.5:1 for every seed, light and dark (`widget_test.dart`, `hermes_theme_test.dart`) | Pass |
+
+Found and fixed during the audit:
+
+- Refresh buttons on Cron, Memory, Skills and the session list, the Files
+  back button and the media viewer's close button had no label; they now
+  carry tooltips (which TalkBack reads).
+- The code block's wrap and copy buttons were wrapped in a `Tooltip` that
+  TalkBack did not read as a label; the tooltip moved onto the buttons.
+- The theme-mode segmented button was 40 dp with no padded touch target; it
+  now has a 48 dp target.
+- Status chips ("Done", "Needs you") drew 12 sp text at 3.6:1 on their tinted
+  fill; the text is now darkened toward on-surface just enough for 4.5:1.
+
+Not covered by automated checks: TalkBack reading order and live regions on a
+real device, and themed-icon, splash and predictive-back behaviour on Android
+13+/14+ (beads labelled `needs-device-check`).

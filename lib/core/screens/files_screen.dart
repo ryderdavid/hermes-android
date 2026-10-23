@@ -306,7 +306,11 @@ class _FilesScreenState extends State<FilesScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      leading: IconButton(onPressed: _back, icon: const Icon(Icons.arrow_back)),
+      leading: IconButton(
+        onPressed: _back,
+        icon: const Icon(Icons.arrow_back),
+        tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+      ),
       title: Text(context.l10n.files),
       bottom: _selected == null && _path != null
           ? PreferredSize(

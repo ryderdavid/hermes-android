@@ -126,6 +126,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: context.l10n.refresh,
             onPressed: _loading ? null : _loadMemory,
           ),
         ],

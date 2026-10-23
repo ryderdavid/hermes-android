@@ -39,6 +39,13 @@ class StatusChip extends StatelessWidget {
     final tokens = HermesTokens.of(context);
     final color = tokens.colorForStatus(status);
     final text = label ?? defaultStatusLabel(context, status);
+    final fill = color.withValues(alpha: 0.14);
+    // Chips sit on raised surfaces; keep 12sp text at AA on the tinted fill.
+    final ink = legibleOn(
+      color,
+      Color.alphaBlend(fill, tokens.raised),
+      ink: tokens.onSurface,
+    );
 
     return Semantics(
       label: text,
@@ -50,13 +57,13 @@ class StatusChip extends StatelessWidget {
             vertical: HermesSpacing.xs,
           ),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.14),
+            color: fill,
             borderRadius: BorderRadius.circular(HermesRadius.sm),
             border: Border.all(color: color.withValues(alpha: 0.4)),
           ),
           child: Text(
             text,
-            style: tokens.typography.label.copyWith(color: color),
+            style: tokens.typography.label.copyWith(color: ink),
           ),
         ),
       ),

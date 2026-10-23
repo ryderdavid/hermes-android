@@ -68,7 +68,19 @@ void main() {
       final tokens = HermesTokens.of(context);
       final text = tester.widget<Text>(find.text('Needs you'));
 
-      expect(text.style?.color, tokens.blocked);
+      // The status hue, darkened toward on-surface only as far as AA needs.
+      final fill = Color.alphaBlend(
+        tokens.blocked.withValues(alpha: 0.14),
+        tokens.raised,
+      );
+      expect(
+        text.style?.color,
+        legibleOn(tokens.blocked, fill, ink: tokens.onSurface),
+      );
+      expect(
+        contrastRatio(text.style!.color!, fill),
+        greaterThanOrEqualTo(4.5),
+      );
     });
 
     testWidgets('announces its visible label exactly once', (tester) async {

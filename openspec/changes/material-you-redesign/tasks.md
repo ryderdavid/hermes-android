@@ -55,8 +55,8 @@
 
 ## 8. Verification and release
 
-- [ ] 8.1 Golden test matrix (Settings, Chat, Chats, Home, Cron, error state) × {light, dark, pureBlack} × {blue seed, hermesGold} committed under `test/goldens/`; `flutter test --update-goldens` documented.
-- [ ] 8.2 Run `design:accessibility-review`-style audit: 4.5:1 text contrast, 48 dp touch targets, TalkBack labels on composer actions; record results in `docs/FORK.md`.
+- [x] 8.1 Golden test matrix (Settings, Chat, Chats, Home, Cron, error state) × {light, dark, pureBlack} × {blue seed, hermesGold} committed under `test/goldens/`; `flutter test --update-goldens` documented.
+- [x] 8.2 Run `design:accessibility-review`-style audit: 4.5:1 text contrast, 48 dp touch targets, TalkBack labels on composer actions; record results in `docs/FORK.md`.
 - [ ] 8.3 Complete `CODE_QUALITY_CHECKLIST.md`, bump version to `2.1.30-you.1`, build split release APKs, publish a GitHub release on the fork; verify the in-app update check sees it.
 
 ## Workflow follow-up

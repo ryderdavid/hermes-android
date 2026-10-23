@@ -1119,6 +1119,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
             ),
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: context.l10n.refresh,
             onPressed: _loading ? null : _fetchSessions,
           ),
         ],

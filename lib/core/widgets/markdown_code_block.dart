@@ -129,37 +129,31 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
                   ),
                 ),
                 if (_wrap)
-                  Tooltip(
-                    message: context.l10n.scroll_horizontally,
-                    child: IconButton(
-                      icon: const Icon(Icons.swap_horiz, size: 18),
-                      onPressed: () => setState(() => _wrap = false),
-                      constraints: const BoxConstraints.tightFor(
-                        width: 40,
-                        height: 40,
-                      ),
-                    ),
-                  ),
-                Tooltip(
-                  message: context.l10n.wrap_lines,
-                  child: IconButton(
-                    icon: const Icon(Icons.wrap_text, size: 18),
-                    onPressed: () => setState(() => _wrap = true),
+                  IconButton(
+                    tooltip: context.l10n.scroll_horizontally,
+                    icon: const Icon(Icons.swap_horiz, size: 18),
+                    onPressed: () => setState(() => _wrap = false),
                     constraints: const BoxConstraints.tightFor(
                       width: 40,
                       height: 40,
                     ),
+                  ),
+                IconButton(
+                  tooltip: context.l10n.wrap_lines,
+                  icon: const Icon(Icons.wrap_text, size: 18),
+                  onPressed: () => setState(() => _wrap = true),
+                  constraints: const BoxConstraints.tightFor(
+                    width: 40,
+                    height: 40,
                   ),
                 ),
-                Tooltip(
-                  message: context.l10n.copy_code,
-                  child: IconButton(
-                    icon: const Icon(Icons.copy_outlined, size: 18),
-                    onPressed: _copy,
-                    constraints: const BoxConstraints.tightFor(
-                      width: 40,
-                      height: 40,
-                    ),
+                IconButton(
+                  tooltip: context.l10n.copy_code,
+                  icon: const Icon(Icons.copy_outlined, size: 18),
+                  onPressed: _copy,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 40,
+                    height: 40,
                   ),
                 ),
               ],

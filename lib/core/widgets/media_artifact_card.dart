@@ -185,6 +185,9 @@ class _MediaArtifactCardState extends State<MediaArtifactCard> {
                   color: Colors.white, // allow-hardcoded-color
                 ),
                 onPressed: () => Navigator.of(dialogContext).pop(),
+                tooltip: MaterialLocalizations.of(
+                  dialogContext,
+                ).closeButtonTooltip,
               ),
             ),
           ],

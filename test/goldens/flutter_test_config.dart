@@ -52,6 +52,9 @@ Future<void> _loadFonts() async {
       '$dir/Roboto-Bold.ttf',
     ]);
     await _load('MaterialIcons', ['$dir/MaterialIcons-Regular.otf']);
+    // Code blocks ask for the platform `monospace` family, which tests do
+    // not have; Roboto keeps them readable in the images.
+    await _load('monospace', ['$dir/Roboto-Regular.ttf']);
   }
   await _load('Cinzel', ['assets/fonts/Cinzel-Variable.ttf']);
 }

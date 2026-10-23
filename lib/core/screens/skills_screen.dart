@@ -69,6 +69,7 @@ class _SkillsScreenState extends State<SkillsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: context.l10n.refresh,
             onPressed: _loading ? null : _load,
           ),
         ],
