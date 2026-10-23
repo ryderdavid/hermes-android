@@ -2462,6 +2462,39 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get upstream_project => '上游项目';
+
+  @override
+  String get color_label => '颜色';
+
+  @override
+  String get color_wallpaper => '壁纸';
+
+  @override
+  String get color_hermes_gold => 'Hermes 金';
+
+  @override
+  String get color_blue => '蓝色';
+
+  @override
+  String get color_green => '绿色';
+
+  @override
+  String get color_purple => '紫色';
+
+  @override
+  String get color_pink => '粉色';
+
+  @override
+  String get color_wallpaper_description => '与壁纸一致';
+
+  @override
+  String get color_wallpaper_unavailable => '壁纸取色需要 Android 12 或更高版本';
+
+  @override
+  String get pure_black => '纯黑';
+
+  @override
+  String get pure_black_description => '深色主题使用黑色背景';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4916,4 +4949,37 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get upstream_project => '上游项目';
+
+  @override
+  String get color_label => '颜色';
+
+  @override
+  String get color_wallpaper => '壁纸';
+
+  @override
+  String get color_hermes_gold => 'Hermes 金';
+
+  @override
+  String get color_blue => '蓝色';
+
+  @override
+  String get color_green => '绿色';
+
+  @override
+  String get color_purple => '紫色';
+
+  @override
+  String get color_pink => '粉色';
+
+  @override
+  String get color_wallpaper_description => '与壁纸一致';
+
+  @override
+  String get color_wallpaper_unavailable => '壁纸取色需要 Android 12 或更高版本';
+
+  @override
+  String get pure_black => '纯黑';
+
+  @override
+  String get pure_black_description => '深色主题使用黑色背景';
 }

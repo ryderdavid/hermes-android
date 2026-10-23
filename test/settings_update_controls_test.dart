@@ -11,6 +11,23 @@ import 'package:http/testing.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Settings is a lazy list grouped into sections, so a row far down may not
+/// be built yet: scroll until it is, then bring it fully on screen.
+Future<void> _scrollTo(WidgetTester tester, Finder finder) async {
+  await tester.scrollUntilVisible(
+    finder,
+    300,
+    scrollable: find
+        .descendant(
+          of: find.byType(SettingsScreen),
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('update controls remain available if dashboard settings fail', (
     tester,
@@ -38,7 +55,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Failed to load settings'), findsOneWidget);
-    await tester.ensureVisible(find.text('Check for updates on launch'));
+    await _scrollTo(tester, find.text('Check for updates on launch'));
     await tester.pumpAndSettle();
     expect(find.text('Check for updates'), findsOneWidget);
     expect(find.text('Check for updates on launch'), findsOneWidget);
@@ -75,6 +92,7 @@ void main() {
 
     expect(find.text('Failed to load settings'), findsOneWidget);
     expect(find.text('Appearance'), findsOneWidget);
+    await _scrollTo(tester, find.text('Chat density'));
     await tester.tap(find.text('Chat density'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Compact'));
@@ -128,7 +146,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.ensureVisible(find.text('Upstream project'));
+      await _scrollTo(tester, find.text('Upstream project'));
       await tester.pumpAndSettle();
       expect(find.text('Material You fork'), findsOneWidget);
       expect(find.text('Fork on GitHub'), findsOneWidget);

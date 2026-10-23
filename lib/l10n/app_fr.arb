@@ -692,5 +692,16 @@
   "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "Le mode compacte supprime les étiquettes « You » et « Hermes » et réduit les marges internes, l’espacement et les marges latérales des bulles.",
   "material_you_fork_build": "Fork Material You",
   "fork_repository_on_github": "Fork sur GitHub",
-  "upstream_project": "Projet d’origine"
+  "upstream_project": "Projet d’origine",
+  "color_label": "Couleur",
+  "color_wallpaper": "Fond d’écran",
+  "color_hermes_gold": "Or Hermes",
+  "color_blue": "Bleu",
+  "color_green": "Vert",
+  "color_purple": "Violet",
+  "color_pink": "Rose",
+  "color_wallpaper_description": "S’accorde à votre fond d’écran",
+  "color_wallpaper_unavailable": "Les couleurs du fond d’écran nécessitent Android 12 ou version ultérieure",
+  "pure_black": "Noir pur",
+  "pure_black_description": "Utiliser un fond noir avec le thème sombre"
 }

@@ -2483,4 +2483,37 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get upstream_project => '업스트림 프로젝트';
+
+  @override
+  String get color_label => '색상';
+
+  @override
+  String get color_wallpaper => '배경화면';
+
+  @override
+  String get color_hermes_gold => 'Hermes 골드';
+
+  @override
+  String get color_blue => '파란색';
+
+  @override
+  String get color_green => '초록색';
+
+  @override
+  String get color_purple => '보라색';
+
+  @override
+  String get color_pink => '분홍색';
+
+  @override
+  String get color_wallpaper_description => '배경화면에 맞춤';
+
+  @override
+  String get color_wallpaper_unavailable => '배경화면 색상은 Android 12 이상이 필요합니다';
+
+  @override
+  String get pure_black => '완전한 검정';
+
+  @override
+  String get pure_black_description => '어두운 테마에서 검은색 배경 사용';
 }

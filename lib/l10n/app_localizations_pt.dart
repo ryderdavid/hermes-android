@@ -2547,6 +2547,40 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get upstream_project => 'Projeto original';
+
+  @override
+  String get color_label => 'Cor';
+
+  @override
+  String get color_wallpaper => 'Plano de fundo';
+
+  @override
+  String get color_hermes_gold => 'Dourado Hermes';
+
+  @override
+  String get color_blue => 'Azul';
+
+  @override
+  String get color_green => 'Verde';
+
+  @override
+  String get color_purple => 'Roxo';
+
+  @override
+  String get color_pink => 'Rosa';
+
+  @override
+  String get color_wallpaper_description => 'Combina com o plano de fundo';
+
+  @override
+  String get color_wallpaper_unavailable =>
+      'As cores do plano de fundo exigem Android 12 ou mais recente';
+
+  @override
+  String get pure_black => 'Preto puro';
+
+  @override
+  String get pure_black_description => 'Usar fundo preto no tema escuro';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -5087,4 +5121,38 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get upstream_project => 'Projeto original';
+
+  @override
+  String get color_label => 'Cor';
+
+  @override
+  String get color_wallpaper => 'Plano de fundo';
+
+  @override
+  String get color_hermes_gold => 'Dourado Hermes';
+
+  @override
+  String get color_blue => 'Azul';
+
+  @override
+  String get color_green => 'Verde';
+
+  @override
+  String get color_purple => 'Roxo';
+
+  @override
+  String get color_pink => 'Rosa';
+
+  @override
+  String get color_wallpaper_description => 'Combina com o plano de fundo';
+
+  @override
+  String get color_wallpaper_unavailable =>
+      'As cores do plano de fundo exigem Android 12 ou mais recente';
+
+  @override
+  String get pure_black => 'Preto puro';
+
+  @override
+  String get pure_black_description => 'Usar fundo preto no tema escuro';
 }

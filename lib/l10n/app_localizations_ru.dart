@@ -2551,4 +2551,38 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get upstream_project => 'Исходный проект';
+
+  @override
+  String get color_label => 'Цвет';
+
+  @override
+  String get color_wallpaper => 'Обои';
+
+  @override
+  String get color_hermes_gold => 'Золото Hermes';
+
+  @override
+  String get color_blue => 'Синий';
+
+  @override
+  String get color_green => 'Зелёный';
+
+  @override
+  String get color_purple => 'Фиолетовый';
+
+  @override
+  String get color_pink => 'Розовый';
+
+  @override
+  String get color_wallpaper_description => 'Подстраивается под обои';
+
+  @override
+  String get color_wallpaper_unavailable =>
+      'Цвета обоев доступны на Android 12 и новее';
+
+  @override
+  String get pure_black => 'Чистый чёрный';
+
+  @override
+  String get pure_black_description => 'Чёрный фон в тёмной теме';
 }

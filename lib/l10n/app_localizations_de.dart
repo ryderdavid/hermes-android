@@ -2553,4 +2553,39 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get upstream_project => 'Upstream-Projekt';
+
+  @override
+  String get color_label => 'Farbe';
+
+  @override
+  String get color_wallpaper => 'Hintergrund';
+
+  @override
+  String get color_hermes_gold => 'Hermes-Gold';
+
+  @override
+  String get color_blue => 'Blau';
+
+  @override
+  String get color_green => 'Grün';
+
+  @override
+  String get color_purple => 'Lila';
+
+  @override
+  String get color_pink => 'Pink';
+
+  @override
+  String get color_wallpaper_description => 'Passt sich deinem Hintergrund an';
+
+  @override
+  String get color_wallpaper_unavailable =>
+      'Hintergrundfarben erfordern Android 12 oder höher';
+
+  @override
+  String get pure_black => 'Reines Schwarz';
+
+  @override
+  String get pure_black_description =>
+      'Schwarzer Hintergrund im dunklen Design';
 }

@@ -11,7 +11,9 @@ import '../services/config_backup_service.dart';
 import '../services/connection_manager.dart';
 import '../services/notification_prefs.dart';
 import '../services/turn_notification_service.dart';
+import '../widgets/appearance_color_picker.dart';
 import '../widgets/config_backup_card.dart';
+import '../widgets/settings_group.dart';
 import '../widgets/chat_density_settings_card.dart';
 import '../widgets/text_size_settings_card.dart';
 import '../../main.dart';
@@ -198,11 +200,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onRetry: _loadData,
           ),
           const SizedBox(height: 16),
-          _buildSectionHeader(context.l10n.appearance),
-          _buildChatDensityCard(),
-          const SizedBox(height: 16),
-          _buildSectionHeader(context.l10n.about),
-          _AboutCard(),
+          _buildAppearanceGroup(),
+          SettingsGroup(title: context.l10n.about, children: [_AboutCard()]),
         ],
       );
     }
@@ -340,77 +339,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         const SizedBox(height: 16),
 
-        // ---- Section: Theme ----
-        _buildSectionHeader(context.l10n.appearance),
-        _ThemeToggle(),
-        const SizedBox(height: 8),
-        TextSizeSettingsCard(
-          preferences: context
-              .findAncestorStateOfType<HermesAppState>()!
-              .widget
-              .connManager
-              .prefs,
-          onChanged: (preference) => context
-              .findAncestorStateOfType<HermesAppState>()!
-              .setTextSizePreference(preference),
-        ),
-        const SizedBox(height: 8),
-        _buildChatDensityCard(),
-        const SizedBox(height: 8),
-        _VerboseToggle(),
-        const SizedBox(height: 16),
+        // ---- Section: Appearance ----
+        _buildAppearanceGroup(verbose: true),
 
         // ---- Section: Notifications ----
-        _buildSectionHeader(context.l10n.notifications),
-        const _NotificationSettings(),
-        const SizedBox(height: 16),
-
-        const SizedBox(height: 16),
+        SettingsGroup(
+          title: context.l10n.notifications,
+          children: const [_NotificationSettings()],
+        ),
 
         // ---- Section: Voice ----
-        _buildSectionHeader(context.l10n.voice),
-        _VoicePicker(),
-        const SizedBox(height: 16),
+        SettingsGroup(title: context.l10n.voice, children: [_VoicePicker()]),
 
         // ---- Section: Session Sources ----
-        _buildSectionHeader(context.l10n.session_sources),
-        _SessionSourcesFilter(connectionId: widget.connection.id),
-        const SizedBox(height: 16),
+        SettingsGroup(
+          title: context.l10n.session_sources,
+          children: [_SessionSourcesFilter(connectionId: widget.connection.id)],
+        ),
 
         // ---- Section: Connection ----
-        _buildSectionHeader(context.l10n.connection_section),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _infoRow(context.l10n.label, widget.connection.label),
-                const SizedBox(height: 4),
-                _infoRow(context.l10n.host, widget.connection.host),
-                const SizedBox(height: 4),
-                _infoRow(context.l10n.port, '${widget.connection.port}'),
-                const SizedBox(height: 4),
-                _infoRow(context.l10n.base_url, widget.connection.baseUrl),
-              ],
+        SettingsGroup(
+          title: context.l10n.connection_section,
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _infoRow(context.l10n.label, widget.connection.label),
+                    const SizedBox(height: 4),
+                    _infoRow(context.l10n.host, widget.connection.host),
+                    const SizedBox(height: 4),
+                    _infoRow(context.l10n.port, '${widget.connection.port}'),
+                    const SizedBox(height: 4),
+                    _infoRow(context.l10n.base_url, widget.connection.baseUrl),
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
-        const SizedBox(height: 16),
 
         // ---- Section: Backup ----
-        _buildSectionHeader(context.l10n.backup_restore),
-        ConfigBackupCard(
-          onExport: _exportConfig,
-          onDeliverExport: _deliverExport,
-          onPickBackupFile: _pickBackupFile,
-          onImport: _importConfig,
+        SettingsGroup(
+          title: context.l10n.backup_restore,
+          children: [
+            ConfigBackupCard(
+              onExport: _exportConfig,
+              onDeliverExport: _deliverExport,
+              onPickBackupFile: _pickBackupFile,
+              onImport: _importConfig,
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
 
         // ---- Section: About ----
-        _buildSectionHeader(context.l10n.about),
-        _AboutCard(),
+        SettingsGroup(title: context.l10n.about, children: [_AboutCard()]),
       ],
     );
   }
@@ -452,13 +437,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Semantics(
+        header: true,
+        child: Text(
+          title,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
       ),
+    );
+  }
+
+  /// Appearance is device-local, so it stays available when the dashboard
+  /// cannot be reached. [verbose] adds the chat-metadata toggle.
+  Widget _buildAppearanceGroup({bool verbose = false}) {
+    final app = context.findAncestorStateOfType<HermesAppState>()!;
+    final prefs = app.widget.connManager.prefs;
+    return SettingsGroup(
+      title: context.l10n.appearance,
+      children: [
+        _ThemeToggle(),
+        AppearanceColorPicker(preferences: AppearancePreferences(prefs)),
+        TextSizeSettingsCard(
+          preferences: prefs,
+          onChanged: app.setTextSizePreference,
+        ),
+        _buildChatDensityCard(),
+        if (verbose) _VerboseToggle(),
+      ],
     );
   }
 
@@ -720,7 +728,7 @@ class _ThemeToggle extends StatelessWidget {
     return ValueListenableBuilder<AppearanceSettings>(
       valueListenable: appearanceSelection,
       builder: (context, appearance, _) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(16),
         child: SegmentedButton<ThemeMode>(
           segments: [
             ButtonSegment(

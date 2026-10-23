@@ -4305,6 +4305,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upstream project'**
   String get upstream_project;
+
+  /// No description provided for @color_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get color_label;
+
+  /// No description provided for @color_wallpaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallpaper'**
+  String get color_wallpaper;
+
+  /// No description provided for @color_hermes_gold.
+  ///
+  /// In en, this message translates to:
+  /// **'Hermes gold'**
+  String get color_hermes_gold;
+
+  /// No description provided for @color_blue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get color_blue;
+
+  /// No description provided for @color_green.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get color_green;
+
+  /// No description provided for @color_purple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get color_purple;
+
+  /// No description provided for @color_pink.
+  ///
+  /// In en, this message translates to:
+  /// **'Pink'**
+  String get color_pink;
+
+  /// No description provided for @color_wallpaper_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches your wallpaper'**
+  String get color_wallpaper_description;
+
+  /// No description provided for @color_wallpaper_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallpaper colors need Android 12 or later'**
+  String get color_wallpaper_unavailable;
+
+  /// No description provided for @pure_black.
+  ///
+  /// In en, this message translates to:
+  /// **'Pure black'**
+  String get pure_black;
+
+  /// No description provided for @pure_black_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a black background in dark theme'**
+  String get pure_black_description;
 }
 
 class _AppLocalizationsDelegate

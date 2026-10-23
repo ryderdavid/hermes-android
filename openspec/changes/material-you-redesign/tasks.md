@@ -2,7 +2,7 @@
 
 ## 1. Fork identity and tooling
 
-- [ ] 1.1 Change `applicationId` to `com.ryderdavid.hermes_you` (keep `.dev` debug suffix) and launcher label to "Hermes"; verify `flutter build apk --debug` installs beside upstream on a device.
+- [x] 1.1 Change `applicationId` to `com.ryderdavid.hermes_you` (keep `.dev` debug suffix) and launcher label to "Hermes"; verify `flutter build apk --debug` installs beside upstream on a device.
 - [x] 1.2 Point `app_update_service.dart` release URL at the fork's GitHub releases and add fork + upstream links to the About card; verify with a widget test that mocks the releases API.
 - [x] 1.3 Add `scripts/sync-upstream.sh` (fetch `upstream`, rebase `main`, run `flutter analyze && flutter test`) and document it in `docs/FORK.md`; verify by running it once against upstream `main`.
 - [x] 1.4 Fill in the Build & Test and Architecture sections of `CLAUDE.md`/`AGENTS.md` with the Flutter commands; verify an agent can run `flutter analyze && flutter test` from those instructions.
@@ -35,8 +35,8 @@
 
 - [x] 5.1 Restyle `ErrorState`/`EmptyState` (icon in `error`/`onSurfaceVariant`, `headlineSmall` title, `FilledButton.tonal` Retry at 40 dp); golden-test both.
 - [x] 5.2 Replace bespoke error UIs with `ErrorState` in settings (:187-222), chat (:5023-5050), session list (~:1250), memory, cron, skills; verify each screen's failure path in widget tests.
-- [ ] 5.3 Build `SettingsGroup` and convert Settings to Pixel-style grouped lists; golden-test the full Settings screen in light/dark.
-- [ ] 5.4 Add Appearance → *Color* picker (wallpaper swatch + presets + Hermes gold) and *Pure black* switch; *System* disabled below API 31; widget-test selection applies immediately and persists.
+- [x] 5.3 Build `SettingsGroup` and convert Settings to Pixel-style grouped lists; golden-test the full Settings screen in light/dark.
+- [x] 5.4 Add Appearance → *Color* picker (wallpaper swatch + presets + Hermes gold) and *Pure black* switch; *System* disabled below API 31; widget-test selection applies immediately and persists.
 
 ## 6. Chat composer
 

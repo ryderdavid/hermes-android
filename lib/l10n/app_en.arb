@@ -694,5 +694,16 @@
   "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "Compact removes the You and Hermes labels and trims bubble padding, spacing, and side margins.",
   "material_you_fork_build": "Material You fork",
   "fork_repository_on_github": "Fork on GitHub",
-  "upstream_project": "Upstream project"
+  "upstream_project": "Upstream project",
+  "color_label": "Color",
+  "color_wallpaper": "Wallpaper",
+  "color_hermes_gold": "Hermes gold",
+  "color_blue": "Blue",
+  "color_green": "Green",
+  "color_purple": "Purple",
+  "color_pink": "Pink",
+  "color_wallpaper_description": "Matches your wallpaper",
+  "color_wallpaper_unavailable": "Wallpaper colors need Android 12 or later",
+  "pure_black": "Pure black",
+  "pure_black_description": "Use a black background in dark theme"
 }

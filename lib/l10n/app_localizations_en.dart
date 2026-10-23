@@ -2529,4 +2529,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get upstream_project => 'Upstream project';
+
+  @override
+  String get color_label => 'Color';
+
+  @override
+  String get color_wallpaper => 'Wallpaper';
+
+  @override
+  String get color_hermes_gold => 'Hermes gold';
+
+  @override
+  String get color_blue => 'Blue';
+
+  @override
+  String get color_green => 'Green';
+
+  @override
+  String get color_purple => 'Purple';
+
+  @override
+  String get color_pink => 'Pink';
+
+  @override
+  String get color_wallpaper_description => 'Matches your wallpaper';
+
+  @override
+  String get color_wallpaper_unavailable =>
+      'Wallpaper colors need Android 12 or later';
+
+  @override
+  String get pure_black => 'Pure black';
+
+  @override
+  String get pure_black_description => 'Use a black background in dark theme';
 }

@@ -692,5 +692,16 @@
   "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "O modo compacto remove os rótulos You e Hermes e reduz as margens internas, o espaçamento e as margens laterais dos balões.",
   "material_you_fork_build": "Fork Material You",
   "fork_repository_on_github": "Fork no GitHub",
-  "upstream_project": "Projeto original"
+  "upstream_project": "Projeto original",
+  "color_label": "Cor",
+  "color_wallpaper": "Plano de fundo",
+  "color_hermes_gold": "Dourado Hermes",
+  "color_blue": "Azul",
+  "color_green": "Verde",
+  "color_purple": "Roxo",
+  "color_pink": "Rosa",
+  "color_wallpaper_description": "Combina com o plano de fundo",
+  "color_wallpaper_unavailable": "As cores do plano de fundo exigem Android 12 ou mais recente",
+  "pure_black": "Preto puro",
+  "pure_black_description": "Usar fundo preto no tema escuro"
 }

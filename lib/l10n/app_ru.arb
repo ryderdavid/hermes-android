@@ -692,5 +692,16 @@
   "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "Компактный режим убирает подписи You и Hermes и уменьшает внутренние отступы, промежутки и боковые поля пузырей.",
   "material_you_fork_build": "Форк Material You",
   "fork_repository_on_github": "Форк на GitHub",
-  "upstream_project": "Исходный проект"
+  "upstream_project": "Исходный проект",
+  "color_label": "Цвет",
+  "color_wallpaper": "Обои",
+  "color_hermes_gold": "Золото Hermes",
+  "color_blue": "Синий",
+  "color_green": "Зелёный",
+  "color_purple": "Фиолетовый",
+  "color_pink": "Розовый",
+  "color_wallpaper_description": "Подстраивается под обои",
+  "color_wallpaper_unavailable": "Цвета обоев доступны на Android 12 и новее",
+  "pure_black": "Чистый чёрный",
+  "pure_black_description": "Чёрный фон в тёмной теме"
 }

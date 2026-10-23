@@ -692,5 +692,16 @@
   "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "紧凑模式会去掉 You 和 Hermes 标签，并缩小气泡内边距、间距和两侧边距。",
   "material_you_fork_build": "Material You 分支版",
   "fork_repository_on_github": "GitHub 上的分支",
-  "upstream_project": "上游项目"
+  "upstream_project": "上游项目",
+  "color_label": "颜色",
+  "color_wallpaper": "壁纸",
+  "color_hermes_gold": "Hermes 金",
+  "color_blue": "蓝色",
+  "color_green": "绿色",
+  "color_purple": "紫色",
+  "color_pink": "粉色",
+  "color_wallpaper_description": "与壁纸一致",
+  "color_wallpaper_unavailable": "壁纸取色需要 Android 12 或更高版本",
+  "pure_black": "纯黑",
+  "pure_black_description": "深色主题使用黑色背景"
 }

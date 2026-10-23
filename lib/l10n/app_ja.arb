@@ -692,5 +692,16 @@
   "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "コンパクトでは「You」「Hermes」のラベルを外し、吹き出しの余白・間隔・左右のマージンを詰めます。",
   "material_you_fork_build": "Material You フォーク",
   "fork_repository_on_github": "GitHub のフォーク",
-  "upstream_project": "アップストリームのプロジェクト"
+  "upstream_project": "アップストリームのプロジェクト",
+  "color_label": "カラー",
+  "color_wallpaper": "壁紙",
+  "color_hermes_gold": "Hermes ゴールド",
+  "color_blue": "ブルー",
+  "color_green": "グリーン",
+  "color_purple": "パープル",
+  "color_pink": "ピンク",
+  "color_wallpaper_description": "壁紙に合わせます",
+  "color_wallpaper_unavailable": "壁紙の色には Android 12 以降が必要です",
+  "pure_black": "ピュアブラック",
+  "pure_black_description": "ダークテーマで黒い背景を使用します"
 }

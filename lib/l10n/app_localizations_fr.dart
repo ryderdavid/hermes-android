@@ -2553,4 +2553,39 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get upstream_project => 'Projet d’origine';
+
+  @override
+  String get color_label => 'Couleur';
+
+  @override
+  String get color_wallpaper => 'Fond d’écran';
+
+  @override
+  String get color_hermes_gold => 'Or Hermes';
+
+  @override
+  String get color_blue => 'Bleu';
+
+  @override
+  String get color_green => 'Vert';
+
+  @override
+  String get color_purple => 'Violet';
+
+  @override
+  String get color_pink => 'Rose';
+
+  @override
+  String get color_wallpaper_description => 'S’accorde à votre fond d’écran';
+
+  @override
+  String get color_wallpaper_unavailable =>
+      'Les couleurs du fond d’écran nécessitent Android 12 ou version ultérieure';
+
+  @override
+  String get pure_black => 'Noir pur';
+
+  @override
+  String get pure_black_description =>
+      'Utiliser un fond noir avec le thème sombre';
 }

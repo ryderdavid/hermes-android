@@ -2482,4 +2482,37 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get upstream_project => 'アップストリームのプロジェクト';
+
+  @override
+  String get color_label => 'カラー';
+
+  @override
+  String get color_wallpaper => '壁紙';
+
+  @override
+  String get color_hermes_gold => 'Hermes ゴールド';
+
+  @override
+  String get color_blue => 'ブルー';
+
+  @override
+  String get color_green => 'グリーン';
+
+  @override
+  String get color_purple => 'パープル';
+
+  @override
+  String get color_pink => 'ピンク';
+
+  @override
+  String get color_wallpaper_description => '壁紙に合わせます';
+
+  @override
+  String get color_wallpaper_unavailable => '壁紙の色には Android 12 以降が必要です';
+
+  @override
+  String get pure_black => 'ピュアブラック';
+
+  @override
+  String get pure_black_description => 'ダークテーマで黒い背景を使用します';
 }

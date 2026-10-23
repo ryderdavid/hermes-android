@@ -692,5 +692,16 @@
   "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "Kompakt entfernt die Beschriftungen „You“ und „Hermes“ und verringert Blasenabstand, Abstände und Seitenränder.",
   "material_you_fork_build": "Material-You-Fork",
   "fork_repository_on_github": "Fork auf GitHub",
-  "upstream_project": "Upstream-Projekt"
+  "upstream_project": "Upstream-Projekt",
+  "color_label": "Farbe",
+  "color_wallpaper": "Hintergrund",
+  "color_hermes_gold": "Hermes-Gold",
+  "color_blue": "Blau",
+  "color_green": "Grün",
+  "color_purple": "Lila",
+  "color_pink": "Pink",
+  "color_wallpaper_description": "Passt sich deinem Hintergrund an",
+  "color_wallpaper_unavailable": "Hintergrundfarben erfordern Android 12 oder höher",
+  "pure_black": "Reines Schwarz",
+  "pure_black_description": "Schwarzer Hintergrund im dunklen Design"
 }

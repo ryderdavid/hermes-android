@@ -692,5 +692,16 @@
   "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "컴팩트는 You 및 Hermes 라벨을 없애고 말풍선 여백, 간격, 좌우 여백을 줄입니다.",
   "material_you_fork_build": "Material You 포크",
   "fork_repository_on_github": "GitHub의 포크",
-  "upstream_project": "업스트림 프로젝트"
+  "upstream_project": "업스트림 프로젝트",
+  "color_label": "색상",
+  "color_wallpaper": "배경화면",
+  "color_hermes_gold": "Hermes 골드",
+  "color_blue": "파란색",
+  "color_green": "초록색",
+  "color_purple": "보라색",
+  "color_pink": "분홍색",
+  "color_wallpaper_description": "배경화면에 맞춤",
+  "color_wallpaper_unavailable": "배경화면 색상은 Android 12 이상이 필요합니다",
+  "pure_black": "완전한 검정",
+  "pure_black_description": "어두운 테마에서 검은색 배경 사용"
 }
