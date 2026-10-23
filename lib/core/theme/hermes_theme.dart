@@ -9,6 +9,7 @@ library;
 import 'dart:math' as math;
 
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Seed colors for schemes that are not taken from the device wallpaper.
@@ -109,9 +110,12 @@ enum HermesStatus {
   idle,
 }
 
-/// The Hermes typography ramp.
+/// The Hermes typography ramp: named aliases onto the Material 3 type scale.
 ///
-/// [mono] owns code, file paths, and terminal output; everything else is prose.
+/// Every role is taken from [Typography.material2021] in the platform font
+/// (Roboto on Android), so text follows the M3 scale and the system font-size
+/// setting. [mono] owns code, file paths, and terminal output. The Cinzel
+/// display face is reserved for the wordmark ([HermesTypography.wordmark]).
 class HermesTypography {
   final TextStyle display;
   final TextStyle title;
@@ -129,50 +133,55 @@ class HermesTypography {
     required this.mono,
   });
 
+  /// The upstream wordmark face, for `HermesHeader` and onboarding only.
+  static const String wordmarkFamily = 'Cinzel';
+
+  /// The M3 scale in the platform font, colorless and inheriting, so a
+  /// widget's text still takes its color from the surrounding theme.
+  static TextTheme _m3(Brightness brightness) {
+    final typography = Typography.material2021(platform: defaultTargetPlatform);
+    final family =
+        (brightness == Brightness.dark ? typography.white : typography.black)
+            .bodyMedium
+            ?.fontFamily;
+    TextStyle? role(TextStyle? style) =>
+        style?.copyWith(inherit: true, fontFamily: family);
+    final scale = typography.englishLike;
+    return TextTheme(
+      headlineSmall: role(scale.headlineSmall),
+      titleLarge: role(scale.titleLarge),
+      titleMedium: role(scale.titleMedium),
+      bodyMedium: role(scale.bodyMedium),
+      labelMedium: role(scale.labelMedium),
+    );
+  }
+
   static HermesTypography ramp(Brightness brightness) {
-    return const HermesTypography(
-      display: TextStyle(
-        fontSize: 28,
-        height: 1.2,
-        fontWeight: FontWeight.w600,
-        letterSpacing: -0.4,
-      ),
-      title: TextStyle(
-        fontSize: 20,
-        height: 1.25,
-        fontWeight: FontWeight.w600,
-        letterSpacing: -0.2,
-      ),
-      section: TextStyle(
-        fontSize: 16,
-        height: 1.3,
-        fontWeight: FontWeight.w600,
-      ),
-      body: TextStyle(fontSize: 14, height: 1.45),
-      label: TextStyle(
-        fontSize: 12,
-        height: 1.3,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.2,
-      ),
-      mono: TextStyle(
+    final text = _m3(brightness);
+    return HermesTypography(
+      display: text.headlineSmall!,
+      title: text.titleLarge!,
+      section: text.titleMedium!,
+      body: text.bodyMedium!,
+      label: text.labelMedium!,
+      mono: text.bodyMedium!.copyWith(
         fontSize: 13,
         height: 1.4,
         fontFamily: 'monospace',
-        fontFamilyFallback: ['monospace'],
+        fontFamilyFallback: const ['monospace'],
       ),
     );
   }
 
+  /// Colors the M3 [base] theme: primary text on [onSurface], supporting
+  /// text on [muted]. Sizes and weights are left to the M3 scale.
   TextTheme applyTo(TextTheme base, Color onSurface, Color muted) {
-    return base.copyWith(
-      headlineSmall: display.copyWith(color: onSurface),
-      titleLarge: title.copyWith(color: onSurface),
-      titleMedium: section.copyWith(color: onSurface),
-      bodyMedium: body.copyWith(color: onSurface),
-      bodySmall: body.copyWith(color: muted),
-      labelMedium: label.copyWith(color: muted),
-    );
+    return base
+        .apply(bodyColor: onSurface, displayColor: onSurface)
+        .copyWith(
+          bodySmall: base.bodySmall?.copyWith(color: muted),
+          labelMedium: base.labelMedium?.copyWith(color: muted),
+        );
   }
 }
 
@@ -360,6 +369,18 @@ ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
     useMaterial3: true,
   );
 
+  // Material 3 buttons: 40dp tall, 24dp side padding, fully rounded, inside a
+  // 48dp touch target. Colors come from each button type's M3 defaults.
+  const buttonMinimumSize = Size(64, 40);
+  const buttonPadding = EdgeInsets.symmetric(horizontal: 24);
+  const buttonShape = StadiumBorder();
+
+  // Filled text fields: tonal container, no resting outline, a primary
+  // indicator when focused and the error role when invalid.
+  const fieldRadius = BorderRadius.all(Radius.circular(HermesRadius.md));
+  OutlineInputBorder fieldBorder([BorderSide side = BorderSide.none]) =>
+      OutlineInputBorder(borderRadius: fieldRadius, borderSide: side);
+
   return base.copyWith(
     scaffoldBackgroundColor: tokens.surface,
     textTheme: tokens.typography.applyTo(
@@ -368,23 +389,80 @@ ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
       tokens.muted,
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: tokens.surface,
-      foregroundColor: tokens.onSurface,
+      backgroundColor: scheme.surface,
+      foregroundColor: scheme.onSurface,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
-      scrolledUnderElevation: 0,
-      centerTitle: true,
+      // On scroll the bar lifts to surfaceContainer, as in Pixel apps.
+      scrolledUnderElevation: 3,
+      shadowColor: Colors.transparent,
+      centerTitle: false,
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        minimumSize: buttonMinimumSize,
+        padding: buttonPadding,
+        shape: buttonShape,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        minimumSize: buttonMinimumSize,
+        padding: buttonPadding,
+        shape: buttonShape,
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        minimumSize: buttonMinimumSize,
+        padding: buttonPadding,
+        shape: buttonShape,
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        minimumSize: buttonMinimumSize,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        shape: buttonShape,
+      ),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(minimumSize: buttonMinimumSize),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: scheme.surfaceContainerHighest,
+      border: fieldBorder(),
+      enabledBorder: fieldBorder(),
+      disabledBorder: fieldBorder(),
+      focusedBorder: fieldBorder(BorderSide(color: scheme.primary, width: 2)),
+      errorBorder: fieldBorder(BorderSide(color: scheme.error)),
+      focusedErrorBorder: fieldBorder(
+        BorderSide(color: scheme.error, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
     cardTheme: CardThemeData(
-      color: tokens.raised,
+      color: scheme.surfaceContainer,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: HermesRadius.card,
-        side: BorderSide(color: tokens.border),
+      shape: const RoundedRectangleBorder(borderRadius: HermesRadius.card),
+    ),
+    listTileTheme: ListTileThemeData(iconColor: scheme.onSurfaceVariant),
+    switchTheme: SwitchThemeData(
+      thumbIcon: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? const Icon(Icons.check)
+            : null,
+      ),
+    ),
+    chipTheme: ChipThemeData(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(HermesRadius.sm)),
       ),
     ),
     dividerTheme: DividerThemeData(
-      color: tokens.border,
+      color: scheme.outlineVariant,
       space: 1,
       thickness: 1,
     ),
@@ -392,30 +470,56 @@ ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
       backgroundColor: scheme.primaryContainer,
       foregroundColor: scheme.onPrimaryContainer,
     ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: scheme.surfaceContainerHigh,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(28)),
+      ),
+    ),
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: tokens.raised,
-      shape: const RoundedRectangleBorder(borderRadius: HermesRadius.sheet),
+      backgroundColor: scheme.surfaceContainerLow,
+      surfaceTintColor: Colors.transparent,
+      showDragHandle: true,
+      dragHandleColor: scheme.onSurfaceVariant.withValues(alpha: 0.4),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
     ),
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: tokens.raised,
-      contentTextStyle: tokens.typography.body.copyWith(
-        color: tokens.onSurface,
-      ),
+      backgroundColor: scheme.inverseSurface,
+      actionTextColor: scheme.inversePrimary,
       behavior: SnackBarBehavior.floating,
+    ),
+    navigationRailTheme: NavigationRailThemeData(
+      backgroundColor: scheme.surface,
+      indicatorColor: scheme.secondaryContainer,
+      selectedIconTheme: IconThemeData(color: scheme.onSecondaryContainer),
+      unselectedIconTheme: IconThemeData(color: scheme.onSurfaceVariant),
     ),
     // The bar must keep every label on one line. At the 12sp label ramp the
     // longest catalogue entries overflow their destination and wrap — ja
     // アクティビティ (seven glyphs) is the first to go. 11sp with no tracking
     // fits the widest shipped labels while staying legible.
     navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: scheme.surfaceContainer,
+      indicatorColor: scheme.secondaryContainer,
+      surfaceTintColor: Colors.transparent,
+      iconTheme: WidgetStateProperty.resolveWith(
+        (states) => IconThemeData(
+          color: states.contains(WidgetState.selected)
+              ? scheme.onSecondaryContainer
+              : scheme.onSurfaceVariant,
+        ),
+      ),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         return tokens.typography.label.copyWith(
           fontSize: 11,
           letterSpacing: 0,
           height: 1.2,
           color: states.contains(WidgetState.selected)
-              ? tokens.onSurface
-              : tokens.muted,
+              ? scheme.onSurface
+              : scheme.onSurfaceVariant,
         );
       }),
     ),

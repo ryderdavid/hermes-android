@@ -88,7 +88,6 @@ class _ExportPassphraseSheetState extends State<ExportPassphraseSheet> {
             autofocus: true,
             decoration: InputDecoration(
               labelText: context.l10n.passphrase,
-              border: const OutlineInputBorder(),
               suffixIcon: IconButton(
                 icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
                 onPressed: () => setState(() => _obscure = !_obscure),
@@ -103,7 +102,6 @@ class _ExportPassphraseSheetState extends State<ExportPassphraseSheet> {
             obscureText: _obscure,
             decoration: InputDecoration(
               labelText: context.l10n.confirm_passphrase,
-              border: OutlineInputBorder(),
             ),
             onSubmitted: (_) => _submit(),
           ),
@@ -191,7 +189,6 @@ class _ImportOptionsSheetState extends State<ImportOptionsSheet> {
             autofocus: true,
             decoration: InputDecoration(
               labelText: context.l10n.passphrase,
-              border: const OutlineInputBorder(),
               suffixIcon: IconButton(
                 icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
                 onPressed: () => setState(() => _obscure = !_obscure),

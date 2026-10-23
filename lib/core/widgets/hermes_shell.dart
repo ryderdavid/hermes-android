@@ -204,12 +204,10 @@ class _HermesShellState extends State<HermesShell> {
         body: Row(
           children: [
             NavigationRail(
-              backgroundColor: tokens.surface,
               selectedIndex: _current.index,
               onDestinationSelected: (index) =>
                   _select(HermesDestination.values[index]),
               labelType: NavigationRailLabelType.all,
-              indicatorColor: tokens.accent.withValues(alpha: 0.18),
               destinations: [
                 for (final destination in HermesDestination.values)
                   NavigationRailDestination(
@@ -247,8 +245,6 @@ class _HermesShellState extends State<HermesShell> {
           }),
         ),
         child: NavigationBar(
-          backgroundColor: tokens.raised,
-          indicatorColor: tokens.accent.withValues(alpha: 0.18),
           selectedIndex: _current.index,
           onDestinationSelected: (index) =>
               _select(HermesDestination.values[index]),

@@ -1171,8 +1171,17 @@ void main() {
     await tester.scrollUntilVisible(
       find.text('Open the Hermes dashboard'),
       200,
-      scrollable: find.byType(Scrollable).first,
+      scrollable: find
+          .descendant(
+            of: find.byType(MorePane),
+            matching: find.byType(Scrollable),
+          )
+          .first,
     );
+    // scrollUntilVisible stops once the row is built, which can still be in
+    // the cache extent below the viewport; bring it fully on screen.
+    await tester.ensureVisible(find.text('Open the Hermes dashboard'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Open the Hermes dashboard'));
     await tester.pumpAndSettle();
 

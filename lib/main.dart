@@ -1268,16 +1268,9 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'HERMES',
-          style: TextStyle(
-            fontFamily: 'Cinzel',
-            fontWeight: FontWeight.w700,
-            letterSpacing: 6,
-            fontSize: 22,
-          ),
-        ),
-        centerTitle: true,
+        // Pixel-style app bar: plain, left-aligned app name. The Cinzel
+        // wordmark is kept for HermesHeader only.
+        title: const Text('Hermes'),
         actions: [
           if (_connections.isNotEmpty)
             IconButton(
@@ -1344,7 +1337,7 @@ class HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         tooltip: context.l10n.add_connection,
         onPressed: _showAddDialog,
-        child: const Icon(Icons.add, color: Colors.black),
+        child: const Icon(Icons.add),
       ),
     );
   }

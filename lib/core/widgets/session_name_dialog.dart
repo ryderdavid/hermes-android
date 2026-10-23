@@ -28,7 +28,7 @@ Future<String?> showSessionNameDialog({
             autofocus: true,
             maxLength: 120,
             textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(border: OutlineInputBorder()),
+            decoration: const InputDecoration(),
             onChanged: (value) => setDialogState(() => draft = value),
             onFieldSubmitted: (_) => submit(),
           ),

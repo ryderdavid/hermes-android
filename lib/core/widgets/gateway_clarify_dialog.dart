@@ -177,7 +177,6 @@ class _GatewayClarifyDialogState extends State<GatewayClarifyDialog> {
                 textCapitalization: TextCapitalization.sentences,
                 textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
                   labelText: request.hasChoices
                       ? context.l10n.other_answer
                       : context.l10n.your_answer,

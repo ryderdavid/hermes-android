@@ -59,10 +59,7 @@ void main() {
         variant: variant,
         size: const Size(412, 420),
       );
-      await expectLater(
-        find.byType(MaterialApp),
-        matchesGoldenFile('pure_black/surfaces_${variant.name}.png'),
-      );
+      await matchGolden(tester, 'pure_black/surfaces_${variant.name}.png');
     });
   }
 }

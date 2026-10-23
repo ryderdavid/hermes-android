@@ -17,11 +17,11 @@
 
 ## 3. Component themes
 
-- [ ] 3.1 Add filled/tonal/outlined/text button themes (40 dp height, M3 padding/shape) to `hermesTheme`; golden-test a button gallery in light/dark.
-- [ ] 3.2 Add `inputDecorationTheme` (filled, `surfaceContainerHighest`, no resting border, focused primary indicator); verify connection dialog and cron editor fields in goldens.
-- [ ] 3.3 Theme `NavigationBar`/`NavigationRail` (`surfaceContainer`, default `secondaryContainer` indicator) and remove gold indicator overrides in `hermes_shell.dart`; golden-test phone and tablet shells.
-- [ ] 3.4 Theme AppBar (left-aligned title, `scrolledUnderElevation` tint), ListTile, Switch (thumb icons), Chip, SnackBar, Dialog, BottomSheet (drag handle), FAB (`primaryContainer`); remove `Colors.black` FAB icon in `main.dart:1322`; verify via goldens.
-- [ ] 3.5 Switch typography to `Typography.material2021` + platform font; restrict Cinzel to `HermesHeader`; verify text scale 1.3 goldens show no clipping.
+- [x] 3.1 Add filled/tonal/outlined/text button themes (40 dp height, M3 padding/shape) to `hermesTheme`; golden-test a button gallery in light/dark.
+- [x] 3.2 Add `inputDecorationTheme` (filled, `surfaceContainerHighest`, no resting border, focused primary indicator); verify connection dialog and cron editor fields in goldens.
+- [x] 3.3 Theme `NavigationBar`/`NavigationRail` (`surfaceContainer`, default `secondaryContainer` indicator) and remove gold indicator overrides in `hermes_shell.dart`; golden-test phone and tablet shells.
+- [x] 3.4 Theme AppBar (left-aligned title, `scrolledUnderElevation` tint), ListTile, Switch (thumb icons), Chip, SnackBar, Dialog, BottomSheet (drag handle), FAB (`primaryContainer`); remove `Colors.black` FAB icon in `main.dart:1322`; verify via goldens.
+- [x] 3.5 Switch typography to `Typography.material2021` + platform font; restrict Cinzel to `HermesHeader`; verify text scale 1.3 goldens show no clipping.
 
 ## 4. Remove hardcoded colors
 

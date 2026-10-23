@@ -56,6 +56,10 @@ Future<void> pumpGolden(
   Size size = goldenPhoneSize,
   double textScale = 1.0,
 }) async {
+  // Real elevation shadows instead of the test binding's solid outlines.
+  // [matchGolden] restores the flag, which the binding checks before
+  // tear-down runs.
+  debugDisableShadows = false;
   tester.view.devicePixelRatio = 1.0;
   tester.view.physicalSize = size;
   addTearDown(tester.view.reset);
@@ -76,4 +80,14 @@ Future<void> pumpGolden(
     ),
   );
   await tester.pumpAndSettle();
+}
+
+/// Compares the whole app against [path] and restores the shadow debug flag
+/// that [pumpGolden] turned off.
+Future<void> matchGolden(WidgetTester tester, String path) async {
+  try {
+    await expectLater(find.byType(MaterialApp), matchesGoldenFile(path));
+  } finally {
+    debugDisableShadows = true;
+  }
 }

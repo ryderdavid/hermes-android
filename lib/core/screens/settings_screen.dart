@@ -519,7 +519,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       initialValue: value,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 10,
@@ -913,7 +912,6 @@ class _VoicePickerState extends State<_VoicePicker> {
       initialValue: current,
       decoration: InputDecoration(
         labelText: context.l10n.voice,
-        border: OutlineInputBorder(),
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       ),
       items: items,

@@ -83,7 +83,6 @@ class _GatewaySensitivePromptDialogState
               keyboardType: TextInputType.visiblePassword,
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
-                border: const OutlineInputBorder(),
                 labelText: widget.request.fieldLabel,
               ),
               onChanged: (_) => setState(() {}),

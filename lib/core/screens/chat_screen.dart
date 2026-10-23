@@ -2504,7 +2504,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     child: InputDecorator(
                       decoration: InputDecoration(
                         labelText: context.l10n.thinking_effort,
-                        border: OutlineInputBorder(),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(

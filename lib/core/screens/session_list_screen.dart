@@ -1101,16 +1101,9 @@ class _SessionListScreenState extends State<SessionListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'HERMES',
-          style: TextStyle(
-            fontFamily: 'Cinzel',
-            fontWeight: FontWeight.w700,
-            letterSpacing: 6,
-            fontSize: 22,
-          ),
-        ),
-        centerTitle: true,
+        // Pixel-style app bar: plain, left-aligned app name. The Cinzel
+        // wordmark is kept for HermesHeader only.
+        title: const Text('Hermes'),
         actions: [
           _buildProfileSelector(),
           if (!_healthOk)
