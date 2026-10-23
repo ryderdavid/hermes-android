@@ -52,14 +52,13 @@ import 'files_screen.dart';
 import '../widgets/gateway_activity_card.dart';
 import '../widgets/chat_context_header.dart';
 import '../widgets/markdown_code_block.dart';
-import '../widgets/attachment_draft_tile.dart';
+import '../widgets/chat_composer.dart';
 import '../widgets/chat_end_affordance.dart';
 import '../widgets/gateway_approval_dialog.dart';
 import '../widgets/gateway_clarify_dialog.dart';
 import '../widgets/gateway_insight_card.dart';
 import '../widgets/gateway_sensitive_prompt_dialog.dart';
 import '../widgets/media_artifact_card.dart';
-import '../widgets/voice_composer_controls.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
 
@@ -4699,326 +4698,53 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildInputBar({required double availableHeight}) {
-    const minimumControlsHeight = 56.0;
-    final composerMaxHeight = availableHeight <= minimumControlsHeight
-        ? availableHeight
-        : (availableHeight * 0.85)
-              .clamp(minimumControlsHeight, availableHeight)
-              .toDouble();
-    return Container(
-      key: const Key('chat-input-bar'),
-      // Leave some transcript visible when space permits. At very small
-      // heights, the fixed controls take priority and extras scroll away.
-      constraints: BoxConstraints(maxHeight: composerMaxHeight),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 4,
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_gatewayTurnStatus != null && (_sending || _streaming))
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.fromLTRB(4, 2, 4, 2),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .secondaryContainer
-                              .withValues(alpha: 0.55),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            const SizedBox.square(
-                              dimension: 14,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 1.8,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                _gatewayTurnStatus!.text,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
-                        child: Semantics(
-                          label: context.l10n.choose_chat_model,
-                          value: _sessionModel ?? widget.session.model,
-                          button: true,
-                          enabled:
-                              !(_sending ||
-                                  _streaming ||
-                                  _pendingReattachResync ||
-                                  _loadingModelOptions ||
-                                  _changingModel),
-                          excludeSemantics: true,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(minHeight: 48),
-                            child: TextButton.icon(
-                              onPressed:
-                                  (_sending ||
-                                      _streaming ||
-                                      _pendingReattachResync ||
-                                      _loadingModelOptions ||
-                                      _changingModel)
-                                  ? null
-                                  : _showModelSelector,
-                              icon: _loadingModelOptions || _changingModel
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : const Icon(Icons.tune, size: 18),
-                              label: Text(
-                                context.l10n.model_scope_label(
-                                  _sessionModel ?? widget.session.model,
-                                  _sessionModelOverride
-                                      ? context.l10n.this_chat
-                                      : context.l10n.profile_default,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (_attachmentDrafts.isNotEmpty)
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.fromLTRB(4, 4, 4, 8),
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Semantics(
-                          label: context.l10n.attachment_drafts,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              // Scaffold has already subtracted the keyboard and app bar.
-                              maxHeight: availableHeight * 0.32,
-                            ),
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: _attachmentDrafts.length,
-                              itemBuilder: (context, index) =>
-                                  AttachmentDraftTile(
-                                    draft: _attachmentDrafts[index],
-                                    index: index,
-                                    total: _attachmentDrafts.length,
-                                    busy: _sending,
-                                    onMovePrevious: () => _moveAttachment(
-                                      _attachmentDrafts[index],
-                                      -1,
-                                    ),
-                                    onMoveNext: () => _moveAttachment(
-                                      _attachmentDrafts[index],
-                                      1,
-                                    ),
-                                    onRetry: () => _retryAttachment(
-                                      _attachmentDrafts[index],
-                                    ),
-                                    onRemove: () => _removeAttachment(
-                                      _attachmentDrafts[index],
-                                    ),
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (_voiceComposer.listening)
-                      VoiceComposerIndicator(
-                        controller: _voiceComposer,
-                        onStop: () => unawaited(_voiceComposer.stop()),
-                        onCancel: () => unawaited(_voiceComposer.cancel()),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            Row(
-              children: [
-                Semantics(
-                  label: context.l10n.add_attachment,
-                  button: true,
-                  enabled:
-                      !_transcriptLoadBlocksComposer &&
-                      !_streaming &&
-                      !_sending &&
-                      !_pendingReattachResync,
-                  excludeSemantics: true,
-                  child: IconButton(
-                    icon: const Icon(Icons.attach_file),
-                    onPressed:
-                        (!_transcriptLoadBlocksComposer &&
-                            !_streaming &&
-                            !_sending &&
-                            !_pendingReattachResync)
-                        ? _showAttachmentPicker
-                        : null,
-                    tooltip: context.l10n.attach_image_or_file,
-                    constraints: const BoxConstraints.tightFor(
-                      width: 48,
-                      height: 48,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Semantics(
-                    label: context.l10n.message,
-                    textField: true,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: (availableHeight * 0.30).clamp(48.0, 160.0),
-                      ),
-                      child: TextField(
-                        key: const Key('chat-message-composer'),
-                        controller: _textController,
-                        decoration: InputDecoration(
-                          hintText: context.l10n.message_hermes,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          isDense: true,
-                        ),
-                        minLines: 1,
-                        maxLines: 5,
-                        textCapitalization: TextCapitalization.sentences,
-                        keyboardType: TextInputType.multiline,
-                        textInputAction: TextInputAction.newline,
-                        enabled: !_transcriptLoadBlocksComposer,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                if (!_voiceComposer.listening)
-                  VoiceComposerStartButton(
-                    enabled:
-                        !_transcriptLoadBlocksComposer &&
-                        !_streaming &&
-                        !_sending &&
-                        !_pendingReattachResync,
-                    onPressed: _startVoiceInput,
-                  ),
-                Semantics(
-                  label: context.l10n.spoken_replies,
-                  value: _voiceReplyEnabled
-                      ? context.l10n.on
-                      : context.l10n.off,
-                  toggled: _voiceReplyEnabled,
-                  button: true,
-                  excludeSemantics: true,
-                  child: IconButton(
-                    icon: Icon(
-                      _voiceReplyEnabled ? Icons.volume_up : Icons.volume_off,
-                    ),
-                    onPressed: () {
-                      setState(() => _voiceReplyEnabled = !_voiceReplyEnabled);
-                      if (!_voiceReplyEnabled) {
-                        _flutterTts.stop();
-                      }
-                    },
-                    tooltip: _voiceReplyEnabled
-                        ? context.l10n.spoken_replies_on
-                        : context.l10n.spoken_replies_off,
-                    constraints: const BoxConstraints.tightFor(
-                      width: 48,
-                      height: 48,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Semantics(
-                  label: _streaming
-                      ? context.l10n.stop_response
-                      : context.l10n.send_message,
-                  button: true,
-                  enabled:
-                      _streaming ||
-                      (!_transcriptLoadBlocksComposer &&
-                          !_sending &&
-                          !_pendingReattachResync &&
-                          !_voiceComposer.listening),
-                  excludeSemantics: true,
-                  child: SizedBox.square(
-                    dimension: 48,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        shape: BoxShape.circle,
-                      ),
-                      child: _streaming
-                          ? IconButton(
-                              icon: const Icon(Icons.stop_rounded, size: 20),
-                              onPressed: _stopResponse,
-                              tooltip: context.l10n.stop_response,
-                              constraints: const BoxConstraints.tightFor(
-                                width: 48,
-                                height: 48,
-                              ),
-                            )
-                          : IconButton(
-                              icon: const Icon(Icons.send, size: 20),
-                              onPressed:
-                                  _transcriptLoadBlocksComposer ||
-                                      _sending ||
-                                      _pendingReattachResync ||
-                                      _voiceComposer.listening
-                                  ? null
-                                  : _sendMessage,
-                              tooltip: context.l10n.send,
-                              constraints: const BoxConstraints.tightFor(
-                                width: 48,
-                                height: 48,
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    final controlsBlocked =
+        _transcriptLoadBlocksComposer ||
+        _streaming ||
+        _sending ||
+        _pendingReattachResync;
+    final modelBlocked =
+        _sending ||
+        _streaming ||
+        _pendingReattachResync ||
+        _loadingModelOptions ||
+        _changingModel;
+    final sendBlocked =
+        _transcriptLoadBlocksComposer ||
+        _sending ||
+        _pendingReattachResync ||
+        _voiceComposer.listening;
+    return ChatComposer(
+      availableHeight: availableHeight,
+      textController: _textController,
+      textEnabled: !_transcriptLoadBlocksComposer,
+      turnStatus: _gatewayTurnStatus != null && (_sending || _streaming)
+          ? _gatewayTurnStatus!.text
+          : null,
+      modelName: _sessionModel ?? widget.session.model,
+      modelScope: _sessionModelOverride
+          ? context.l10n.this_chat
+          : context.l10n.profile_default,
+      modelLoading: _loadingModelOptions || _changingModel,
+      onChooseModel: modelBlocked ? null : _showModelSelector,
+      attachments: _attachmentDrafts,
+      attachmentsBusy: _sending,
+      onMoveAttachment: _moveAttachment,
+      onRetryAttachment: _retryAttachment,
+      onRemoveAttachment: _removeAttachment,
+      voiceComposer: _voiceComposer,
+      onStartVoice: controlsBlocked ? null : _startVoiceInput,
+      onAttach: controlsBlocked ? null : _showAttachmentPicker,
+      voiceReplyEnabled: _voiceReplyEnabled,
+      onToggleVoiceReply: () {
+        setState(() => _voiceReplyEnabled = !_voiceReplyEnabled);
+        if (!_voiceReplyEnabled) {
+          _flutterTts.stop();
+        }
+      },
+      streaming: _streaming,
+      onSend: sendBlocked ? null : _sendMessage,
+      onStop: _stopResponse,
     );
   }
 
