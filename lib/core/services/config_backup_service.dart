@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config_backup.dart';
 import 'app_update_service.dart';
+import 'appearance_preferences.dart';
 import 'chat_density_preference.dart';
 import 'connection_manager.dart';
 import 'local_chat_pin_store.dart';
@@ -54,7 +55,7 @@ class ConfigImportResult {
 class ConfigBackupService {
   /// Exact preference keys that are safe to carry between devices.
   static const Set<String> exactPreferenceKeys = <String>{
-    'theme_mode',
+    ...AppearancePreferences.backupKeys,
     'verbose_mode',
     'voice_name',
     'voice_locale',
@@ -177,6 +178,7 @@ class ConfigBackupService {
     // written: the settings card and any open chat took their copy at build
     // time and would otherwise keep showing the pre-import value.
     ChatDensityStore(_preferences).read();
+    AppearancePreferences(_preferences).read();
 
     return ConfigImportResult(
       connectionsAdded: added,

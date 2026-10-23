@@ -19,6 +19,14 @@ abstract final class HermesSeeds {
 
   /// The upstream Hermes brand gold, offered as a user-selectable seed.
   static const Color hermesGold = Color(0xFFD4AF37);
+
+  /// Preset seeds offered in Settings → Appearance → Color, in display order.
+  static const List<Color> presets = [
+    Color(0xFF4285F4), // Blue
+    Color(0xFF34A853), // Green
+    Color(0xFF7E57C2), // Purple
+    Color(0xFFE91E63), // Pink
+  ];
 }
 
 /// The app color scheme for [brightness].
@@ -26,18 +34,28 @@ abstract final class HermesSeeds {
 /// An explicit [seed] wins. Otherwise the device's [dynamicScheme] is used
 /// (harmonized so its error role sits with the wallpaper primary), and
 /// without one a tonal-spot scheme is generated from [HermesSeeds.fallback].
+///
+/// [pureBlack] turns a dark scheme's background black while leaving the
+/// container roles tonal, so cards and fields stay distinguishable.
 ColorScheme hermesColorScheme(
   Brightness brightness, {
   ColorScheme? dynamicScheme,
   Color? seed,
+  bool pureBlack = false,
 }) {
-  if (seed == null && dynamicScheme != null) {
-    return dynamicScheme.harmonized();
-  }
-  return ColorScheme.fromSeed(
-    seedColor: seed ?? HermesSeeds.fallback,
-    brightness: brightness,
-    dynamicSchemeVariant: DynamicSchemeVariant.tonalSpot,
+  final scheme = seed == null && dynamicScheme != null
+      ? dynamicScheme.harmonized()
+      : ColorScheme.fromSeed(
+          seedColor: seed ?? HermesSeeds.fallback,
+          brightness: brightness,
+          dynamicSchemeVariant: DynamicSchemeVariant.tonalSpot,
+        );
+  if (!pureBlack || brightness != Brightness.dark) return scheme;
+  const black = Color(0xFF000000);
+  return scheme.copyWith(
+    surface: black,
+    surfaceDim: black,
+    surfaceContainerLowest: black,
   );
 }
 

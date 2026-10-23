@@ -231,7 +231,9 @@ void main() {
     });
 
     test('an explicit seed overrides the dynamic scheme', () {
-      final wallpaper = ColorScheme.fromSeed(seedColor: const Color(0xFF006A60));
+      final wallpaper = ColorScheme.fromSeed(
+        seedColor: const Color(0xFF006A60),
+      );
       final scheme = hermesColorScheme(
         Brightness.light,
         dynamicScheme: wallpaper,
@@ -283,6 +285,41 @@ void main() {
           reason: 'secondary text must remain legible in $brightness',
         );
       }
+    });
+  });
+
+  group('pure black', () {
+    test('makes a dark background black and keeps containers tonal', () {
+      final scheme = hermesColorScheme(Brightness.dark, pureBlack: true);
+      const black = Color(0xFF000000);
+
+      expect(scheme.surface, black);
+      expect(
+        hermesTheme(
+          Brightness.dark,
+          colorScheme: scheme,
+        ).scaffoldBackgroundColor,
+        black,
+      );
+      for (final container in [
+        scheme.surfaceContainerLow,
+        scheme.surfaceContainer,
+        scheme.surfaceContainerHigh,
+        scheme.surfaceContainerHighest,
+      ]) {
+        expect(container, isNot(black));
+      }
+      expect(
+        contrastRatio(scheme.onSurface, scheme.surface),
+        greaterThanOrEqualTo(4.5),
+      );
+    });
+
+    test('leaves light schemes alone', () {
+      expect(
+        hermesColorScheme(Brightness.light, pureBlack: true),
+        hermesColorScheme(Brightness.light),
+      );
     });
   });
 }

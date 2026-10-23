@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/android_launch_intent_service.dart';
 import 'core/services/android_share_intent_service.dart';
+import 'core/services/appearance_preferences.dart';
 import 'core/services/composer_draft_store.dart';
 import 'core/services/config_backup.dart';
 import 'core/services/config_backup_io.dart';
@@ -234,27 +235,13 @@ class HermesApp extends StatefulWidget {
   State<HermesApp> createState() => HermesAppState();
 
   static ThemeMode getThemeMode(SharedPreferences prefs) {
-    final stored = prefs.getString('theme_mode') ?? 'system';
-    switch (stored) {
-      case 'dark':
-        return ThemeMode.dark;
-      case 'light':
-        return ThemeMode.light;
-      default:
-        return ThemeMode.system;
-    }
+    return AppearancePreferences.themeModeFromStorage(
+      prefs.getString(AppearancePreferences.themeModeKey),
+    );
   }
 
-  static Future<void> setThemeMode(
-    SharedPreferences prefs,
-    ThemeMode mode,
-  ) async {
-    final value = mode == ThemeMode.dark
-        ? 'dark'
-        : mode == ThemeMode.light
-        ? 'light'
-        : 'system';
-    await prefs.setString('theme_mode', value);
+  static Future<void> setThemeMode(SharedPreferences prefs, ThemeMode mode) {
+    return AppearancePreferences(prefs).setThemeMode(mode);
   }
 
   static TextSizePreference getTextSizePreference(SharedPreferences prefs) {
@@ -282,6 +269,7 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    AppearancePreferences(widget.connManager.prefs).read();
     _turnApplicationController = GatewayTurnApplicationController();
     // The keep-alive follows the work: a turn settling (or starting) while
     // backgrounded must end (or earn) the foreground service immediately,
@@ -448,26 +436,39 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     // The wallpaper palette on Android 12+; null elsewhere, which falls back
-    // to the seeded scheme inside hermesColorScheme.
-    return DynamicColorBuilder(
-      builder: (lightDynamic, darkDynamic) =>
-          _buildApp(lightDynamic: lightDynamic, darkDynamic: darkDynamic),
+    // to the seeded scheme inside hermesColorScheme. Appearance changes from
+    // Settings or a config restore arrive through appearanceSelection.
+    return ValueListenableBuilder<AppearanceSettings>(
+      valueListenable: appearanceSelection,
+      builder: (context, appearance, _) => DynamicColorBuilder(
+        builder: (lightDynamic, darkDynamic) => _buildApp(
+          appearance,
+          lightDynamic: lightDynamic,
+          darkDynamic: darkDynamic,
+        ),
+      ),
     );
   }
 
-  Widget _buildApp({ColorScheme? lightDynamic, ColorScheme? darkDynamic}) {
+  Widget _buildApp(
+    AppearanceSettings appearance, {
+    ColorScheme? lightDynamic,
+    ColorScheme? darkDynamic,
+  }) {
+    final seed = appearance.colorSource.seed;
     return MaterialApp(
       navigatorKey: _navigatorKey,
       onGenerateTitle: (context) => context.l10n.hermes_agent,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: preferredSupportedLocales(),
       localeListResolutionCallback: resolvePreferredLocale,
-      themeMode: HermesApp.getThemeMode(widget.connManager.prefs),
+      themeMode: appearance.themeMode,
       theme: hermesTheme(
         Brightness.light,
         colorScheme: hermesColorScheme(
           Brightness.light,
           dynamicScheme: lightDynamic,
+          seed: seed,
         ),
       ),
       darkTheme: hermesTheme(
@@ -475,6 +476,8 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
         colorScheme: hermesColorScheme(
           Brightness.dark,
           dynamicScheme: darkDynamic,
+          seed: seed,
+          pureBlack: appearance.pureBlack,
         ),
       ),
       builder: (context, child) {

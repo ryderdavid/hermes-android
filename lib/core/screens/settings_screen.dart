@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/appearance_preferences.dart';
 import '../services/config_backup_io.dart';
 import '../services/config_backup_service.dart';
 import '../services/connection_manager.dart';
@@ -470,8 +471,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       mode,
     );
     if (mounted) {
-      // Theme and text size are read at app root; refresh so a restored
-      // preference is visible without restarting the app.
+      // Text size is read at app root; refresh so a restored preference is
+      // visible without restarting the app. Appearance refreshes itself.
       context.findAncestorStateOfType<HermesAppState>()?.setState(() {});
     }
     return result;
@@ -702,59 +703,37 @@ class _VerboseToggleState extends State<_VerboseToggle> {
   }
 }
 
-class _ThemeToggle extends StatefulWidget {
-  @override
-  State<_ThemeToggle> createState() => _ThemeToggleState();
-}
-
-class _ThemeToggleState extends State<_ThemeToggle> {
-  String _mode = 'system';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadMode();
-  }
-
-  Future<void> _loadMode() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() => _mode = prefs.getString('theme_mode') ?? 'system');
-  }
-
-  Future<void> _setMode(String mode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('theme_mode', mode);
-    if (!mounted) return;
-    setState(() => _mode = mode);
-    final rootCtx = context.findAncestorStateOfType<HermesAppState>();
-    rootCtx?.setState(() {});
-  }
-
+class _ThemeToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: SegmentedButton<String>(
-        segments: [
-          ButtonSegment(
-            value: 'system',
-            label: Text(context.l10n.system),
-            icon: Icon(Icons.brightness_auto, size: 18),
-          ),
-          ButtonSegment(
-            value: 'dark',
-            label: Text(context.l10n.dark),
-            icon: Icon(Icons.dark_mode, size: 18),
-          ),
-          ButtonSegment(
-            value: 'light',
-            label: Text(context.l10n.light),
-            icon: Icon(Icons.light_mode, size: 18),
-          ),
-        ],
-        selected: {_mode},
-        onSelectionChanged: (s) => _setMode(s.first),
-        style: ButtonStyle(visualDensity: VisualDensity.compact),
+    return ValueListenableBuilder<AppearanceSettings>(
+      valueListenable: appearanceSelection,
+      builder: (context, appearance, _) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: SegmentedButton<ThemeMode>(
+          segments: [
+            ButtonSegment(
+              value: ThemeMode.system,
+              label: Text(context.l10n.system),
+              icon: const Icon(Icons.brightness_auto, size: 18),
+            ),
+            ButtonSegment(
+              value: ThemeMode.dark,
+              label: Text(context.l10n.dark),
+              icon: const Icon(Icons.dark_mode, size: 18),
+            ),
+            ButtonSegment(
+              value: ThemeMode.light,
+              label: Text(context.l10n.light),
+              icon: const Icon(Icons.light_mode, size: 18),
+            ),
+          ],
+          selected: {appearance.themeMode},
+          onSelectionChanged: (selection) async => AppearancePreferences(
+            await SharedPreferences.getInstance(),
+          ).setThemeMode(selection.first),
+          style: const ButtonStyle(visualDensity: VisualDensity.compact),
+        ),
       ),
     );
   }
