@@ -26,9 +26,10 @@ See proposal.md (Why). Current state, from a code audit of upstream v2.1.30 (`63
 `HermesTokens` becomes a pure function of the active `ColorScheme`: `surface → surface`, `raised → surfaceContainer`, `border → outlineVariant`, `muted → onSurfaceVariant`, `accent → primary`, `danger → error`; `success`/`warning`/`running`/`blocked` are fixed hues run through `harmonizeWith(primary)`. Spacing/radius/motion stay.
 *Why:* hundreds of call sites already read tokens; changing the mapping fixes most of the UI in one file and keeps upstream diffs small. *Alternative:* rip out tokens and use `Theme.of(context).colorScheme` everywhere — cleaner, but a massive diff that conflicts with every upstream release.
 
-### D2. `dynamic_color` ^2.1.0 with `DynamicColorBuilder` around `MaterialApp`
+### D2. `dynamic_color` ^1.9.0 with `DynamicColorBuilder` around `MaterialApp`
 Pass `lightDynamic`/`darkDynamic` (after `.harmonized()`) into `hermesTheme(scheme)`. When null (API < 31) or when the user picks a seed, build with `ColorScheme.fromSeed(seed, brightness, dynamicSchemeVariant: tonalSpot)`. Remove the four hand-picked overrides in `hermesTheme`.
 *Alternative:* platform channel to `android.R.color.system_*` — reimplements the package.
+*Version note (found during apply):* `dynamic_color` 2.x depends on the standalone `material_ui` package, whose `ColorScheme` is a different type from `package:flutter/material.dart`'s. 1.9.0 (Aug 2026) is the last framework-Material release and also fills the `surfaceContainer*` roles. Move to 2.x together with the `material_ui` migration (D9).
 
 ### D3. Theme preferences in one store
 New `AppearancePreferences` (SharedPreferences) holding `colorSource` (`system | hermesGold | seed:<argb>`), `pureBlack`, and the existing `theme_mode` key (read-compatible). Exposed as a `ValueNotifier`/Riverpod provider so `MaterialApp` rebuilds without the current `findAncestorStateOfType<HermesAppState>().setState` hack in `settings_screen.dart:705-760`. Keys added to the existing backup allow-list.

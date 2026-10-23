@@ -32,7 +32,7 @@ The app is functionally excellent but visually reads as a branded port rather th
 ## Impact
 
 - **Code**: new `lib/core/theme/` module; edits to `main.dart` (MaterialApp wiring), settings screen, chat composer, shared error/empty widgets, and every widget currently using hardcoded colors. No changes to Gateway/Dashboard networking, models, or storage beyond new theme preferences.
-- **Dependencies**: adds `dynamic_color` (^2.1.0). Optional font asset (Google Sans Flex, OFL).
+- **Dependencies**: adds `dynamic_color` (^1.9.0 — 2.x requires the standalone `material_ui` package, see design D9). Optional font asset (Google Sans Flex, OFL).
 - **Android**: `android/app/build.gradle.kts` (applicationId), `res/` (monochrome icon, splash theme), `AndroidManifest.xml` (predictive back).
 - **Tests**: golden tests per screen in light/dark × dynamic/gold; existing widget tests that assert gold colors must be updated.
 - **Upstream sync**: changes are concentrated in the theme module and a short list of widgets to keep rebases tractable.

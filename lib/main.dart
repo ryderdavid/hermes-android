@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/android_launch_intent_service.dart';
@@ -446,6 +447,15 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    // The wallpaper palette on Android 12+; null elsewhere, which falls back
+    // to the seeded scheme inside hermesColorScheme.
+    return DynamicColorBuilder(
+      builder: (lightDynamic, darkDynamic) =>
+          _buildApp(lightDynamic: lightDynamic, darkDynamic: darkDynamic),
+    );
+  }
+
+  Widget _buildApp({ColorScheme? lightDynamic, ColorScheme? darkDynamic}) {
     return MaterialApp(
       navigatorKey: _navigatorKey,
       onGenerateTitle: (context) => context.l10n.hermes_agent,
@@ -453,8 +463,20 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
       supportedLocales: preferredSupportedLocales(),
       localeListResolutionCallback: resolvePreferredLocale,
       themeMode: HermesApp.getThemeMode(widget.connManager.prefs),
-      theme: hermesTheme(Brightness.light),
-      darkTheme: hermesTheme(Brightness.dark),
+      theme: hermesTheme(
+        Brightness.light,
+        colorScheme: hermesColorScheme(
+          Brightness.light,
+          dynamicScheme: lightDynamic,
+        ),
+      ),
+      darkTheme: hermesTheme(
+        Brightness.dark,
+        colorScheme: hermesColorScheme(
+          Brightness.dark,
+          dynamicScheme: darkDynamic,
+        ),
+      ),
       builder: (context, child) {
         final systemMediaQuery = MediaQuery.of(context);
         final preference = HermesApp.getTextSizePreference(

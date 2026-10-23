@@ -8,7 +8,38 @@ library;
 
 import 'dart:math' as math;
 
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+
+/// Seed colors for schemes that are not taken from the device wallpaper.
+abstract final class HermesSeeds {
+  /// Used when the device offers no dynamic palette (Android 11 and older,
+  /// some OEM builds) and the user has not picked a color.
+  static const Color fallback = Color(0xFF4285F4);
+
+  /// The upstream Hermes brand gold, offered as a user-selectable seed.
+  static const Color hermesGold = Color(0xFFD4AF37);
+}
+
+/// The app color scheme for [brightness].
+///
+/// An explicit [seed] wins. Otherwise the device's [dynamicScheme] is used
+/// (harmonized so its error role sits with the wallpaper primary), and
+/// without one a tonal-spot scheme is generated from [HermesSeeds.fallback].
+ColorScheme hermesColorScheme(
+  Brightness brightness, {
+  ColorScheme? dynamicScheme,
+  Color? seed,
+}) {
+  if (seed == null && dynamicScheme != null) {
+    return dynamicScheme.harmonized();
+  }
+  return ColorScheme.fromSeed(
+    seedColor: seed ?? HermesSeeds.fallback,
+    brightness: brightness,
+    dynamicSchemeVariant: DynamicSchemeVariant.tonalSpot,
+  );
+}
 
 /// The 4dp spacing grid shared by every Hermes surface.
 abstract final class HermesSpacing {
@@ -130,8 +161,9 @@ class HermesTypography {
 /// The Hermes design tokens, carried on [ThemeData.extensions].
 @immutable
 class HermesTokens extends ThemeExtension<HermesTokens> {
-  /// The Hermes brand accent, identical in both themes.
-  static const Color hermesGold = Color(0xFFD4AF37);
+  /// The upstream Hermes brand gold. Now one of the selectable seeds; the
+  /// accent follows the active color scheme's primary.
+  static const Color hermesGold = HermesSeeds.hermesGold;
 
   final Brightness brightness;
   final Color surface;
@@ -163,41 +195,53 @@ class HermesTokens extends ThemeExtension<HermesTokens> {
     required this.typography,
   });
 
-  factory HermesTokens.dark() {
+  /// Status hues before harmonization, chosen per brightness so they keep
+  /// AA contrast on that brightness's surfaces. Harmonizing rotates hue
+  /// toward the scheme primary but keeps tone, so contrast is preserved.
+  static const Map<Brightness, List<Color>> _statusBase = {
+    // success, warning, running, blocked
+    Brightness.dark: [
+      Color(0xFF4ADE80),
+      Color(0xFFFBBF24),
+      Color(0xFF60A5FA),
+      Color(0xFFF59E0B),
+    ],
+    Brightness.light: [
+      Color(0xFF15803D),
+      Color(0xFFB45309),
+      Color(0xFF1D4ED8),
+      Color(0xFF9A5B00),
+    ],
+  };
+
+  /// Tokens derived from [scheme]: every surface and text role comes from
+  /// the scheme, and status hues are harmonized to its primary.
+  factory HermesTokens.fromScheme(ColorScheme scheme) {
+    final brightness = scheme.brightness;
+    final base = _statusBase[brightness]!;
+    Color harmonize(Color color) => color.harmonizeWith(scheme.primary);
     return HermesTokens(
-      brightness: Brightness.dark,
-      surface: const Color(0xFF0E0E10),
-      raised: const Color(0xFF1A1A1D),
-      border: const Color(0xFF2A2A2F),
-      onSurface: const Color(0xFFF2F2F3),
-      muted: const Color(0xFFA3A3AA),
-      accent: hermesGold,
-      success: const Color(0xFF4ADE80),
-      warning: const Color(0xFFFBBF24),
-      danger: const Color(0xFFF87171),
-      running: const Color(0xFF60A5FA),
-      blocked: const Color(0xFFF59E0B),
-      typography: HermesTypography.ramp(Brightness.dark),
+      brightness: brightness,
+      surface: scheme.surface,
+      raised: scheme.surfaceContainer,
+      border: scheme.outlineVariant,
+      onSurface: scheme.onSurface,
+      muted: scheme.onSurfaceVariant,
+      accent: scheme.primary,
+      success: harmonize(base[0]),
+      warning: harmonize(base[1]),
+      danger: scheme.error,
+      running: harmonize(base[2]),
+      blocked: harmonize(base[3]),
+      typography: HermesTypography.ramp(brightness),
     );
   }
 
-  factory HermesTokens.light() {
-    return HermesTokens(
-      brightness: Brightness.light,
-      surface: const Color(0xFFFAFAFA),
-      raised: const Color(0xFFFFFFFF),
-      border: const Color(0xFFE2E2E5),
-      onSurface: const Color(0xFF17171A),
-      muted: const Color(0xFF5F5F68),
-      accent: hermesGold,
-      success: const Color(0xFF15803D),
-      warning: const Color(0xFFB45309),
-      danger: const Color(0xFFB91C1C),
-      running: const Color(0xFF1D4ED8),
-      blocked: const Color(0xFF9A5B00),
-      typography: HermesTypography.ramp(Brightness.light),
-    );
-  }
+  factory HermesTokens.dark() =>
+      HermesTokens.fromScheme(hermesColorScheme(Brightness.dark));
+
+  factory HermesTokens.light() =>
+      HermesTokens.fromScheme(hermesColorScheme(Brightness.light));
 
   static HermesTokens forBrightness(Brightness brightness) {
     return brightness == Brightness.dark
@@ -205,12 +249,13 @@ class HermesTokens extends ThemeExtension<HermesTokens> {
         : HermesTokens.light();
   }
 
-  /// The tokens for the closest theme, falling back to a matching set when a
-  /// widget is mounted under a plain [ThemeData] (tests, previews, plugins).
+  /// The tokens for the closest theme, falling back to a set derived from its
+  /// color scheme when a widget is mounted under a plain [ThemeData] (tests,
+  /// previews, plugins).
   static HermesTokens of(BuildContext context) {
     final theme = Theme.of(context);
     return theme.extension<HermesTokens>() ??
-        HermesTokens.forBrightness(theme.brightness);
+        HermesTokens.fromScheme(theme.colorScheme);
   }
 
   Color colorForStatus(HermesStatus status) {
@@ -283,18 +328,13 @@ class HermesTokens extends ThemeExtension<HermesTokens> {
 }
 
 /// Builds the Hermes [ThemeData] for one brightness, tokens attached.
-ThemeData hermesTheme(Brightness brightness) {
-  final tokens = HermesTokens.forBrightness(brightness);
-  final scheme =
-      ColorScheme.fromSeed(
-        seedColor: HermesTokens.hermesGold,
-        brightness: brightness,
-      ).copyWith(
-        surface: tokens.surface,
-        onSurface: tokens.onSurface,
-        error: tokens.danger,
-        outlineVariant: tokens.border,
-      );
+///
+/// [colorScheme] is normally from [hermesColorScheme]; without one the
+/// seeded fallback scheme is used. Its brightness must match [brightness].
+ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
+  final scheme = colorScheme ?? hermesColorScheme(brightness);
+  assert(scheme.brightness == brightness);
+  final tokens = HermesTokens.fromScheme(scheme);
 
   final base = ThemeData(
     colorScheme: scheme,
@@ -331,8 +371,8 @@ ThemeData hermesTheme(Brightness brightness) {
       thickness: 1,
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: tokens.accent,
-      foregroundColor: Colors.black,
+      backgroundColor: scheme.primaryContainer,
+      foregroundColor: scheme.onPrimaryContainer,
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: tokens.raised,

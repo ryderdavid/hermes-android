@@ -9,9 +9,9 @@
 
 ## 2. Color foundation
 
-- [ ] 2.1 Add `dynamic_color: ^2.1.0`; wrap `MaterialApp` in `DynamicColorBuilder` and change `hermesTheme` to take a `ColorScheme`; verify on an Android 12+ device that primary follows the wallpaper.
-- [ ] 2.2 Remove the hand-picked `surface`/`onSurface`/`error`/`outlineVariant` overrides; implement seeded fallback with `DynamicSchemeVariant.tonalSpot`; unit-test fallback when dynamic schemes are null.
-- [ ] 2.3 Re-map `HermesTokens` colors to `ColorScheme` roles and harmonized status hues (design D1); update `test/hermes_theme_test.dart` to assert role mapping and WCAG contrast for every preset seed.
+- [x] 2.1 Add `dynamic_color: ^1.9.0` (2.x needs `material_ui`, see D2); wrap `MaterialApp` in `DynamicColorBuilder` and change `hermesTheme` to take a `ColorScheme`; verify on an Android 12+ device that primary follows the wallpaper.
+- [x] 2.2 Remove the hand-picked `surface`/`onSurface`/`error`/`outlineVariant` overrides; implement seeded fallback with `DynamicSchemeVariant.tonalSpot`; unit-test fallback when dynamic schemes are null.
+- [x] 2.3 Re-map `HermesTokens` colors to `ColorScheme` roles and harmonized status hues (design D1); update `test/hermes_theme_test.dart` to assert role mapping and WCAG contrast for every preset seed.
 - [ ] 2.4 Add `AppearancePreferences` (colorSource, pureBlack, theme_mode compat) as a provider; replace the `findAncestorStateOfType` rebuild in `settings_screen.dart`; add keys to config backup; unit-test persistence and backup round-trip.
 - [ ] 2.5 Implement *Pure black* dark variant (background/surface `#000000`, containers tonal); golden-test dark vs dark+pureBlack.
 

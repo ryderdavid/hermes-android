@@ -76,9 +76,53 @@ void main() {
       expect(light.brightness, Brightness.light);
     });
 
-    test('both themes keep the Hermes gold accent identity', () {
-      expect(HermesTokens.dark().accent, HermesTokens.hermesGold);
-      expect(HermesTokens.light().accent, HermesTokens.hermesGold);
+    test('tokens map onto color scheme roles', () {
+      for (final brightness in Brightness.values) {
+        final scheme = hermesColorScheme(brightness);
+        final tokens = HermesTokens.fromScheme(scheme);
+
+        expect(tokens.brightness, brightness);
+        expect(tokens.surface, scheme.surface);
+        expect(tokens.raised, scheme.surfaceContainer);
+        expect(tokens.border, scheme.outlineVariant);
+        expect(tokens.onSurface, scheme.onSurface);
+        expect(tokens.muted, scheme.onSurfaceVariant);
+        expect(tokens.accent, scheme.primary);
+        expect(tokens.danger, scheme.error);
+      }
+    });
+
+    test('status colors stay readable and distinct for every seed', () {
+      const seeds = [
+        HermesSeeds.fallback,
+        HermesSeeds.hermesGold,
+        Color(0xFF4C662B), // green
+        Color(0xFF65558F), // purple
+        Color(0xFF8E4957), // pink
+      ];
+      for (final seed in seeds) {
+        for (final brightness in Brightness.values) {
+          final tokens = HermesTokens.fromScheme(
+            hermesColorScheme(brightness, seed: seed),
+          );
+          final statuses = {
+            'success': tokens.success,
+            'warning': tokens.warning,
+            'running': tokens.running,
+            'blocked': tokens.blocked,
+            'danger': tokens.danger,
+          };
+          statuses.forEach((name, color) {
+            expect(
+              contrastRatio(color, tokens.surface),
+              greaterThanOrEqualTo(3.0),
+              reason: '$name on $seed $brightness',
+            );
+          });
+          expect(tokens.success, isNot(tokens.danger));
+          expect(tokens.running, isNot(tokens.blocked));
+        }
+      }
     });
 
     test('status colors resolve from a semantic status enum', () {
@@ -98,7 +142,7 @@ void main() {
       final mid = dark.lerp(light, 0.5);
 
       expect(mid, isA<HermesTokens>());
-      expect(mid.accent, HermesTokens.hermesGold);
+      expect(mid.accent, Color.lerp(dark.accent, light.accent, 0.5));
       expect(mid.surface, isNot(dark.surface));
     });
 
@@ -148,16 +192,66 @@ void main() {
       expect(tokens.brightness, Brightness.light);
     });
 
-    testWidgets('falls back to matching tokens when none are attached', (
+    testWidgets('falls back to tokens from the plain theme scheme', (
       tester,
     ) async {
-      final tokens = await _pumpAndReadTokens(
-        tester,
-        ThemeData(brightness: Brightness.light, useMaterial3: true),
-      );
+      final plain = ThemeData(brightness: Brightness.light, useMaterial3: true);
+      final tokens = await _pumpAndReadTokens(tester, plain);
 
       expect(tokens.brightness, Brightness.light);
-      expect(tokens.accent, HermesTokens.hermesGold);
+      expect(tokens.accent, plain.colorScheme.primary);
+    });
+
+    test('uses the dynamic scheme when the device provides one', () {
+      final wallpaper = ColorScheme.fromSeed(
+        seedColor: const Color(0xFF006A60),
+        brightness: Brightness.dark,
+      );
+      final scheme = hermesColorScheme(
+        Brightness.dark,
+        dynamicScheme: wallpaper,
+      );
+      final theme = hermesTheme(Brightness.dark, colorScheme: scheme);
+
+      expect(theme.colorScheme.primary, wallpaper.primary);
+      expect(theme.colorScheme.surface, wallpaper.surface);
+      expect(_tokensFrom(theme)!.accent, wallpaper.primary);
+    });
+
+    test('falls back to the seeded scheme without a dynamic one', () {
+      for (final brightness in Brightness.values) {
+        final expected = ColorScheme.fromSeed(
+          seedColor: HermesSeeds.fallback,
+          brightness: brightness,
+        );
+        final scheme = hermesColorScheme(brightness);
+        expect(scheme.primary, expected.primary);
+        expect(hermesTheme(brightness).colorScheme.primary, expected.primary);
+      }
+    });
+
+    test('an explicit seed overrides the dynamic scheme', () {
+      final wallpaper = ColorScheme.fromSeed(seedColor: const Color(0xFF006A60));
+      final scheme = hermesColorScheme(
+        Brightness.light,
+        dynamicScheme: wallpaper,
+        seed: HermesSeeds.hermesGold,
+      );
+      final gold = ColorScheme.fromSeed(seedColor: HermesSeeds.hermesGold);
+      expect(scheme.primary, gold.primary);
+      expect(scheme.primary, isNot(wallpaper.primary));
+    });
+
+    test('the theme leaves scheme surfaces untouched', () {
+      for (final brightness in Brightness.values) {
+        final scheme = hermesColorScheme(brightness);
+        final theme = hermesTheme(brightness, colorScheme: scheme);
+        expect(theme.colorScheme.surface, scheme.surface);
+        expect(theme.colorScheme.onSurface, scheme.onSurface);
+        expect(theme.colorScheme.error, scheme.error);
+        expect(theme.colorScheme.outlineVariant, scheme.outlineVariant);
+        expect(theme.scaffoldBackgroundColor, scheme.surface);
+      }
     });
 
     test('uses Material 3 and keeps the accent in the color scheme', () {
