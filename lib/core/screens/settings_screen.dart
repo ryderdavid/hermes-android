@@ -192,36 +192,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    context.l10n.failed_to_load_settings,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _error!,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _loadData,
-                    child: Text(context.l10n.retry),
-                  ),
-                ],
-              ),
-            ),
+          ErrorState(
+            title: context.l10n.failed_to_load_settings,
+            message: _error!,
+            onRetry: _loadData,
           ),
           const SizedBox(height: 16),
           _buildSectionHeader(context.l10n.appearance),

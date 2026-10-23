@@ -7,6 +7,7 @@
 //
 // API: GET /api/config returns the full config including memory.
 import 'package:flutter/material.dart';
+import '../widgets/hermes_components.dart';
 import '../services/connection_manager.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
@@ -140,29 +141,11 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
     if (_error != null) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.error),
-              const SizedBox(height: 16),
-              Text(
-                context.l10n.failed_to_load_memory,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _error!,
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _loadMemory,
-                child: Text(context.l10n.retry),
-              ),
-            ],
+        child: SingleChildScrollView(
+          child: ErrorState(
+            title: context.l10n.failed_to_load_memory,
+            message: _error!,
+            onRetry: _loadMemory,
           ),
         ),
       );

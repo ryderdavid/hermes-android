@@ -213,12 +213,12 @@ class EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 40, color: tokens.muted),
+          Icon(icon, size: 48, color: tokens.muted),
           const SizedBox(height: HermesSpacing.lg),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: tokens.typography.section.copyWith(color: tokens.onSurface),
+            style: tokens.typography.display.copyWith(color: tokens.onSurface),
           ),
           const SizedBox(height: HermesSpacing.sm),
           Text(
@@ -272,14 +272,14 @@ class ErrorState extends StatelessWidget {
         children: [
           Icon(
             _informational ? Icons.info_outline : Icons.error_outline_rounded,
-            size: 40,
+            size: 48,
             color: color,
           ),
           const SizedBox(height: HermesSpacing.lg),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: tokens.typography.section.copyWith(color: tokens.onSurface),
+            style: tokens.typography.display.copyWith(color: tokens.onSurface),
           ),
           const SizedBox(height: HermesSpacing.sm),
           Text(
@@ -289,7 +289,11 @@ class ErrorState extends StatelessWidget {
           ),
           if (onRetry != null) ...[
             const SizedBox(height: HermesSpacing.xl),
-            FilledButton.tonal(onPressed: onRetry, child: Text(context.l10n.retry)),
+            FilledButton.tonalIcon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: Text(context.l10n.retry),
+            ),
           ],
         ],
       ),

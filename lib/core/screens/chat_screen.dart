@@ -6,6 +6,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import '../theme/hermes_theme.dart';
+import '../widgets/hermes_components.dart';
 import '../widgets/session_name_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -5028,33 +5029,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     if (_error != null && _messages.isEmpty) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.warning_amber,
-                size: 48,
-                color: HermesTokens.of(context).warning,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                context.l10n.failed_to_load_messages,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _error!,
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _fetchMessages,
-                child: Text(context.l10n.retry),
-              ),
-            ],
+        child: SingleChildScrollView(
+          child: ErrorState(
+            title: context.l10n.failed_to_load_messages,
+            message: _error!,
+            onRetry: _fetchMessages,
           ),
         ),
       );

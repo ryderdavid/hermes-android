@@ -33,8 +33,8 @@
 
 ## 5. Shared states and Settings
 
-- [ ] 5.1 Restyle `ErrorState`/`EmptyState` (icon in `error`/`onSurfaceVariant`, `headlineSmall` title, `FilledButton.tonal` Retry at 40 dp); golden-test both.
-- [ ] 5.2 Replace bespoke error UIs with `ErrorState` in settings (:187-222), chat (:5023-5050), session list (~:1250), memory, cron, skills; verify each screen's failure path in widget tests.
+- [x] 5.1 Restyle `ErrorState`/`EmptyState` (icon in `error`/`onSurfaceVariant`, `headlineSmall` title, `FilledButton.tonal` Retry at 40 dp); golden-test both.
+- [x] 5.2 Replace bespoke error UIs with `ErrorState` in settings (:187-222), chat (:5023-5050), session list (~:1250), memory, cron, skills; verify each screen's failure path in widget tests.
 - [ ] 5.3 Build `SettingsGroup` and convert Settings to Pixel-style grouped lists; golden-test the full Settings screen in light/dark.
 - [ ] 5.4 Add Appearance → *Color* picker (wallpaper swatch + presets + Hermes gold) and *Pure black* switch; *System* disabled below API 31; widget-test selection applies immediately and persists.
 

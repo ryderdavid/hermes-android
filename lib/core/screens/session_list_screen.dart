@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../theme/hermes_theme.dart';
+import '../widgets/hermes_components.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/session_search_hit.dart';
@@ -1253,7 +1254,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 24),
-            ElevatedButton(
+            FilledButton.tonal(
               onPressed: _checkHealth,
               child: Text(context.l10n.retry),
             ),
@@ -1266,34 +1267,12 @@ class _SessionListScreenState extends State<SessionListScreen> {
 
     if (_error != null) {
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              context.l10n.connection_issue,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _fetchSessions,
-              child: Text(context.l10n.retry),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: ErrorState(
+            title: context.l10n.connection_issue,
+            message: _error!,
+            onRetry: _fetchSessions,
+          ),
         ),
       );
     }
