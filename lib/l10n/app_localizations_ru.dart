@@ -2542,4 +2542,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String
   get compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins =>
       'Компактный режим убирает подписи You и Hermes и уменьшает внутренние отступы, промежутки и боковые поля пузырей.';
+
+  @override
+  String get material_you_fork_build => 'Форк Material You';
+
+  @override
+  String get fork_repository_on_github => 'Форк на GitHub';
+
+  @override
+  String get upstream_project => 'Исходный проект';
 }

@@ -2474,4 +2474,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String
   get compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins =>
       '컴팩트는 You 및 Hermes 라벨을 없애고 말풍선 여백, 간격, 좌우 여백을 줄입니다.';
+
+  @override
+  String get material_you_fork_build => 'Material You 포크';
+
+  @override
+  String get fork_repository_on_github => 'GitHub의 포크';
+
+  @override
+  String get upstream_project => '업스트림 프로젝트';
 }

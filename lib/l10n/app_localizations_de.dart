@@ -2544,4 +2544,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String
   get compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins =>
       'Kompakt entfernt die Beschriftungen „You“ und „Hermes“ und verringert Blasenabstand, Abstände und Seitenränder.';
+
+  @override
+  String get material_you_fork_build => 'Material-You-Fork';
+
+  @override
+  String get fork_repository_on_github => 'Fork auf GitHub';
+
+  @override
+  String get upstream_project => 'Upstream-Projekt';
 }

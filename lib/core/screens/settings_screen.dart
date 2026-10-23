@@ -15,6 +15,7 @@ import '../widgets/chat_density_settings_card.dart';
 import '../widgets/text_size_settings_card.dart';
 import '../../main.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/app_update_service.dart';
 import '../widgets/update_available_dialog.dart';
 
@@ -623,6 +624,7 @@ class _AboutCardState extends State<_AboutCard> {
               context.l10n.hermes_agent_for_android,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
+            Text(context.l10n.material_you_fork_build),
             const SizedBox(height: 4),
             Text(
               context.l10n.version_label(_version.isNotEmpty ? _version : '…'),
@@ -654,9 +656,46 @@ class _AboutCardState extends State<_AboutCard> {
               value: _checkOnLaunch,
               onChanged: _setCheckOnLaunch,
             ),
+            const Divider(height: 24),
+            _RepositoryLink(
+              icon: Icons.palette_outlined,
+              title: context.l10n.fork_repository_on_github,
+              url: AppUpdateService.forkRepositoryUrl,
+            ),
+            _RepositoryLink(
+              icon: Icons.call_split,
+              title: context.l10n.upstream_project,
+              url: AppUpdateService.upstreamRepositoryUrl,
+            ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// A repository row in the About card; opens [url] in the browser.
+class _RepositoryLink extends StatelessWidget {
+  const _RepositoryLink({
+    required this.icon,
+    required this.title,
+    required this.url,
+  });
+
+  final IconData icon;
+  final String title;
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(icon),
+      title: Text(title),
+      subtitle: Text(url.replaceFirst('https://', '')),
+      trailing: const Icon(Icons.open_in_new),
+      onTap: () =>
+          launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
     );
   }
 }

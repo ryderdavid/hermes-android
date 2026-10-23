@@ -2453,6 +2453,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String
   get compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins =>
       '紧凑模式会去掉 You 和 Hermes 标签，并缩小气泡内边距、间距和两侧边距。';
+
+  @override
+  String get material_you_fork_build => 'Material You 分支版';
+
+  @override
+  String get fork_repository_on_github => 'GitHub 上的分支';
+
+  @override
+  String get upstream_project => '上游项目';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4898,4 +4907,13 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String
   get compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins =>
       '紧凑模式会去掉 You 和 Hermes 标签，并缩小气泡内边距、间距和两侧边距。';
+
+  @override
+  String get material_you_fork_build => 'Material You 分支版';
+
+  @override
+  String get fork_repository_on_github => 'GitHub 上的分支';
+
+  @override
+  String get upstream_project => '上游项目';
 }

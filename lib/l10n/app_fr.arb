@@ -689,5 +689,8 @@
   "chat_density_comfortable_description": "Bulles plus spacieuses avec une étiquette d’expéditeur au-dessus de chaque message.",
   "chat_density_compact_description": "Bulles plus serrées et sans étiquette pour afficher plus de messages à l’écran.",
   "chat_density_label_description": "{label} — {description}",
-  "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "Le mode compacte supprime les étiquettes « You » et « Hermes » et réduit les marges internes, l’espacement et les marges latérales des bulles."
+  "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "Le mode compacte supprime les étiquettes « You » et « Hermes » et réduit les marges internes, l’espacement et les marges latérales des bulles.",
+  "material_you_fork_build": "Fork Material You",
+  "fork_repository_on_github": "Fork sur GitHub",
+  "upstream_project": "Projet d’origine"
 }

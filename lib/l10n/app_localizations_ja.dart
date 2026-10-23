@@ -2473,4 +2473,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String
   get compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins =>
       'コンパクトでは「You」「Hermes」のラベルを外し、吹き出しの余白・間隔・左右のマージンを詰めます。';
+
+  @override
+  String get material_you_fork_build => 'Material You フォーク';
+
+  @override
+  String get fork_repository_on_github => 'GitHub のフォーク';
+
+  @override
+  String get upstream_project => 'アップストリームのプロジェクト';
 }

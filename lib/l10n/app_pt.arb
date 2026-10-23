@@ -689,5 +689,8 @@
   "chat_density_comfortable_description": "Balões mais amplos com um rótulo de remetente acima de cada mensagem.",
   "chat_density_compact_description": "Balões mais justos e sem rótulo para caberem mais mensagens no ecrã.",
   "chat_density_label_description": "{label} — {description}",
-  "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "O modo compacto remove os rótulos You e Hermes e reduz as margens internas, o espaçamento e as margens laterais dos balões."
+  "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "O modo compacto remove os rótulos You e Hermes e reduz as margens internas, o espaçamento e as margens laterais dos balões.",
+  "material_you_fork_build": "Fork Material You",
+  "fork_repository_on_github": "Fork no GitHub",
+  "upstream_project": "Projeto original"
 }

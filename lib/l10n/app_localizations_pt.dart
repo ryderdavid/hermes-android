@@ -2538,6 +2538,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String
   get compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins =>
       'O modo compacto remove os rótulos You e Hermes e reduz as margens internas, o espaçamento e as margens laterais dos balões.';
+
+  @override
+  String get material_you_fork_build => 'Fork Material You';
+
+  @override
+  String get fork_repository_on_github => 'Fork no GitHub';
+
+  @override
+  String get upstream_project => 'Projeto original';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -5069,4 +5078,13 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String
   get compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins =>
       'O modo compacto remove os rótulos You e Hermes e reduz as margens internas, o espaçamento e as margens laterais dos balões.';
+
+  @override
+  String get material_you_fork_build => 'Fork Material You';
+
+  @override
+  String get fork_repository_on_github => 'Fork no GitHub';
+
+  @override
+  String get upstream_project => 'Projeto original';
 }

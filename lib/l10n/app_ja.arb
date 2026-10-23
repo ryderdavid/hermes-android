@@ -689,5 +689,8 @@
   "chat_density_comfortable_description": "各メッセージの上に送信者ラベルが付いた、ゆったりとした吹き出し。",
   "chat_density_compact_description": "ラベルなしの詰まった吹き出しで、より多くのメッセージを表示します。",
   "chat_density_label_description": "{label} — {description}",
-  "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "コンパクトでは「You」「Hermes」のラベルを外し、吹き出しの余白・間隔・左右のマージンを詰めます。"
+  "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "コンパクトでは「You」「Hermes」のラベルを外し、吹き出しの余白・間隔・左右のマージンを詰めます。",
+  "material_you_fork_build": "Material You フォーク",
+  "fork_repository_on_github": "GitHub のフォーク",
+  "upstream_project": "アップストリームのプロジェクト"
 }

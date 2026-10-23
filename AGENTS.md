@@ -23,6 +23,13 @@ bd close <id>         # Complete work
 bd dolt push          # Push beads data to remote
 ```
 
+## Build, Test & Architecture
+
+See the **Build & Test**, **Architecture Overview** and **Conventions &
+Patterns** sections of `CLAUDE.md`; they apply to every agent. In short:
+Flutter 3.44.0, `flutter pub get && flutter analyze && flutter test`, format
+only the files you touch, and keep colors in `lib/core/theme/`.
+
 ## Non-Interactive Shell Commands
 
 **ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.

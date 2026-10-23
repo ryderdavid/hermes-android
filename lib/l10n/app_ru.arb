@@ -689,5 +689,8 @@
   "chat_density_comfortable_description": "Более просторные пузыри с подписью отправителя над каждым сообщением.",
   "chat_density_compact_description": "Более плотные пузыри без подписи — на экран помещается больше сообщений.",
   "chat_density_label_description": "{label} — {description}",
-  "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "Компактный режим убирает подписи You и Hermes и уменьшает внутренние отступы, промежутки и боковые поля пузырей."
+  "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "Компактный режим убирает подписи You и Hermes и уменьшает внутренние отступы, промежутки и боковые поля пузырей.",
+  "material_you_fork_build": "Форк Material You",
+  "fork_repository_on_github": "Форк на GitHub",
+  "upstream_project": "Исходный проект"
 }

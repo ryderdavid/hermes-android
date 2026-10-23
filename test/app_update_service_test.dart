@@ -80,7 +80,7 @@ void main() {
       final client = MockClient((request) async {
         expect(
           request.url.path,
-          '/repos/rusty4444/hermes-android/releases/latest',
+          '/repos/ryderdavid/hermes-android/releases/latest',
         );
         expect(request.headers['Accept'], 'application/vnd.github+json');
         return http.Response(releaseJson(), 200, headers: {'etag': 'W/"abc"'});

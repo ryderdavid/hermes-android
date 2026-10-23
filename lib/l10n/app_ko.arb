@@ -689,5 +689,8 @@
   "chat_density_comfortable_description": "각 메시지 위에 발신자 라벨이 있는 넉넉한 말풍선.",
   "chat_density_compact_description": "라벨이 없는 촘촘한 말풍선으로 더 많은 메시지를 볼 수 있습니다.",
   "chat_density_label_description": "{label} — {description}",
-  "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "컴팩트는 You 및 Hermes 라벨을 없애고 말풍선 여백, 간격, 좌우 여백을 줄입니다."
+  "compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins": "컴팩트는 You 및 Hermes 라벨을 없애고 말풍선 여백, 간격, 좌우 여백을 줄입니다.",
+  "material_you_fork_build": "Material You 포크",
+  "fork_repository_on_github": "GitHub의 포크",
+  "upstream_project": "업스트림 프로젝트"
 }

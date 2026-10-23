@@ -156,9 +156,18 @@ class AppUpdateService {
     _preferences = preferences;
   }
 
-  /// The upstream project whose releases the app follows.
+  /// The Material You fork's repository, whose releases this build follows.
+  static const forkRepository = 'ryderdavid/hermes-android';
+
+  /// The upstream project the fork tracks. Never polled for updates: its
+  /// APKs use a different application id and would not upgrade this install.
+  static const upstreamRepository = 'rusty4444/hermes-android';
+
+  static const forkRepositoryUrl = 'https://github.com/$forkRepository';
+  static const upstreamRepositoryUrl = 'https://github.com/$upstreamRepository';
+
   static const releasesApiUrl =
-      'https://api.github.com/repos/rusty4444/hermes-android/releases/latest';
+      'https://api.github.com/repos/$forkRepository/releases/latest';
 
   /// How long a check counts for. GitHub answers unauthenticated callers on a
   /// per-IP budget, and a launch several times an hour must not spend it.

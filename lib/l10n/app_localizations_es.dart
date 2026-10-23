@@ -2538,4 +2538,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String
   get compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins =>
       'Compacta quita las etiquetas «You» y «Hermes» y reduce el relleno, el espaciado y los márgenes laterales de las burbujas.';
+
+  @override
+  String get material_you_fork_build => 'Fork Material You';
+
+  @override
+  String get fork_repository_on_github => 'Fork en GitHub';
+
+  @override
+  String get upstream_project => 'Proyecto original';
 }

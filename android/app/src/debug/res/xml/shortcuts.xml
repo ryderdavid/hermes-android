@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="new_quick_chat"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_quick_chat_short"
+        android:shortcutLongLabel="@string/shortcut_quick_chat_long">
+        <!-- Pinned to this package: upstream declares the same action, and with
+             both apps installed an untargeted intent could open either. This is
+             the debug copy, for the .dev application id. -->
+        <intent
+            android:action="com.hermesagent.hermes_android.action.QUICK_CHAT"
+            android:targetPackage="com.ryderdavid.hermes_you.dev"
+            android:targetClass="com.hermesagent.hermes_android.MainActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>

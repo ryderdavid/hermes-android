@@ -4287,6 +4287,24 @@ abstract class AppLocalizations {
   /// **'Compact removes the You and Hermes labels and trims bubble padding, spacing, and side margins.'**
   String
   get compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins;
+
+  /// No description provided for @material_you_fork_build.
+  ///
+  /// In en, this message translates to:
+  /// **'Material You fork'**
+  String get material_you_fork_build;
+
+  /// No description provided for @fork_repository_on_github.
+  ///
+  /// In en, this message translates to:
+  /// **'Fork on GitHub'**
+  String get fork_repository_on_github;
+
+  /// No description provided for @upstream_project.
+  ///
+  /// In en, this message translates to:
+  /// **'Upstream project'**
+  String get upstream_project;
 }
 
 class _AppLocalizationsDelegate

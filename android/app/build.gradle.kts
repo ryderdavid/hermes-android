@@ -29,12 +29,14 @@ android {
            "versionCode ${flutter.versionCode} must be greater than " +
                "$minimumInstalledVersionCode to upgrade the accepted Hermes APK"
        }
-       applicationId = "com.hermesagent.hermes_android"
+       // Material You fork: a distinct id so it installs beside upstream.
+       // The Kotlin namespace stays upstream's to keep rebases cheap.
+       applicationId = "com.ryderdavid.hermes_you"
        minSdk = 24
        targetSdk = 36
        versionCode = flutter.versionCode
        versionName = flutter.versionName
-       manifestPlaceholders["appLabel"] = "Hermes Agent"
+       manifestPlaceholders["appLabel"] = "Hermes"
    }
 
    signingConfigs {
@@ -55,7 +57,7 @@ android {
            // verifies the packaged arm64 code against that scheme.
            applicationIdSuffix = ".dev"
            versionNameSuffix = "-dev"
-           manifestPlaceholders["appLabel"] = "Hermes Agent Dev"
+           manifestPlaceholders["appLabel"] = "Hermes Dev"
        }
        release {
            // CI/local analysis may build a release artifact without access to

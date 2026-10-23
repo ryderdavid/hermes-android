@@ -60,18 +60,57 @@ This protocol applies when ending a Beads implementation workflow. It is subordi
 
 ## Build & Test
 
-_Add your build and test commands here_
+Flutter **3.44.0** (the version upstream CI pins). Run from the repo root:
 
 ```bash
-# Example:
-# npm install
-# npm test
+flutter pub get
+flutter analyze                         # must report "No issues found!"
+flutter test                            # full suite, ~1 min
+flutter test test/goldens               # golden images only
+flutter test --update-goldens test/goldens   # regenerate after an intended visual change
+flutter gen-l10n                        # after editing lib/l10n/app_*.arb
+flutter build apk --debug               # installs as com.ryderdavid.hermes_you.dev
+tools/check_no_hardcoded_colors.sh      # no Color(0x…)/Colors.* outside the theme module
+scripts/sync-upstream.sh                # rebase onto rusty4444/hermes-android, then analyze + test
 ```
+
+- Run `dart format` on the files you touched only. Upstream is not formatted
+  with the current formatter, and a tree-wide format makes rebases conflict.
+- User-visible strings go in all `lib/l10n/app_*.arb` catalogues (en, de, es,
+  fr, ja, ko, pt, pt_BR, ru, zh, zh_Hans), then `flutter gen-l10n`; the
+  generated `app_localizations*.dart` files are committed.
 
 ## Architecture Overview
 
-_Add a brief overview of your project architecture_
+Flutter client for a Hermes Agent gateway (chat over WebSocket, dashboard REST
+on :9119). This repository is a **fork** of `rusty4444/hermes-android` that
+re-skins it as a Material You app; see `docs/FORK.md` and
+`openspec/changes/material-you-redesign/`.
+
+- `lib/main.dart` — app root (`HermesApp`), `DynamicColorBuilder` +
+  `appearanceSelection` drive the theme; `HomeScreen` and the shell.
+- `lib/core/theme/hermes_theme.dart` — the only place colors are decided:
+  `hermesColorScheme` (wallpaper, seed or fallback; pure black),
+  `HermesTokens` (tokens derived from the scheme) and `hermesTheme`
+  (component themes).
+- `lib/core/services/` — connections, gateway turn coordination, preferences
+  (`appearance_preferences.dart`, `text_size_preference.dart`, …), backup,
+  update checks (fork releases).
+- `lib/core/screens/` — full screens (chat, settings, cron, sessions, …);
+  `lib/core/widgets/` — shared widgets (`hermes_components.dart`,
+  `settings_group.dart`, `chat_composer.dart`, shell).
+- `android/` — Kotlin `MainActivity` (share/launch/keep-alive channels),
+  manifest, launcher icon and splash resources.
+- `test/` — unit and widget tests; `test/goldens/` holds the golden matrix
+  with its own `flutter_test_config.dart` (real fonts, small tolerance).
 
 ## Conventions & Patterns
 
-_Add your project-specific conventions here_
+- Colors come from `Theme.of(context).colorScheme` or `HermesTokens.of(context)`;
+  never hardcode `Color(0x…)` or `Colors.*` outside `lib/core/theme/`.
+- Set component styling once in `hermesTheme`; delete per-call-site styling
+  rather than rewriting it, to keep upstream rebases cheap.
+- Track work in beads (`bd`) and tick the matching task in
+  `openspec/changes/material-you-redesign/tasks.md`
+  (`.beads/openspec-map.json` maps task numbers to bead ids). Label checks that
+  need a phone `needs-device-check`.

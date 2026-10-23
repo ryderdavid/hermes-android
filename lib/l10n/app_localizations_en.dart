@@ -2520,4 +2520,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String
   get compact_removes_the_you_and_hermes_labels_and_trims_bubble_padding_spacing_and_side_margins =>
       'Compact removes the You and Hermes labels and trims bubble padding, spacing, and side margins.';
+
+  @override
+  String get material_you_fork_build => 'Material You fork';
+
+  @override
+  String get fork_repository_on_github => 'Fork on GitHub';
+
+  @override
+  String get upstream_project => 'Upstream project';
 }
