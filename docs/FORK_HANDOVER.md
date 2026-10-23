@@ -4,53 +4,51 @@ Branch `feat/material-you` on https://github.com/ryderdavid/hermes-android.
 Upstream: https://github.com/rusty4444/hermes-android (base `63670ab`, v2.1.30+2173).
 Design target: https://claude.ai/artifact/LTFtuBnyjddRXc3XbgmJpB
 
-## Status (2026-10-22)
+## Status (2026-10-23): complete
 
-- **Plan:** OpenSpec change `openspec/changes/material-you-redesign/`, 35 tasks in 8 groups. Beads prefix `hmy`, 8 epics, 35 tasks and 3 follow-ups.
-- **Done (3/35): tasks 2.1–2.3, the color foundation.**
-  - `lib/core/theme/hermes_theme.dart`:
-    - `HermesSeeds` holds the seed colors (fallback blue `#4285F4`, Hermes gold `#D4AF37`).
-    - `hermesColorScheme(brightness, {dynamicScheme, seed})` picks the scheme.
-    - `HermesTokens.fromScheme()` maps the tokens onto scheme roles.
-    - `hermesTheme(brightness, {colorScheme})` builds the theme.
-  - `lib/main.dart`: `MaterialApp` is wrapped in `DynamicColorBuilder`.
-  - `test/hermes_theme_test.dart`: role mapping, fallback, dynamic, seed override, and status-contrast tests.
-- **`dynamic_color` is pinned to ^1.9.0, not 2.x.** 2.x depends on the standalone `material_ui` package, whose `ColorScheme` type is incompatible with `package:flutter/material.dart`. See design D2 and D9.
-- **Device check pending:** confirm the app follows the wallpaper on Android 12+. Bead `hmy-apu.1` is labelled `needs-device-check`.
-- **Verified:** on Flutter **3.44.0**, the version upstream CI uses, `flutter analyze` is clean and all 1,493 tests pass.
+- **All 35 tasks are done.** The OpenSpec change is archived at
+  `openspec/changes/archive/2026-10-23-material-you-redesign/`, and its specs
+  now live in `openspec/specs/` (`app-theming`, `chat-composer`,
+  `fork-distribution`). All 8 epics and 35 task beads (`hmy-*`) are closed.
+- **Released:** [v2.1.30-you.1](https://github.com/ryderdavid/hermes-android/releases/tag/v2.1.30-you.1),
+  with split APKs signed with the fork's own key. Notes and the completed
+  release checklist are in `docs/releases/v2.1.30-you.1.md`.
+- **Verified:** Flutter 3.44.0. `flutter analyze` is clean; `flutter test`
+  passes (unit, widget, 125 goldens, accessibility guidelines);
+  `tools/check_no_hardcoded_colors.sh` passes. The release APK was
+  smoke-tested on a Fire HD 10 (Android 9) against `tools/fake_gateway`.
 
-## Restore on the Mac
+## What still needs a person
+
+- **Device checks (beads labelled `needs-device-check`).**
+  - On an Android 12+ phone: the app follows the wallpaper (`hmy-apu.1`).
+  - On an Android 13+ Pixel: themed launcher icon (`hmy-dxa.1`) and the
+    splash in dynamic colors (`hmy-dxa.2`).
+  - With gesture navigation: edge-to-edge (`hmy-dxa.3`).
+  - On Android 14+: predictive back previews (`hmy-dxa.4`).
+  Only Android 9 was available here.
+- **Real-gateway smoke test.** The on-device run used the synthetic gateway.
+  Memory and Skills were not opened on device.
+- **Back up the signing key.** `~/.android/hermes-you-release.jks`; the
+  password is in the repo-root `key.properties` (gitignored). Every future
+  release must use this key, or installs cannot update.
+
+## Follow-ups (open beads, P3)
+
+- `hmy-xfw` Migrate to the standalone `material_ui` package (then
+  `dynamic_color` 2.x).
+- `hmy-kr1` Adopt Material 3 Expressive shapes and motion.
+- `hmy-4fo` Propose the theming layer upstream as an opt-in.
+
+## Working on the fork
 
 ```bash
 git clone -b feat/material-you https://github.com/ryderdavid/hermes-android
 cd hermes-android
-git remote add upstream https://github.com/rusty4444/hermes-android.git
-npm i -g @fission-ai/openspec@latest @beads/bd   # if needed
-bd bootstrap          # rebuilds the local Dolt DB from .beads/issues.jsonl
-bd dolt push          # first publish of beads to refs/dolt/data on the fork
+bd bootstrap                     # beads are published to refs/dolt/data
 flutter pub get && flutter analyze && flutter test
-bd ready
+scripts/sync-upstream.sh         # rebase onto upstream, then analyze + test
 ```
 
-## Next up (`bd ready`)
-
-- `hmy-apu.4` [2.4] AppearancePreferences: colorSource, pureBlack, theme_mode compat. Then 2.5, pure black.
-- `hmy-fbq.1` [6.1] Extract `_buildInputBar` (`chat_screen.dart:4697-5016`) into `lib/core/widgets/chat_composer.dart` with no visual change.
-- `hmy-7nx.*` [1.x] Fork identity:
-  - applicationId `com.ryderdavid.hermes_you`
-  - update check at `lib/core/services/app_update_service.dart:161`
-  - `scripts/sync-upstream.sh`
-  - CLAUDE.md Build & Test section
-
-## Conventions for the rest of the work
-
-- **Track progress in both places.** Tick `openspec/changes/material-you-redesign/tasks.md` and close the matching bead. `.beads/openspec-map.json` maps task numbers to bead IDs.
-- **Label device-only checks.** If a task's verification needs a phone, close the bead with the label `needs-device-check`.
-- **Keep diffs minimal so upstream rebases stay cheap.** Prefer theme-level defaults, and delete per-call-site styling rather than rewriting it.
-- **Expect remaining gold until group 4.** Chat bubbles (`chat_screen.dart:66`, `:5555`), settings error panels and several screens still have hardcoded colors. Group 4 removes them.
-- **The tests to update when the colors change** are `test/widget_test.dart:11-19` (gold bubble) and `test/hermes_components_test.dart:64,139`.
-- **"Session token not found" on the phone's Settings screen is not a UI bug.** It comes from `DashboardClient._fetchToken()` in `connection_manager.dart:1483` — the dashboard on :9119 didn't return its token. Check how the dashboard is started (host, port, auth).
-
-## Suggested first prompt
-
-> Read docs/FORK_HANDOVER.md and openspec/changes/material-you-redesign/. Run `bd ready`, then keep applying the change with the openspec-apply-change skill until all tasks are done: claim each bead, implement, run `flutter analyze` and the relevant tests, tick tasks.md, close the bead, and commit and push per task group.
+Read `CLAUDE.md` (build, architecture, conventions) and `docs/FORK.md`
+(identity, syncing, releasing, accessibility audit) before changing anything.
