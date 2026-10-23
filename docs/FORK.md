@@ -52,11 +52,20 @@ flutter test --update-goldens test/goldens   # only after checking the diff is i
 ## Releasing
 
 1. Bump `version:` in `pubspec.yaml` to `<upstream version>-you.<n>+<code>`
-   (the version code stays upstream's base; CI checks it).
-2. `flutter build apk --release --split-per-abi`.
-3. Tag `v<version>` and publish a GitHub release on this fork with the APKs.
-   The update check compares `-you.<n>` suffixes, so `2.1.30-you.2` is offered
-   to a `2.1.30-you.1` install.
+   (the version code stays upstream's base; CI checks it) and the matching
+   expectation in `test/release_identity_test.dart`. After a rebase these two
+   lines conflict whenever upstream bumps its version: take upstream's
+   version and re-append `-you.1`.
+2. `flutter build apk --release --split-per-abi`. Gradle signs with the key
+   named in the repo-root `key.properties` (gitignored). The fork's key is
+   `~/.android/hermes-you-release.jks`, alias `hermes_you`; **back up the
+   keystore and its password** (they are in `key.properties`): every later
+   release must use the same key or installs cannot update.
+3. Write notes in `docs/releases/v<version>.md` (upstream's `CHANGELOG.md`
+   is left alone so rebases stay clean), tag `v<version>` and publish a GitHub
+   release on this fork with the APKs. Upstream's `release.yml` only runs in
+   `rusty4444/hermes-android`. The update check compares `-you.<n>`
+   suffixes, so `2.1.30-you.2` is offered to a `2.1.30-you.1` install.
 
 ## Accessibility audit
 

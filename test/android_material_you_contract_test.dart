@@ -102,5 +102,11 @@ void main() {
       );
     }
     expect(_read('lib/main.dart'), contains('SystemUiMode.edgeToEdge'));
+    // Below Android 10 the app is not drawn behind the bar: paint it.
+    final scheme = hermesColorScheme(Brightness.dark);
+    expect(
+      hermesSystemUiStyle(scheme, edgeToEdge: false).systemNavigationBarColor,
+      scheme.surface,
+    );
   });
 }

@@ -12,6 +12,9 @@ permissions:
 jobs:
   build:
     name: Build and verify APK
+    # Upstream's signed release pipeline. The Material You fork has no access
+    # to its keystore and releases by hand (docs/FORK.md), so skip it there.
+    if: github.repository == 'rusty4444/hermes-android'
     runs-on: ubuntu-latest
     env:
       HAS_RELEASE_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 != '' }}

@@ -357,14 +357,21 @@ class HermesTokens extends ThemeExtension<HermesTokens> {
 
 /// Transparent status and navigation bars whose icons contrast with
 /// [scheme]'s surface, for drawing edge-to-edge.
-SystemUiOverlayStyle hermesSystemUiStyle(ColorScheme scheme) {
+///
+/// Edge-to-edge needs Android 10+. Where the app does not draw behind the
+/// navigation bar ([edgeToEdge] false), a transparent bar would show the
+/// native window background, so it takes the theme surface instead.
+SystemUiOverlayStyle hermesSystemUiStyle(
+  ColorScheme scheme, {
+  bool edgeToEdge = true,
+}) {
   final dark = scheme.brightness == Brightness.dark;
   final icons = dark ? Brightness.light : Brightness.dark;
   return SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: icons,
     statusBarBrightness: scheme.brightness,
-    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarColor: edgeToEdge ? Colors.transparent : scheme.surface,
     systemNavigationBarDividerColor: Colors.transparent,
     systemNavigationBarIconBrightness: icons,
     systemNavigationBarContrastEnforced: false,

@@ -490,7 +490,11 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
           widget.connManager.prefs,
         );
         return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: hermesSystemUiStyle(Theme.of(context).colorScheme),
+          // A bottom inset means Flutter draws behind the navigation bar.
+          value: hermesSystemUiStyle(
+            Theme.of(context).colorScheme,
+            edgeToEdge: systemMediaQuery.viewPadding.bottom > 0,
+          ),
           child: MediaQuery(
             data: systemMediaQuery.copyWith(
               textScaler: preference.applyTo(systemMediaQuery.textScaler),
@@ -716,9 +720,12 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_autoNavigated && _connections.isNotEmpty) {
+    // Auto-open the last workspace only at launch. Later dependency changes
+    // (theme, color, locale, text size) must not push a second Workspace
+    // after the user has added a connection and navigated themselves.
+    if (!_autoNavigated) {
       _autoNavigated = true;
-      _maybeAutoNavigate();
+      if (_connections.isNotEmpty) _maybeAutoNavigate();
     }
   }
 
