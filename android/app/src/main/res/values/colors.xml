@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#121216</color>
+    <!-- Launch splash before Flutter's first frame. Below Android 12 these
+         match the seeded fallback scheme's surface and primary; values-v31
+         switches to the wallpaper palette. -->
+    <color name="splash_background">#F9F9FF</color>
+    <color name="splash_glyph">#445E91</color>
 </resources>

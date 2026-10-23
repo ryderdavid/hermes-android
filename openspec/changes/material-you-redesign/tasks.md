@@ -48,10 +48,10 @@
 
 ## 7. Android platform polish
 
-- [ ] 7.1 Add monochrome vector to `mipmap-anydpi-v26/ic_launcher.xml` and fix `ic_launcher_round`; verify themed icon on a Pixel with themed icons enabled.
-- [ ] 7.2 Adopt `androidx.core:core-splashscreen` with DayNight launch theme and monochrome glyph; verify no white flash on dark cold start.
-- [ ] 7.3 Enable edge-to-edge with transparent system bars and correct icon brightness per theme; verify on gesture and 3-button navigation.
-- [ ] 7.4 Add `android:enableOnBackInvokedCallback="true"` and audit `WillPopScope`/`PopScope` usage; verify predictive back preview on Android 14+ from chat, settings and dialogs.
+- [x] 7.1 Add monochrome vector to `mipmap-anydpi-v26/ic_launcher.xml` and fix `ic_launcher_round`; verify themed icon on a Pixel with themed icons enabled.
+- [x] 7.2 Adopt `androidx.core:core-splashscreen` with DayNight launch theme and monochrome glyph; verify no white flash on dark cold start.
+- [x] 7.3 Enable edge-to-edge with transparent system bars and correct icon brightness per theme; verify on gesture and 3-button navigation.
+- [x] 7.4 Add `android:enableOnBackInvokedCallback="true"` and audit `WillPopScope`/`PopScope` usage; verify predictive back preview on Android 14+ from chat, settings and dialogs.
 
 ## 8. Verification and release
 

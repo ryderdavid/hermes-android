@@ -11,6 +11,7 @@ import 'dart:math' as math;
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Seed colors for schemes that are not taken from the device wallpaper.
 abstract final class HermesSeeds {
@@ -354,6 +355,23 @@ class HermesTokens extends ThemeExtension<HermesTokens> {
   }
 }
 
+/// Transparent status and navigation bars whose icons contrast with
+/// [scheme]'s surface, for drawing edge-to-edge.
+SystemUiOverlayStyle hermesSystemUiStyle(ColorScheme scheme) {
+  final dark = scheme.brightness == Brightness.dark;
+  final icons = dark ? Brightness.light : Brightness.dark;
+  return SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: icons,
+    statusBarBrightness: scheme.brightness,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarIconBrightness: icons,
+    systemNavigationBarContrastEnforced: false,
+    systemStatusBarContrastEnforced: false,
+  );
+}
+
 /// Builds the Hermes [ThemeData] for one brightness, tokens attached.
 ///
 /// [colorScheme] is normally from [hermesColorScheme]; without one the
@@ -397,6 +415,7 @@ ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
       scrolledUnderElevation: 3,
       shadowColor: Colors.transparent,
       centerTitle: false,
+      systemOverlayStyle: hermesSystemUiStyle(scheme),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -522,6 +541,13 @@ ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
               : scheme.onSurfaceVariant,
         );
       }),
+    ),
+    // Android predictive back: routes preview the destination as the user
+    // swipes. Other platforms keep their defaults.
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+      },
     ),
     extensions: <ThemeExtension<dynamic>>[tokens],
   );

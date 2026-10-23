@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'core/widgets/hermes_components.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/android_launch_intent_service.dart';
@@ -29,6 +30,8 @@ import 'package:hermes_android/core/l10n/l10n.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  // Draw under transparent system bars; hermesSystemUiStyle sets their icons.
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   runApp(const StartupApp());
 }
 
@@ -486,11 +489,14 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
         final preference = HermesApp.getTextSizePreference(
           widget.connManager.prefs,
         );
-        return MediaQuery(
-          data: systemMediaQuery.copyWith(
-            textScaler: preference.applyTo(systemMediaQuery.textScaler),
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: hermesSystemUiStyle(Theme.of(context).colorScheme),
+          child: MediaQuery(
+            data: systemMediaQuery.copyWith(
+              textScaler: preference.applyTo(systemMediaQuery.textScaler),
+            ),
+            child: child!,
           ),
-          child: child!,
         );
       },
       home: HomeScreen(
