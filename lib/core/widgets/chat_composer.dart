@@ -87,15 +87,7 @@ class ChatComposer extends StatelessWidget {
       // heights, the fixed controls take priority and extras scroll away.
       constraints: BoxConstraints(maxHeight: composerMaxHeight),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 4,
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
-          ),
-        ],
-      ),
+      color: Theme.of(context).colorScheme.surface,
       child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -106,7 +98,7 @@ class ChatComposer extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (turnStatus != null) _buildTurnStatus(context),
-                    _buildModelButton(context),
+                    _buildChipRow(context),
                     if (attachments.isNotEmpty) _buildAttachmentTray(context),
                     if (voiceComposer.listening)
                       VoiceComposerIndicator(
@@ -156,35 +148,68 @@ class ChatComposer extends StatelessWidget {
     );
   }
 
-  Widget _buildModelButton(BuildContext context) {
+  /// Model and spoken-reply controls as compact chips above the field, so
+  /// the input row holds only the field and the send button.
+  Widget _buildChipRow(BuildContext context) {
+    final l10n = context.l10n;
     return Align(
       alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
-        child: Semantics(
-          label: context.l10n.choose_chat_model,
-          value: modelName,
-          button: true,
-          enabled: onChooseModel != null,
-          excludeSemantics: true,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 48),
-            child: TextButton.icon(
-              onPressed: onChooseModel,
-              icon: modelLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.tune, size: 18),
-              label: Text(
-                context.l10n.model_scope_label(modelName, modelScope),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+        child: Row(
+          children: [
+            Semantics(
+              label: l10n.choose_chat_model,
+              value: modelName,
+              button: true,
+              enabled: onChooseModel != null,
+              excludeSemantics: true,
+              child: ConstrainedBox(
+                // Long model ids ellipsize instead of pushing the row wide.
+                constraints: const BoxConstraints(maxWidth: 260),
+                child: ActionChip(
+                  key: const Key('chat-model-chip'),
+                  avatar: modelLoading
+                      ? const SizedBox.square(
+                          dimension: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.tune, size: 18),
+                  label: Text(
+                    l10n.model_scope_label(modelName, modelScope),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  onPressed: onChooseModel,
+                ),
               ),
             ),
-          ),
+            const SizedBox(width: 8),
+            Semantics(
+              label: l10n.spoken_replies,
+              value: voiceReplyEnabled ? l10n.on : l10n.off,
+              toggled: voiceReplyEnabled,
+              button: true,
+              excludeSemantics: true,
+              child: Tooltip(
+                message: voiceReplyEnabled
+                    ? l10n.spoken_replies_on
+                    : l10n.spoken_replies_off,
+                child: FilterChip(
+                  key: const Key('chat-spoken-replies-chip'),
+                  avatar: Icon(
+                    voiceReplyEnabled ? Icons.volume_up : Icons.volume_off,
+                    size: 18,
+                  ),
+                  showCheckmark: false,
+                  label: Text(l10n.spoken_replies),
+                  selected: voiceReplyEnabled,
+                  onSelected: (_) => onToggleVoiceReply(),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -225,112 +250,150 @@ class ChatComposer extends StatelessWidget {
     );
   }
 
+  /// One rounded field that owns attach (leading) and dictation (trailing),
+  /// with a single send/stop button outside it, bottom-aligned and never
+  /// taller than the field.
   Widget _buildInputRow(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    const noBorder = InputBorder.none;
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Semantics(
-          label: context.l10n.add_attachment,
-          button: true,
-          enabled: onAttach != null,
-          excludeSemantics: true,
-          child: IconButton(
-            icon: const Icon(Icons.attach_file),
-            onPressed: onAttach,
-            tooltip: context.l10n.attach_image_or_file,
-            constraints: const BoxConstraints.tightFor(width: 48, height: 48),
-          ),
-        ),
         Expanded(
-          child: Semantics(
-            label: context.l10n.message,
-            textField: true,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: (availableHeight * 0.30).clamp(48.0, 160.0),
-              ),
-              child: TextField(
-                key: const Key('chat-message-composer'),
-                controller: textController,
-                decoration: InputDecoration(
-                  hintText: context.l10n.message_hermes,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
+          child: Container(
+            key: const Key('chat-composer-field'),
+            constraints: const BoxConstraints(minHeight: fieldHeight),
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(fieldHeight / 2),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Semantics(
+                  label: context.l10n.add_attachment,
+                  button: true,
+                  enabled: onAttach != null,
+                  excludeSemantics: true,
+                  child: IconButton(
+                    icon: const Icon(Icons.attach_file),
+                    color: scheme.onSurfaceVariant,
+                    onPressed: onAttach,
+                    tooltip: context.l10n.attach_image_or_file,
+                    constraints: const BoxConstraints.tightFor(
+                      width: fieldHeight,
+                      height: fieldHeight,
+                    ),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  isDense: true,
                 ),
-                minLines: 1,
-                maxLines: 5,
-                textCapitalization: TextCapitalization.sentences,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                enabled: textEnabled,
-              ),
+                Expanded(
+                  // 8dp inside the field with vertically centred text: one
+                  // line fills the 48dp pill, and at the field's minimum
+                  // height the editable keeps more than a line of viewport.
+                  child: Semantics(
+                    label: context.l10n.message,
+                    textField: true,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: fieldHeight,
+                        maxHeight: (availableHeight * 0.30).clamp(
+                          fieldHeight,
+                          160.0,
+                        ),
+                      ),
+                      child: TextField(
+                        key: const Key('chat-message-composer'),
+                        controller: textController,
+                        decoration: InputDecoration(
+                          hintText: context.l10n.message_hermes,
+                          filled: false,
+                          border: noBorder,
+                          enabledBorder: noBorder,
+                          focusedBorder: noBorder,
+                          disabledBorder: noBorder,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                          ),
+                          isDense: true,
+                        ),
+                        textAlignVertical: TextAlignVertical.center,
+                        minLines: 1,
+                        maxLines: 5,
+                        textCapitalization: TextCapitalization.sentences,
+                        keyboardType: TextInputType.multiline,
+                        textInputAction: TextInputAction.newline,
+                        enabled: textEnabled,
+                      ),
+                    ),
+                  ),
+                ),
+                if (!voiceComposer.listening)
+                  VoiceComposerStartButton(
+                    enabled: onStartVoice != null,
+                    onPressed: onStartVoice ?? () {},
+                  )
+                else
+                  const SizedBox(width: 12),
+              ],
             ),
           ),
         ),
         const SizedBox(width: 8),
-        if (!voiceComposer.listening)
-          VoiceComposerStartButton(
-            enabled: onStartVoice != null,
-            onPressed: onStartVoice ?? () {},
-          ),
-        Semantics(
-          label: context.l10n.spoken_replies,
-          value: voiceReplyEnabled ? context.l10n.on : context.l10n.off,
-          toggled: voiceReplyEnabled,
-          button: true,
-          excludeSemantics: true,
-          child: IconButton(
-            icon: Icon(voiceReplyEnabled ? Icons.volume_up : Icons.volume_off),
-            onPressed: onToggleVoiceReply,
-            tooltip: voiceReplyEnabled
-                ? context.l10n.spoken_replies_on
-                : context.l10n.spoken_replies_off,
-            constraints: const BoxConstraints.tightFor(width: 48, height: 48),
-          ),
-        ),
-        const SizedBox(width: 4),
-        Semantics(
-          label: streaming
-              ? context.l10n.stop_response
-              : context.l10n.send_message,
-          button: true,
-          enabled: streaming || onSend != null,
-          excludeSemantics: true,
-          child: SizedBox.square(
-            dimension: 48,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                shape: BoxShape.circle,
-              ),
-              child: streaming
-                  ? IconButton(
-                      icon: const Icon(Icons.stop_rounded, size: 20),
-                      onPressed: onStop,
-                      tooltip: context.l10n.stop_response,
-                      constraints: const BoxConstraints.tightFor(
-                        width: 48,
-                        height: 48,
-                      ),
-                    )
-                  : IconButton(
-                      icon: const Icon(Icons.send, size: 20),
-                      onPressed: onSend,
-                      tooltip: context.l10n.send,
-                      constraints: const BoxConstraints.tightFor(
-                        width: 48,
-                        height: 48,
-                      ),
-                    ),
-            ),
-          ),
-        ),
+        _buildSendButton(context),
       ],
     );
   }
+
+  Widget _buildSendButton(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      label: streaming ? context.l10n.stop_response : context.l10n.send_message,
+      button: true,
+      enabled: streaming || onSend != null,
+      excludeSemantics: true,
+      child: streaming
+          ? IconButton.filled(
+              icon: const Icon(Icons.stop_rounded),
+              onPressed: onStop,
+              tooltip: context.l10n.stop_response,
+              constraints: const BoxConstraints.tightFor(
+                width: fieldHeight,
+                height: fieldHeight,
+              ),
+            )
+          : ListenableBuilder(
+              listenable: textController,
+              builder: (context, _) {
+                // Empty sends are already a no-op in ChatScreen; the button
+                // just looks disabled until there is something to send.
+                final hasContent =
+                    textController.text.trim().isNotEmpty ||
+                    attachments.isNotEmpty;
+                final looksEnabled = onSend != null && hasContent;
+                return IconButton.filled(
+                  icon: const Icon(Icons.send),
+                  onPressed: onSend,
+                  tooltip: context.l10n.send,
+                  style: looksEnabled
+                      ? null
+                      : IconButton.styleFrom(
+                          backgroundColor: scheme.onSurface.withValues(
+                            alpha: 0.12,
+                          ),
+                          foregroundColor: scheme.onSurface.withValues(
+                            alpha: 0.38,
+                          ),
+                        ),
+                  constraints: const BoxConstraints.tightFor(
+                    width: fieldHeight,
+                    height: fieldHeight,
+                  ),
+                );
+              },
+            ),
+    );
+  }
+
+  /// Height of the rounded field at one line, and of the send button.
+  static const double fieldHeight = 48;
 }

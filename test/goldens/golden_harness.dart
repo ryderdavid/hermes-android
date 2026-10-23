@@ -55,6 +55,7 @@ Future<void> pumpGolden(
   required GoldenVariant variant,
   Size size = goldenPhoneSize,
   double textScale = 1.0,
+  bool settle = true,
 }) async {
   // Real elevation shadows instead of the test binding's solid outlines.
   // [matchGolden] restores the flag, which the binding checks before
@@ -79,7 +80,12 @@ Future<void> pumpGolden(
       home: home,
     ),
   );
-  await tester.pumpAndSettle();
+  if (settle) {
+    await tester.pumpAndSettle();
+  } else {
+    // Spinners never settle; advance to a fixed frame instead.
+    await tester.pump(const Duration(milliseconds: 300));
+  }
 }
 
 /// Compares the whole app against [path] and restores the shadow debug flag

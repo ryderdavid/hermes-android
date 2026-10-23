@@ -41,10 +41,10 @@
 ## 6. Chat composer
 
 - [x] 6.1 Extract `_buildInputBar` into `lib/core/widgets/chat_composer.dart` with no visual change; verify all existing chat/composer tests pass unchanged.
-- [ ] 6.2 Restyle to a single 48 dp `surfaceContainerHigh` pill with inline attach (leading) and mic (trailing); restyle `VoiceComposerStartButton` as a standard icon button; golden-test idle and multiline.
-- [ ] 6.3 Send/Stop as one ≤48 dp filled icon button outside the pill, bottom-aligned, disabled-styled when empty; widget-test empty → typing → streaming → stopped states.
-- [ ] 6.4 Move model selector and spoken-reply toggle into a compact `ActionChip`/`FilterChip` row above the pill; widget-test that the model picker still opens and TTS toggle persists.
-- [ ] 6.5 Verify parity: attachments tray (reorder/remove/retry), Enter-to-send, per-chat drafts, keyboard insets on narrow/landscape/large-text (reuse PR #139 regressions).
+- [x] 6.2 Restyle to a single 48 dp `surfaceContainerHigh` pill with inline attach (leading) and mic (trailing); restyle `VoiceComposerStartButton` as a standard icon button; golden-test idle and multiline.
+- [x] 6.3 Send/Stop as one ≤48 dp filled icon button outside the pill, bottom-aligned, disabled-styled when empty; widget-test empty → typing → streaming → stopped states.
+- [x] 6.4 Move model selector and spoken-reply toggle into a compact `ActionChip`/`FilterChip` row above the pill; widget-test that the model picker still opens and TTS toggle persists.
+- [x] 6.5 Verify parity: attachments tray (reorder/remove/retry), Enter-to-send, per-chat drafts, keyboard insets on narrow/landscape/large-text (reuse PR #139 regressions).
 
 ## 7. Android platform polish
 

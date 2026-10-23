@@ -124,8 +124,10 @@ class VoiceComposerStartButton extends StatelessWidget {
       button: true,
       enabled: enabled,
       excludeSemantics: true,
-      child: IconButton.filledTonal(
-        icon: const Icon(Icons.mic),
+      // A standard icon button: it sits inside the composer field.
+      child: IconButton(
+        icon: const Icon(Icons.mic_none),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         onPressed: enabled ? onPressed : null,
         tooltip: context.l10n.speak_to_hermes,
         constraints: const BoxConstraints.tightFor(width: 48, height: 48),
