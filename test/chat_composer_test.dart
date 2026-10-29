@@ -1,4 +1,6 @@
+import 'dart:ui' show Tristate;
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hermes_android/core/theme/hermes_theme.dart';
 import 'package:hermes_android/l10n/app_localizations.dart';
@@ -198,4 +200,54 @@ void main() {
       expect(text.center.dy, moreOrLessEquals(field.center.dy, epsilon: 0.5));
     });
   }
+
+  /// Accessibility services (TalkBack, voice keyboards pressing Send via
+  /// ACTION_CLICK) see a merged semantics node for the send/stop button. The
+  /// merge must keep the tap action: a button node with no tap action is
+  /// reported to Android as a non-clickable button and cannot be pressed.
+  testWidgets('send button stays a tappable button to accessibility services', (
+    tester,
+  ) async {
+    final host = ComposerHost(text: 'hello');
+    await _pump(tester, host);
+    // Keep the semantics tree alive after getSemantics, or performAction
+    // (below) dispatches into a disposed tree.
+    final semantics = tester.ensureSemantics();
+
+    final node = tester.getSemantics(
+      find.widgetWithIcon(IconButton, Icons.send),
+    );
+    final data = node.getSemanticsData();
+    expect(data.label, 'Send message');
+    expect(data.flagsCollection.isButton, isTrue);
+    expect(data.flagsCollection.isEnabled, Tristate.isTrue);
+    expect(data.hasAction(SemanticsAction.tap), isTrue);
+
+    // What a voice keyboard's ACTION_CLICK does.
+    node.owner?.performAction(node.id, SemanticsAction.tap);
+    await tester.pump();
+    expect(host.sends, 1);
+    semantics.dispose();
+  });
+
+  testWidgets('stop button stays a tappable button while streaming', (
+    tester,
+  ) async {
+    final host = ComposerHost()..streaming = true;
+    await _pump(tester, host);
+    final semantics = tester.ensureSemantics();
+
+    final node = tester.getSemantics(
+      find.widgetWithIcon(IconButton, Icons.stop_rounded),
+    );
+    final data = node.getSemanticsData();
+    expect(data.flagsCollection.isButton, isTrue);
+    expect(data.flagsCollection.isEnabled, Tristate.isTrue);
+    expect(data.hasAction(SemanticsAction.tap), isTrue);
+
+    node.owner?.performAction(node.id, SemanticsAction.tap);
+    await tester.pump();
+    expect(host.stops, 1);
+    semantics.dispose();
+  });
 }

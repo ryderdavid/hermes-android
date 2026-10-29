@@ -357,6 +357,11 @@ class ChatComposer extends StatelessWidget {
       button: true,
       enabled: streaming || onSend != null,
       excludeSemantics: true,
+      // excludeSemantics drops the inner IconButton's tap action, so the
+      // merged node must re-declare it: without it the button reports as a
+      // non-clickable button to Android accessibility services (TalkBack,
+      // voice keyboards pressing Send via ACTION_CLICK).
+      onTap: streaming ? onStop : onSend,
       child: streaming
           ? IconButton.filled(
               icon: const Icon(Icons.stop_rounded),
