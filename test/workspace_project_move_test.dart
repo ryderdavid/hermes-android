@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/expressive/expressive.dart';
 import 'package:hermes_android/core/models/connection.dart';
 import 'package:hermes_android/core/models/session.dart';
 import 'package:hermes_android/core/screens/workspace_screen.dart';
@@ -285,10 +286,10 @@ void main() {
         (await repository.projectSessions('a')).sessions.map((s) => s.id),
         isNot(contains(chat.id)),
       );
-      await tester.tap(find.widgetWithText(ChoiceChip, l10n.unassigned));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.unassigned));
       await tester.pumpAndSettle();
       expect(find.text(chat.title), findsNothing);
-      await tester.tap(find.widgetWithText(ChoiceChip, l10n.filter_all));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.filter_all));
       await tester.pumpAndSettle();
       expect(find.text(chat.title), findsOneWidget);
       // A new screen instance reads durable ownership from the fake server.
@@ -452,7 +453,7 @@ void main() {
         findsOneWidget,
       );
       expect((await repository.overview()).sessionProjects[_filed.id], 'b');
-      await tester.tap(find.widgetWithText(ChoiceChip, l10n.unassigned));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.unassigned));
       await tester.pumpAndSettle();
       expect(find.text(_filed.title), findsNothing);
       expect(find.text(_loose.title), findsOneWidget);

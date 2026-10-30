@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../models/session.dart';
 import '../services/local_chat_pin_store.dart';
+import '../expressive/expressive.dart';
 import '../theme/hermes_theme.dart';
 import '../utils/relative_time.dart';
 import '../widgets/hermes_components.dart';
@@ -743,9 +744,18 @@ class WorkspaceSessionsScreenState extends State<WorkspaceSessionsScreen>
           TextField(
             key: kWorkspaceSessionSearchKey,
             autofocus: widget.view == WorkspaceSessionView.search,
+            // Material 3 Expressive search field: a 56dp pill.
             decoration: InputDecoration(
               hintText: context.l10n.search_conversations,
-              prefixIcon: const Icon(Icons.search),
+              fillColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+              border: _pillBorder,
+              enabledBorder: _pillBorder,
+              focusedBorder: _pillBorder,
+              contentPadding: const EdgeInsets.symmetric(vertical: 16),
+              prefixIcon: const Padding(
+                padding: EdgeInsetsDirectional.only(start: 8),
+                child: Icon(Icons.search),
+              ),
               suffixIcon: _query.isEmpty
                   ? null
                   : IconButton(
@@ -770,65 +780,51 @@ class WorkspaceSessionsScreenState extends State<WorkspaceSessionsScreen>
               message: _emptyMessage,
             ),
           if (sessions.isNotEmpty) ...[
-            if (pinnedSessions.isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.only(
-                  top: HermesSpacing.xs,
-                  bottom: HermesSpacing.sm,
-                ),
-                child: Text(
-                  context.l10n.pinned_on_this_device,
-                  style: HermesTokens.of(context).typography.section,
-                ),
+            // Material 3 Expressive segmented groups: pinned first, then
+            // one group per day bucket.
+            if (pinnedSessions.isNotEmpty)
+              SegmentedListGroup(
+                title: context.l10n.pinned_on_this_device,
+                padding: const EdgeInsets.only(bottom: HermesSpacing.lg),
+                children: [
+                  for (final session in pinnedSessions)
+                    _buildSessionRow(session, data),
+                ],
               ),
-              for (final session in pinnedSessions)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: HermesSpacing.sm),
-                  child: _buildSessionRow(session, data),
-                ),
-            ],
             for (final group in groups)
-              if (group.value.isNotEmpty) ...[
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: HermesSpacing.xs,
-                    bottom: HermesSpacing.sm,
-                  ),
-                  child: Text(
-                    widget.embedded
-                        ? group.key.label(context.l10n)
-                        : widget.title,
-                    style: HermesTokens.of(context).typography.section,
-                  ),
+              if (group.value.isNotEmpty)
+                SegmentedListGroup(
+                  title: widget.embedded
+                      ? group.key.label(context.l10n)
+                      : widget.title,
+                  padding: const EdgeInsets.only(bottom: HermesSpacing.lg),
+                  children: [
+                    for (final session in group.value)
+                      _buildSessionRow(session, data),
+                  ],
                 ),
-                for (final session in group.value)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: HermesSpacing.sm),
-                    child: _buildSessionRow(session, data),
-                  ),
-              ],
           ],
         ],
       ),
     );
   }
 
+  static const _pillBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(28)),
+    borderSide: BorderSide.none,
+  );
+
+  /// The filters as a Material 3 Expressive connected button group.
   Widget _buildChips() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
+      child: ConnectedButtonGroup<WorkspaceChatsFilter>(
+        semanticsLabel: context.l10n.filter_all,
+        selected: _filter,
+        onSelected: (filter) => setState(() => _filter = filter),
+        buttons: [
           for (final filter in WorkspaceChatsFilter.values)
-            Padding(
-              padding: const EdgeInsets.only(right: HermesSpacing.sm),
-              child: ChoiceChip(
-                label: Text(filter.label(context.l10n)),
-                selected: _filter == filter,
-                onSelected: (_) => setState(() {
-                  _filter = filter;
-                }),
-              ),
-            ),
+            ConnectedButton(value: filter, label: filter.label(context.l10n)),
         ],
       ),
     );
@@ -848,21 +844,29 @@ class WorkspaceSessionsScreenState extends State<WorkspaceSessionsScreen>
         widget.onPromote != null;
     return HermesCard(
       onTap: () => widget.onOpenSession(session),
+      padding: const EdgeInsets.fromLTRB(
+        HermesSpacing.lg,
+        HermesSpacing.md,
+        HermesSpacing.xs,
+        HermesSpacing.md,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            locallyPinned
+          // The chat's project mark (or the shared Unassigned mark), with
+          // the pin state as its glyph.
+          ShapeMark(
+            style: projectLabel == null
+                ? MarkStyle.unassigned
+                : MarkStyle.forKey(projectLabel),
+            icon: locallyPinned
                 ? Icons.push_pin
                 : session.pinned
                 ? Icons.push_pin_outlined
                 : Icons.chat_bubble_outline,
-            size: 20,
-            color: locallyPinned || session.pinned
-                ? tokens.accent
-                : tokens.muted,
+            size: 44,
           ),
-          const SizedBox(width: HermesSpacing.md),
+          const SizedBox(width: HermesSpacing.lg),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -873,6 +877,10 @@ class WorkspaceSessionsScreenState extends State<WorkspaceSessionsScreen>
                       : session.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: tokens.onSurface,
+                  ),
                 ),
                 if (session.preview.isNotEmpty)
                   Text(

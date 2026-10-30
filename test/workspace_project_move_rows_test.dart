@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/expressive/expressive.dart';
 import 'package:hermes_android/core/models/session.dart';
 import 'package:hermes_android/core/screens/workspace_sessions_screen.dart';
 import 'package:hermes_android/core/services/local_chat_pin_store.dart';
@@ -146,7 +147,7 @@ void main() {
             return 'Project B';
           },
         );
-        await tester.tap(find.widgetWithText(ChoiceChip, filter.label(l10n)));
+        await tester.tap(find.widgetWithText(ConnectedButtonView, filter.label(l10n)));
         await tester.pumpAndSettle();
         await selectMove(tester, _chat.title);
         await tester.pumpAndSettle();
@@ -197,7 +198,7 @@ void main() {
         move: (_) async => 'Project B',
         onOpen: opened.add,
       );
-      await tester.tap(find.widgetWithText(ChoiceChip, l10n.archived));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.archived));
       await tester.pumpAndSettle();
       await selectMove(tester, _archived.title);
       await tester.pumpAndSettle();
@@ -210,7 +211,7 @@ void main() {
       );
       await tester.tap(find.text(_archived.title));
       expect(opened.single, same(_archived));
-      await tester.tap(find.widgetWithText(ChoiceChip, l10n.filter_all));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.filter_all));
       await tester.pumpAndSettle();
       expect(find.text(_archived.title), findsNothing);
     },
@@ -285,10 +286,10 @@ void main() {
       expect(saved.lineageRootId, _chat.lineageRootId);
       expect(saved.archived, _chat.archived);
       expect(saved.isLocalDraft, _chat.isLocalDraft);
-      await tester.tap(find.widgetWithText(ChoiceChip, l10n.unassigned));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.unassigned));
       await tester.pumpAndSettle();
       expect(find.text('Renamed during move'), findsNothing);
-      await tester.tap(find.widgetWithText(ChoiceChip, l10n.archived));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.archived));
       await tester.pumpAndSettle();
       expect(find.text('Renamed during move'), findsNothing);
       expect(find.text(_archived.title), findsOneWidget);

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/expressive/expressive.dart';
 import 'package:hermes_android/core/models/connection.dart';
 import 'package:hermes_android/core/models/session.dart';
 import 'package:hermes_android/core/screens/session_list_screen.dart';
@@ -96,7 +97,7 @@ void main() {
         lessThan(tester.getTopLeft(find.text('Recent chat')).dy),
       );
 
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Recent'));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, 'Recent'));
       await tester.pumpAndSettle();
       expect(
         find.text('Older chat'),

@@ -48,9 +48,10 @@ class ConnectedButtonGroup<T> extends StatelessWidget {
     final children = <Widget>[];
     for (var i = 0; i < buttons.length; i++) {
       if (i > 0) children.add(const SizedBox(width: 2));
-      final button = _ConnectedButtonView<T>(
+      final button = ConnectedButtonView(
         key: buttons[i].key,
-        button: buttons[i],
+        label: buttons[i].label,
+        icon: buttons[i].icon,
         selected: buttons[i].value == selected,
         first: i == 0,
         last: i == buttons.length - 1,
@@ -70,18 +71,22 @@ class ConnectedButtonGroup<T> extends StatelessWidget {
   }
 }
 
-class _ConnectedButtonView<T> extends StatelessWidget {
-  const _ConnectedButtonView({
-    required this.button,
+/// One button of a [ConnectedButtonGroup]; public so tests can read
+/// [selected].
+class ConnectedButtonView extends StatelessWidget {
+  const ConnectedButtonView({
+    required this.label,
     required this.selected,
     required this.first,
     required this.last,
     required this.height,
     required this.onTap,
+    this.icon,
     super.key,
   });
 
-  final ConnectedButton<T> button;
+  final String label;
+  final IconData? icon;
   final bool selected;
   final bool first;
   final bool last;
@@ -105,7 +110,7 @@ class _ConnectedButtonView<T> extends StatelessWidget {
       button: true,
       selected: selected,
       inMutuallyExclusiveGroup: true,
-      label: button.label,
+      label: label,
       excludeSemantics: true,
       onTap: onTap,
       child: GestureDetector(
@@ -129,17 +134,13 @@ class _ConnectedButtonView<T> extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (selected || button.icon != null) ...[
-                    Icon(
-                      selected ? Icons.check : button.icon,
-                      size: 18,
-                      color: fg,
-                    ),
+                  if (selected || icon != null) ...[
+                    Icon(selected ? Icons.check : icon, size: 18, color: fg),
                     const SizedBox(width: 6),
                   ],
                   Flexible(
                     child: Text(
-                      button.label,
+                      label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.labelLarge?.copyWith(

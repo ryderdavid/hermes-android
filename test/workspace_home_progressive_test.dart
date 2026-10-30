@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/expressive/expressive.dart';
 import 'package:hermes_android/core/models/connection.dart';
 import 'package:hermes_android/core/screens/workspace_screen.dart';
 import 'package:hermes_android/core/screens/workspace_sessions_screen.dart';
@@ -164,7 +165,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Late unassigned'), findsNWidgets(2));
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Unassigned'));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, 'Unassigned'));
       await tester.pumpAndSettle();
       expect(find.text('Late unassigned'), findsNWidgets(2));
     },

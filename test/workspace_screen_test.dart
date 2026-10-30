@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/expressive/expressive.dart';
 import 'package:hermes_android/core/models/attachment_draft.dart';
 import 'package:hermes_android/core/models/connection.dart';
 import 'package:hermes_android/core/models/session.dart';
@@ -367,11 +368,11 @@ void main() {
 
     await tester.tap(find.text(HermesDestination.chats.label(l10n)).last);
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Unassigned'));
+    await tester.tap(find.widgetWithText(ConnectedButtonView, 'Unassigned'));
     await tester.pumpAndSettle();
     expect(
       tester
-          .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Unassigned'))
+          .widget<ConnectedButtonView>(find.widgetWithText(ConnectedButtonView, 'Unassigned'))
           .selected,
       isTrue,
     );
@@ -383,7 +384,7 @@ void main() {
 
     expect(
       tester
-          .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Unassigned'))
+          .widget<ConnectedButtonView>(find.widgetWithText(ConnectedButtonView, 'Unassigned'))
           .selected,
       isTrue,
     );

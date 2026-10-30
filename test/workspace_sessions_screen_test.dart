@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/expressive/expressive.dart';
 import 'package:hermes_android/core/models/session.dart';
 import 'package:hermes_android/core/screens/workspace_sessions_screen.dart';
 import 'package:hermes_android/core/services/local_chat_pin_store.dart';
@@ -295,7 +296,7 @@ void main() {
     expect(find.text('Cached conversation'), findsOneWidget);
     expect(find.byType(LoadingSkeleton), findsNothing);
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Unassigned'));
+    await tester.tap(find.widgetWithText(ConnectedButtonView, 'Unassigned'));
     await tester.pump();
     expect(find.text('Cached conversation'), findsNothing);
     expect(find.byType(EmptyState), findsNothing);
@@ -388,7 +389,7 @@ void main() {
 
       for (final filter in WorkspaceChatsFilter.values) {
         expect(
-          find.widgetWithText(ChoiceChip, filter.label(l10n)),
+          find.widgetWithText(ConnectedButtonView, filter.label(l10n)),
           findsOneWidget,
         );
       }
@@ -399,7 +400,7 @@ void main() {
     ) async {
       await pumpChats(tester);
 
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Recent'));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, 'Recent'));
       await tester.pumpAndSettle();
 
       expect(find.text('Fresh'), findsOneWidget);
@@ -409,7 +410,7 @@ void main() {
     testWidgets('Unassigned shows only non-claimed sessions', (tester) async {
       await pumpChats(tester);
 
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Unassigned'));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, 'Unassigned'));
       await tester.pumpAndSettle();
 
       expect(find.text('Filed'), findsNothing);
@@ -419,7 +420,7 @@ void main() {
     testWidgets('Archived shows quick-archived sessions', (tester) async {
       await pumpChats(tester);
 
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Archived'));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, 'Archived'));
       await tester.pumpAndSettle();
 
       expect(find.text('Quick archived'), findsOneWidget);
@@ -461,7 +462,7 @@ void main() {
       expect(find.text('Archived on server'), findsNothing);
       expect(find.text('Fresh'), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Archived'));
+      await tester.tap(find.widgetWithText(ConnectedButtonView, 'Archived'));
       await tester.pumpAndSettle();
 
       expect(find.text('Archived on server'), findsOneWidget);
@@ -686,13 +687,13 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Authoritative title'), findsOneWidget);
         await tester.enterText(find.byKey(kWorkspaceSessionSearchKey), '');
-        await tester.tap(find.widgetWithText(ChoiceChip, l10n.filter_recent));
+        await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.filter_recent));
         await tester.pumpAndSettle();
         expect(find.text('Authoritative title'), findsOneWidget);
-        await tester.tap(find.widgetWithText(ChoiceChip, l10n.unassigned));
+        await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.unassigned));
         await tester.pumpAndSettle();
         expect(find.text('Authoritative title'), findsNothing);
-        await tester.tap(find.widgetWithText(ChoiceChip, l10n.archived));
+        await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.archived));
         await tester.pumpAndSettle();
         expect(find.text('Unrelated'), findsOneWidget);
         expect(find.text('Archived row'), findsOneWidget);
@@ -911,7 +912,7 @@ void main() {
           load: () => staleLoad.future,
           onRename: (_, _) async => 'Archived saved',
         );
-        await tester.tap(find.widgetWithText(ChoiceChip, l10n.archived));
+        await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.archived));
         await tester.pumpAndSettle();
         await openRename(tester);
         await submit(tester, 'Requested archive title');
@@ -927,7 +928,7 @@ void main() {
           const WorkspaceSessionsData(sessions: [richSession]),
         );
         await tester.pumpAndSettle();
-        await tester.tap(find.widgetWithText(ChoiceChip, l10n.filter_all));
+        await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.filter_all));
         await tester.pumpAndSettle();
         expect(find.text('Archived saved'), findsOneWidget);
         expect(find.text(richSession.title), findsNothing);
@@ -1163,13 +1164,13 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Unassigned'));
+    await tester.tap(find.widgetWithText(ConnectedButtonView, 'Unassigned'));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Move to project'));
     await tester.pumpAndSettle();
     expect(find.text('Loose chat'), findsNothing);
 
-    await tester.tap(find.widgetWithText(ChoiceChip, 'All'));
+    await tester.tap(find.widgetWithText(ConnectedButtonView, 'All'));
     await tester.pumpAndSettle();
 
     final row = find.ancestor(
@@ -1186,7 +1187,7 @@ void main() {
       findsNothing,
     );
 
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Archived'));
+    await tester.tap(find.widgetWithText(ConnectedButtonView, 'Archived'));
     await tester.pumpAndSettle();
     expect(find.text('Archived chat'), findsOneWidget);
   });

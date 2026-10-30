@@ -21,7 +21,7 @@
 
 ## 4. Chats
 
-- [ ] 4.1 Chats list: large header, connected button group filters, day groups as segmented lists with shape marks and status labels; keep search, actions menu and paging.
+- [x] 4.1 Chats list: large header, connected button group filters, day groups as segmented lists with shape marks and status labels; keep search, actions menu and paging.
 
 ## 5. Chat
 
