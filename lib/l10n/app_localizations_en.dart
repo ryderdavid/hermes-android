@@ -2571,4 +2571,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get more_approval_options => 'More ways to allow';
+
+  @override
+  String get appearance_summary => 'Theme, color, text size and chat density';
+
+  @override
+  String get theme_label => 'Theme';
+
+  @override
+  String get text_and_chats => 'Text and chats';
+
+  @override
+  String get appearance_preview_question => 'How will replies look?';
+
+  @override
+  String get appearance_preview_answer =>
+      'Like this — your colors, your text size.';
 }

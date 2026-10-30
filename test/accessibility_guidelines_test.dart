@@ -173,6 +173,28 @@ void main() {
     });
   }
 
+  for (final mode in ['light', 'dark']) {
+    testWidgets('Appearance meets Android guidelines ($mode)', (tester) async {
+      SharedPreferences.setMockInitialValues({'theme_mode': mode});
+      final handle = tester.ensureSemantics();
+      final prefs = await SharedPreferences.getInstance();
+      await tester.pumpWidget(HermesApp(connManager: ConnectionManager(prefs)));
+      await tester.pumpAndSettle();
+      unawaited(
+        Navigator.of(tester.element(find.byType(HomeScreen))).push(
+          MaterialPageRoute<void>(
+            builder: (_) => SettingsScreen(connection: _offline),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('settings-appearance')));
+      await tester.pumpAndSettle();
+      await _expectGuidelines(tester);
+      handle.dispose();
+    });
+  }
+
   testWidgets('composer actions have TalkBack labels', (tester) async {
     final handle = tester.ensureSemantics();
     await _pump(

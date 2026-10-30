@@ -2596,4 +2596,19 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get more_approval_options => 'Weitere Freigabeoptionen';
+
+  @override
+  String get appearance_summary => 'Design, Farbe, Textgröße und Chatdichte';
+
+  @override
+  String get theme_label => 'Design';
+
+  @override
+  String get text_and_chats => 'Text und Chats';
+
+  @override
+  String get appearance_preview_question => 'Wie sehen Antworten aus?';
+
+  @override
+  String get appearance_preview_answer => 'So – deine Farben, deine Textgröße.';
 }

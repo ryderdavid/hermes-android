@@ -36,8 +36,8 @@
 
 ## 7. Settings
 
-- [ ] 7.1 Settings: large header, connection card, segmented groups with tonal icons; device-local rows survive dashboard failure.
-- [ ] 7.2 Color & theme page: connected theme group, shape swatches, pure black, text size and chat density; widget tests for theme, color and persistence.
+- [x] 7.1 Settings: large header, connection card, segmented groups with tonal icons; device-local rows survive dashboard failure.
+- [x] 7.2 Color & theme page: connected theme group, shape swatches, pure black, text size and chat density; widget tests for theme, color and persistence.
 
 ## 8. Verify and deliver
 

@@ -56,6 +56,7 @@ class ConnectedButtonGroup<T> extends StatelessWidget {
         first: i == 0,
         last: i == buttons.length - 1,
         height: height,
+        expand: expand,
         onTap: () => onSelected(buttons[i].value),
       );
       children.add(expand ? Expanded(child: button) : button);
@@ -82,11 +83,15 @@ class ConnectedButtonView extends StatelessWidget {
     required this.height,
     required this.onTap,
     this.icon,
+    this.expand = false,
     super.key,
   });
 
   final String label;
   final IconData? icon;
+
+  /// Fill the width the group gives this button.
+  final bool expand;
   final bool selected;
   final bool first;
   final bool last;
@@ -123,6 +128,7 @@ class ConnectedButtonView extends StatelessWidget {
               duration: HermesSprings.shapeDuration,
               curve: HermesSprings.shape,
               height: height,
+              width: expand ? double.infinity : null,
               padding: EdgeInsets.symmetric(horizontal: selected ? 18 : 16),
               decoration: BoxDecoration(
                 color: selected

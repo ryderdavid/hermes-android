@@ -2523,4 +2523,19 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get more_approval_options => 'その他の許可方法';
+
+  @override
+  String get appearance_summary => 'テーマ、色、文字サイズ、チャットの密度';
+
+  @override
+  String get theme_label => 'テーマ';
+
+  @override
+  String get text_and_chats => 'テキストとチャット';
+
+  @override
+  String get appearance_preview_question => '返信はどう見えますか？';
+
+  @override
+  String get appearance_preview_answer => 'こんな感じです。あなたの色と文字サイズで。';
 }

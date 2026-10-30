@@ -705,5 +705,10 @@
   "pure_black": "Чистый чёрный",
   "pure_black_description": "Чёрный фон в тёмной теме",
   "search_connection": "Поиск в {label}",
-  "more_approval_options": "Другие варианты разрешения"
+  "more_approval_options": "Другие варианты разрешения",
+  "appearance_summary": "Тема, цвет, размер текста и плотность чата",
+  "theme_label": "Тема",
+  "text_and_chats": "Текст и чаты",
+  "appearance_preview_question": "Как будут выглядеть ответы?",
+  "appearance_preview_answer": "Вот так — ваши цвета и размер текста."
 }

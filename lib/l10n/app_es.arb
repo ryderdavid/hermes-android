@@ -705,5 +705,10 @@
   "pure_black": "Negro puro",
   "pure_black_description": "Usa un fondo negro en el tema oscuro",
   "search_connection": "Buscar en {label}",
-  "more_approval_options": "Más formas de permitir"
+  "more_approval_options": "Más formas de permitir",
+  "appearance_summary": "Tema, color, tamaño del texto y densidad del chat",
+  "theme_label": "Tema",
+  "text_and_chats": "Texto y chats",
+  "appearance_preview_question": "¿Cómo se verán las respuestas?",
+  "appearance_preview_answer": "Así: tus colores, tu tamaño de texto."
 }

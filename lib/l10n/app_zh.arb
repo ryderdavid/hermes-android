@@ -705,5 +705,10 @@
   "pure_black": "纯黑",
   "pure_black_description": "深色主题使用黑色背景",
   "search_connection": "搜索 {label}",
-  "more_approval_options": "更多允许方式"
+  "more_approval_options": "更多允许方式",
+  "appearance_summary": "主题、颜色、文字大小和聊天密度",
+  "theme_label": "主题",
+  "text_and_chats": "文字和聊天",
+  "appearance_preview_question": "回复会是什么样子？",
+  "appearance_preview_answer": "就像这样——你的颜色，你的文字大小。"
 }

@@ -2596,4 +2596,22 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get more_approval_options => 'Autres façons d\'autoriser';
+
+  @override
+  String get appearance_summary =>
+      'Thème, couleur, taille du texte et densité du chat';
+
+  @override
+  String get theme_label => 'Thème';
+
+  @override
+  String get text_and_chats => 'Texte et chats';
+
+  @override
+  String get appearance_preview_question =>
+      'À quoi ressembleront les réponses ?';
+
+  @override
+  String get appearance_preview_answer =>
+      'Comme ceci : vos couleurs, votre taille de texte.';
 }

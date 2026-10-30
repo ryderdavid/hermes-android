@@ -714,5 +714,10 @@
       }
     }
   },
-  "more_approval_options": "More ways to allow"
+  "more_approval_options": "More ways to allow",
+  "appearance_summary": "Theme, color, text size and chat density",
+  "theme_label": "Theme",
+  "text_and_chats": "Text and chats",
+  "appearance_preview_question": "How will replies look?",
+  "appearance_preview_answer": "Like this — your colors, your text size."
 }

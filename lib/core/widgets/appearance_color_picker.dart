@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 
+import '../expressive/expressive.dart';
 import '../l10n/l10n.dart';
 import '../services/appearance_preferences.dart';
 import '../theme/hermes_theme.dart';
@@ -172,8 +173,8 @@ class _ColorOption {
   int get hashCode => source.hashCode;
 }
 
-/// A 56dp palette disc: primary on top, secondary and tertiary below, with a
-/// check and ring when selected.
+/// A 56dp palette disc: primary on top, secondary and tertiary below; the
+/// selected one takes the cookie shape and a check.
 class _Swatch extends StatelessWidget {
   const _Swatch({
     required this.option,
@@ -189,7 +190,6 @@ class _Swatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final scheme = option.scheme;
     final disabled = onTap == null;
     return Semantics(
@@ -206,47 +206,53 @@ class _Swatch extends StatelessWidget {
             key: ValueKey('color-swatch-${option.source.storageValue}'),
             onTap: onTap,
             radius: size / 2 + 4,
-            child: Container(
-              width: size,
-              height: size,
-              padding: const EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: selected
-                      ? theme.colorScheme.primary
-                      : Colors.transparent,
-                  width: 2,
-                ),
-              ),
-              child: CustomPaint(
-                painter: _PalettePainter(
-                  top: scheme.primary,
-                  bottomStart: scheme.secondaryContainer,
-                  bottomEnd: scheme.tertiaryContainer,
-                ),
-                child: Center(
-                  child: selected
-                      ? Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: scheme.primaryContainer,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.check,
-                            size: 16,
-                            color: scheme.onPrimaryContainer,
-                          ),
-                        )
-                      : (option.icon == null
-                            ? null
-                            : Icon(
-                                option.icon,
-                                size: 18,
-                                color: scheme.onPrimary,
-                              )),
+            // The selected swatch morphs from a circle into the cookie shape,
+            // as Pixel's wallpaper-color picker does, rather than gaining a ring.
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(end: selected ? 1 : 0),
+              duration: HermesSprings.shapeDuration,
+              curve: HermesSprings.shape,
+              builder: (context, t, _) => SizedBox.square(
+                dimension: size,
+                child: ClipPath(
+                  clipper: ShapeBorderClipper(
+                    shape: t < 0.5
+                        ? const CircleBorder()
+                        : const ExpressiveShapeBorder(ExpressiveShape.cookie),
+                  ),
+                  child: Transform.scale(
+                    scale: 1 - 0.08 * (1 - t),
+                    child: CustomPaint(
+                      painter: _PalettePainter(
+                        top: scheme.primary,
+                        bottomStart: scheme.secondaryContainer,
+                        bottomEnd: scheme.tertiaryContainer,
+                      ),
+                      child: Center(
+                        child: selected
+                            ? Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: scheme.primaryContainer,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.check,
+                                  size: 16,
+                                  color: scheme.onPrimaryContainer,
+                                ),
+                              )
+                            : (option.icon == null
+                                  ? null
+                                  : Icon(
+                                      option.icon,
+                                      size: 18,
+                                      color: scheme.onPrimary,
+                                    )),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

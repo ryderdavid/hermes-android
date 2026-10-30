@@ -705,5 +705,10 @@
   "pure_black": "Noir pur",
   "pure_black_description": "Utiliser un fond noir avec le thème sombre",
   "search_connection": "Rechercher dans {label}",
-  "more_approval_options": "Autres façons d'autoriser"
+  "more_approval_options": "Autres façons d'autoriser",
+  "appearance_summary": "Thème, couleur, taille du texte et densité du chat",
+  "theme_label": "Thème",
+  "text_and_chats": "Texte et chats",
+  "appearance_preview_question": "À quoi ressembleront les réponses ?",
+  "appearance_preview_answer": "Comme ceci : vos couleurs, votre taille de texte."
 }

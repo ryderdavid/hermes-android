@@ -705,5 +705,10 @@
   "pure_black": "Reines Schwarz",
   "pure_black_description": "Schwarzer Hintergrund im dunklen Design",
   "search_connection": "{label} durchsuchen",
-  "more_approval_options": "Weitere Freigabeoptionen"
+  "more_approval_options": "Weitere Freigabeoptionen",
+  "appearance_summary": "Design, Farbe, Textgröße und Chatdichte",
+  "theme_label": "Design",
+  "text_and_chats": "Text und Chats",
+  "appearance_preview_question": "Wie sehen Antworten aus?",
+  "appearance_preview_answer": "So – deine Farben, deine Textgröße."
 }

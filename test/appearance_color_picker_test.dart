@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/expressive/expressive.dart';
+import 'package:hermes_android/core/screens/appearance_screen.dart';
 import 'package:hermes_android/core/screens/settings_screen.dart';
 import 'package:hermes_android/core/services/appearance_preferences.dart';
 import 'package:hermes_android/core/services/connection_manager.dart';
@@ -32,11 +34,14 @@ Future<SharedPreferences> _openSettings(WidgetTester tester) async {
     ),
   );
   await tester.pumpAndSettle();
+  // Colors live on the Appearance page, one tap in from Settings.
+  await tester.tap(find.byKey(const Key('settings-appearance')));
+  await tester.pumpAndSettle();
   return prefs;
 }
 
 Color _primary(WidgetTester tester) =>
-    Theme.of(tester.element(find.byType(SettingsScreen))).colorScheme.primary;
+    Theme.of(tester.element(find.byType(AppearanceScreen))).colorScheme.primary;
 
 void main() {
   setUp(() {
@@ -94,7 +99,9 @@ void main() {
 
     expect(prefs.getBool(AppearancePreferences.pureBlackKey), isTrue);
     expect(
-      Theme.of(tester.element(find.byType(SettingsScreen))).colorScheme.surface,
+      Theme.of(
+        tester.element(find.byType(AppearanceScreen)),
+      ).colorScheme.surface,
       const Color(0xFF000000),
     );
   });
@@ -191,5 +198,21 @@ void main() {
       isSemantics(isButton: true, hasSelectedState: true, isSelected: true),
     );
     handle.dispose();
+  });
+  testWidgets('the theme group switches to dark at once and persists', (
+    tester,
+  ) async {
+    final prefs = await _openSettings(tester);
+    expect(find.byType(ConnectedButtonView), findsNWidgets(3));
+
+    await tester.tap(find.text('Dark'));
+    await tester.pumpAndSettle();
+
+    expect(appearanceSelection.value.themeMode, ThemeMode.dark);
+    expect(prefs.getString('theme_mode'), 'dark');
+    expect(
+      Theme.of(tester.element(find.byType(AppearanceScreen))).brightness,
+      Brightness.dark,
+    );
   });
 }

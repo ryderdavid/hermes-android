@@ -705,5 +705,10 @@
   "pure_black": "Preto puro",
   "pure_black_description": "Usar fundo preto no tema escuro",
   "search_connection": "Pesquisar em {label}",
-  "more_approval_options": "Mais formas de permitir"
+  "more_approval_options": "Mais formas de permitir",
+  "appearance_summary": "Tema, cor, tamanho do texto e densidade do chat",
+  "theme_label": "Tema",
+  "text_and_chats": "Texto e chats",
+  "appearance_preview_question": "Como as respostas vão ficar?",
+  "appearance_preview_answer": "Assim: suas cores, seu tamanho de texto."
 }

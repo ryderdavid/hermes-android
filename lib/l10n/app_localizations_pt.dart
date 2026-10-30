@@ -2589,6 +2589,23 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get more_approval_options => 'Mais formas de permitir';
+
+  @override
+  String get appearance_summary =>
+      'Tema, cor, tamanho do texto e densidade do chat';
+
+  @override
+  String get theme_label => 'Tema';
+
+  @override
+  String get text_and_chats => 'Texto e chats';
+
+  @override
+  String get appearance_preview_question => 'Como as respostas vão ficar?';
+
+  @override
+  String get appearance_preview_answer =>
+      'Assim: suas cores, seu tamanho de texto.';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -5171,4 +5188,21 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get more_approval_options => 'Mais formas de permitir';
+
+  @override
+  String get appearance_summary =>
+      'Tema, cor, tamanho do texto e densidade do chat';
+
+  @override
+  String get theme_label => 'Tema';
+
+  @override
+  String get text_and_chats => 'Texto e chats';
+
+  @override
+  String get appearance_preview_question => 'Como as respostas vão ficar?';
+
+  @override
+  String get appearance_preview_answer =>
+      'Assim: suas cores, seu tamanho de texto.';
 }

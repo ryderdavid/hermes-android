@@ -705,5 +705,10 @@
   "pure_black": "ピュアブラック",
   "pure_black_description": "ダークテーマで黒い背景を使用します",
   "search_connection": "{label} を検索",
-  "more_approval_options": "その他の許可方法"
+  "more_approval_options": "その他の許可方法",
+  "appearance_summary": "テーマ、色、文字サイズ、チャットの密度",
+  "theme_label": "テーマ",
+  "text_and_chats": "テキストとチャット",
+  "appearance_preview_question": "返信はどう見えますか？",
+  "appearance_preview_answer": "こんな感じです。あなたの色と文字サイズで。"
 }

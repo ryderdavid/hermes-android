@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/screens/appearance_screen.dart';
 import 'package:hermes_android/core/screens/settings_screen.dart';
 import 'package:hermes_android/core/services/chat_density_preference.dart';
 import 'package:hermes_android/core/services/connection_manager.dart';
@@ -92,7 +93,19 @@ void main() {
 
     expect(find.text('Failed to load settings'), findsOneWidget);
     expect(find.text('Appearance'), findsOneWidget);
-    await _scrollTo(tester, find.text('Chat density'));
+    await tester.tap(find.byKey(const Key('settings-appearance')));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Chat density'),
+      300,
+      scrollable: find
+          .descendant(
+            of: find.byType(AppearanceScreen),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Chat density'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Compact'));

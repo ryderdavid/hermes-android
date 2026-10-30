@@ -4383,6 +4383,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More ways to allow'**
   String get more_approval_options;
+
+  /// No description provided for @appearance_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme, color, text size and chat density'**
+  String get appearance_summary;
+
+  /// No description provided for @theme_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme_label;
+
+  /// No description provided for @text_and_chats.
+  ///
+  /// In en, this message translates to:
+  /// **'Text and chats'**
+  String get text_and_chats;
+
+  /// No description provided for @appearance_preview_question.
+  ///
+  /// In en, this message translates to:
+  /// **'How will replies look?'**
+  String get appearance_preview_question;
+
+  /// No description provided for @appearance_preview_answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Like this — your colors, your text size.'**
+  String get appearance_preview_answer;
 }
 
 class _AppLocalizationsDelegate

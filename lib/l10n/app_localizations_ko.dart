@@ -2524,4 +2524,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get more_approval_options => '다른 허용 방법';
+
+  @override
+  String get appearance_summary => '테마, 색상, 텍스트 크기, 채팅 밀도';
+
+  @override
+  String get theme_label => '테마';
+
+  @override
+  String get text_and_chats => '텍스트 및 채팅';
+
+  @override
+  String get appearance_preview_question => '답장은 어떻게 보이나요?';
+
+  @override
+  String get appearance_preview_answer => '이렇게요. 내 색상과 텍스트 크기로요.';
 }

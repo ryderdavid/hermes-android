@@ -2593,4 +2593,20 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get more_approval_options => 'Другие варианты разрешения';
+
+  @override
+  String get appearance_summary => 'Тема, цвет, размер текста и плотность чата';
+
+  @override
+  String get theme_label => 'Тема';
+
+  @override
+  String get text_and_chats => 'Текст и чаты';
+
+  @override
+  String get appearance_preview_question => 'Как будут выглядеть ответы?';
+
+  @override
+  String get appearance_preview_answer =>
+      'Вот так — ваши цвета и размер текста.';
 }

@@ -2503,6 +2503,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get more_approval_options => '更多允许方式';
+
+  @override
+  String get appearance_summary => '主题、颜色、文字大小和聊天密度';
+
+  @override
+  String get theme_label => '主题';
+
+  @override
+  String get text_and_chats => '文字和聊天';
+
+  @override
+  String get appearance_preview_question => '回复会是什么样子？';
+
+  @override
+  String get appearance_preview_answer => '就像这样——你的颜色，你的文字大小。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4998,4 +5013,19 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get more_approval_options => '更多允许方式';
+
+  @override
+  String get appearance_summary => '主题、颜色、文字大小和聊天密度';
+
+  @override
+  String get theme_label => '主题';
+
+  @override
+  String get text_and_chats => '文字和聊天';
+
+  @override
+  String get appearance_preview_question => '回复会是什么样子？';
+
+  @override
+  String get appearance_preview_answer => '就像这样——你的颜色，你的文字大小。';
 }
