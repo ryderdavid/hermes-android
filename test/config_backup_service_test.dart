@@ -82,6 +82,9 @@ void main() {
         'app_text_size_preference': 1.15,
         'voice_name': 'fr-CH-x-fra',
         'session_search.abc.mode': 'ai',
+        'hermes_notification_prefs': '{"turn_completed":true}',
+        'composer_draft.Y29ubjEAa2V5': 'half-typed message',
+        'quick_chats_v1_conn1': '[{"session":"abc"}]',
       });
 
       final backup = await service.export(appVersion: 'test');
@@ -91,6 +94,17 @@ void main() {
       expect(backup.preferences['app_text_size_preference'], 1.15);
       expect(backup.preferences['voice_name'], 'fr-CH-x-fra');
       expect(backup.preferences['session_search.abc.mode'], 'ai');
+      // Full-rehydration coverage: notification prefs, unsent drafts, and
+      // quick chats survive an uninstall/reinstall round trip.
+      expect(
+        backup.preferences['hermes_notification_prefs'],
+        '{"turn_completed":true}',
+      );
+      expect(
+        backup.preferences['composer_draft.Y29ubjEAa2V5'],
+        'half-typed message',
+      );
+      expect(backup.preferences['quick_chats_v1_conn1'], '[{"session":"abc"}]');
     });
 
     test('never exports the raw connection list or transient state', () async {
@@ -120,6 +134,9 @@ void main() {
       final (source, sourceManager, _) = await buildService(<String, Object>{
         'theme_mode': 'dark',
         'verbose_mode': true,
+        'hermes_notification_prefs': '{"turn_completed":false}',
+        'composer_draft.Y29ubjEAa2V5': 'draft text',
+        'quick_chats_v1_conn1': '[{"session":"abc"}]',
       });
       await sourceManager.saveConnection(
         'Miniserver',
@@ -140,6 +157,18 @@ void main() {
       expect(result.connectionsUpdated, 0);
       expect(targetPrefs.getString('theme_mode'), 'dark');
       expect(targetPrefs.getBool('verbose_mode'), true);
+      expect(
+        targetPrefs.getString('hermes_notification_prefs'),
+        '{"turn_completed":false}',
+      );
+      expect(
+        targetPrefs.getString('composer_draft.Y29ubjEAa2V5'),
+        'draft text',
+      );
+      expect(
+        targetPrefs.getString('quick_chats_v1_conn1'),
+        '[{"session":"abc"}]',
+      );
 
       final restored = await targetManager.loadConnectionsWithSecrets();
       expect(restored, hasLength(1));

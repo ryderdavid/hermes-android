@@ -52,6 +52,12 @@ class ConfigImportResult {
 /// in `SharedPreferences` — plugin caches, the turn journal, the raw connection
 /// list, transient UI state — is deliberately excluded, so an imported file can
 /// never overwrite storage the backup format does not understand.
+///
+/// Coverage is meant to be a full rehydration after uninstall/reinstall:
+/// connections with secrets, app and appearance settings, per-chat overrides,
+/// notification prefs, unsent composer drafts, and quick chats. Anything newly
+/// persisted for the user belongs in [exactPreferenceKeys] or
+/// [preferenceKeyPrefixes] — add it there, not to an exclusion list.
 class ConfigBackupService {
   /// Exact preference keys that are safe to carry between devices.
   static const Set<String> exactPreferenceKeys = <String>{
@@ -63,6 +69,8 @@ class ConfigBackupService {
     'chat_density',
     AppUpdateService.checkOnLaunchKey,
     AppUpdateService.skippedVersionKey,
+    // Turn-notification toggles and quiet hours (a single JSON string).
+    'hermes_notification_prefs',
   };
 
   /// Prefixes for per-connection and per-chat preferences, which are keyed by
@@ -73,6 +81,9 @@ class ConfigBackupService {
     'excluded_session_sources_',
     'chat_spaces_v1_',
     LocalChatPinStore.keyPrefix,
+    // Unsent per-chat composer drafts and pinned quick chats.
+    'composer_draft.',
+    'quick_chats_v1_',
   ];
 
   final ConnectionManager _connectionManager;
