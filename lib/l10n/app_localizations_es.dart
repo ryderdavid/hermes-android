@@ -2586,4 +2586,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String search_connection(String label) {
     return 'Buscar en $label';
   }
+
+  @override
+  String get more_approval_options => 'Más formas de permitir';
 }

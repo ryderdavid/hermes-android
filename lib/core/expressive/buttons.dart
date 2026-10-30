@@ -167,12 +167,18 @@ class SplitButtonItem {
     required this.onPressed,
     this.key,
     this.destructive = false,
+    this.subtitle,
+    this.icon,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final Key? key;
   final bool destructive;
+
+  /// A second line saying what the choice does.
+  final String? subtitle;
+  final IconData? icon;
 }
 
 /// A Material 3 Expressive split button: a filled primary action joined to a
@@ -186,6 +192,7 @@ class SplitButton extends StatelessWidget {
     this.menuTooltip,
     this.height = 56,
     this.child,
+    this.menuKey,
     super.key,
   });
 
@@ -198,6 +205,9 @@ class SplitButton extends StatelessWidget {
 
   /// Replaces the label (a progress indicator while submitting).
   final Widget? child;
+
+  /// Key for the menu (trailing) half.
+  final Key? menuKey;
 
   @override
   Widget build(BuildContext context) {
@@ -238,13 +248,36 @@ class SplitButton extends StatelessWidget {
                 MenuItemButton(
                   key: item.key,
                   onPressed: item.onPressed,
+                  leadingIcon: item.icon == null ? null : Icon(item.icon),
                   style: item.destructive
                       ? MenuItemButton.styleFrom(foregroundColor: scheme.error)
                       : null,
-                  child: Text(item.label),
+                  child: item.subtitle == null
+                      ? Text(item.label)
+                      : ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 280),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(item.label),
+                                Text(
+                                  item.subtitle!,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: scheme.onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                 ),
             ],
             builder: (context, controller, _) => FilledButton(
+              key: menuKey,
               onPressed:
                   onPressed == null && items.every((i) => i.onPressed == null)
                   ? null

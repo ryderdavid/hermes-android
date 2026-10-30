@@ -2586,6 +2586,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String search_connection(String label) {
     return 'Pesquisar em $label';
   }
+
+  @override
+  String get more_approval_options => 'Mais formas de permitir';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -5165,4 +5168,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String search_connection(String label) {
     return 'Pesquisar em $label';
   }
+
+  @override
+  String get more_approval_options => 'Mais formas de permitir';
 }

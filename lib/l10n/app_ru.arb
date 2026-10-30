@@ -704,5 +704,6 @@
   "color_wallpaper_unavailable": "Цвета обоев доступны на Android 12 и новее",
   "pure_black": "Чистый чёрный",
   "pure_black_description": "Чёрный фон в тёмной теме",
-  "search_connection": "Поиск в {label}"
+  "search_connection": "Поиск в {label}",
+  "more_approval_options": "Другие варианты разрешения"
 }

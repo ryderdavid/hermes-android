@@ -2521,4 +2521,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String search_connection(String label) {
     return '$label 검색';
   }
+
+  @override
+  String get more_approval_options => '다른 허용 방법';
 }

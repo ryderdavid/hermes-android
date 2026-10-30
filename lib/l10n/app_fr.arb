@@ -704,5 +704,6 @@
   "color_wallpaper_unavailable": "Les couleurs du fond d’écran nécessitent Android 12 ou version ultérieure",
   "pure_black": "Noir pur",
   "pure_black_description": "Utiliser un fond noir avec le thème sombre",
-  "search_connection": "Rechercher dans {label}"
+  "search_connection": "Rechercher dans {label}",
+  "more_approval_options": "Autres façons d'autoriser"
 }

@@ -2590,4 +2590,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String search_connection(String label) {
     return 'Поиск в $label';
   }
+
+  @override
+  String get more_approval_options => 'Другие варианты разрешения';
 }

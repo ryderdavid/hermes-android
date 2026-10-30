@@ -2593,4 +2593,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String search_connection(String label) {
     return '$label durchsuchen';
   }
+
+  @override
+  String get more_approval_options => 'Weitere Freigabeoptionen';
 }

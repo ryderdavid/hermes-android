@@ -704,5 +704,6 @@
   "color_wallpaper_unavailable": "As cores do plano de fundo exigem Android 12 ou mais recente",
   "pure_black": "Preto puro",
   "pure_black_description": "Usar fundo preto no tema escuro",
-  "search_connection": "Pesquisar em {label}"
+  "search_connection": "Pesquisar em {label}",
+  "more_approval_options": "Mais formas de permitir"
 }

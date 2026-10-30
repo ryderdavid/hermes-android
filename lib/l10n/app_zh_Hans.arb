@@ -704,5 +704,6 @@
   "color_wallpaper_unavailable": "壁纸取色需要 Android 12 或更高版本",
   "pure_black": "纯黑",
   "pure_black_description": "深色主题使用黑色背景",
-  "search_connection": "搜索 {label}"
+  "search_connection": "搜索 {label}",
+  "more_approval_options": "更多允许方式"
 }

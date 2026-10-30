@@ -713,5 +713,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "more_approval_options": "More ways to allow"
 }

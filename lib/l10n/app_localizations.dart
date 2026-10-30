@@ -4377,6 +4377,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search {label}'**
   String search_connection(String label);
+
+  /// No description provided for @more_approval_options.
+  ///
+  /// In en, this message translates to:
+  /// **'More ways to allow'**
+  String get more_approval_options;
 }
 
 class _AppLocalizationsDelegate

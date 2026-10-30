@@ -2520,4 +2520,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String search_connection(String label) {
     return '$label を検索';
   }
+
+  @override
+  String get more_approval_options => 'その他の許可方法';
 }

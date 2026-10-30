@@ -2500,6 +2500,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String search_connection(String label) {
     return '搜索 $label';
   }
+
+  @override
+  String get more_approval_options => '更多允许方式';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4992,4 +4995,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String search_connection(String label) {
     return '搜索 $label';
   }
+
+  @override
+  String get more_approval_options => '更多允许方式';
 }

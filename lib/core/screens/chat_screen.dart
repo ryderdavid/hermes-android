@@ -3943,15 +3943,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       }
 
       _approvalRouteOpen = true;
-      final responded = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (dialogContext) => GatewayApprovalDialog(
-          request: request,
-          onRespond: (choice) => _respondToGatewayApproval(
-            choice.wireValue,
-            requestId: serverRequestId,
-          ),
+      final responded = await GatewayApprovalDialog.show(
+        context,
+        request: request,
+        onRespond: (choice) => _respondToGatewayApproval(
+          choice.wireValue,
+          requestId: serverRequestId,
         ),
       );
       _approvalRouteOpen = false;

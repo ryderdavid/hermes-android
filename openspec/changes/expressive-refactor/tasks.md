@@ -32,7 +32,7 @@
 
 ## 6. Sheets
 
-- [ ] 6.1 Approval presented as a modal bottom sheet with Deny and a split Approve button; existing approval tests pass with the same results.
+- [x] 6.1 Approval presented as a modal bottom sheet with Deny and a split Approve button; existing approval tests pass with the same results.
 
 ## 7. Settings
 
