@@ -41,5 +41,5 @@
 
 ## 8. Verify and deliver
 
-- [ ] 8.1 Full suite, analyze, colour lint; goldens regenerated and reviewed; accessibility guideline tests cover the new screens.
+- [x] 8.1 Full suite, analyze, colour lint; goldens regenerated and reviewed; accessibility guideline tests cover the new screens.
 - [ ] 8.2 Version 2.1.30-you.3; signed split release APKs; GitHub release on the fork; APK sent to the phone over Tailscale; smoke test on the tablet.

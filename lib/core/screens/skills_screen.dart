@@ -5,6 +5,7 @@ import '../theme/hermes_theme.dart';
 import '../services/connection_manager.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
+import '../expressive/expressive.dart';
 class SkillsScreen extends StatefulWidget {
   final SavedConnection connection;
   const SkillsScreen({required this.connection, super.key});
@@ -79,7 +80,7 @@ class _SkillsScreenState extends State<SkillsScreen> {
   }
 
   Widget _buildBody() {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const Center(child: ExpressiveLoadingIndicator());
     if (_error != null) {
       return Center(
         child: SingleChildScrollView(

@@ -26,6 +26,7 @@ import 'skills_screen.dart';
 import 'workspace_screen.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
+import '../expressive/expressive.dart';
 
 export '../widgets/session_name_dialog.dart' show showSessionNameDialog;
 
@@ -1264,7 +1265,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
       );
     }
 
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const Center(child: ExpressiveLoadingIndicator());
 
     if (_error != null) {
       return Center(

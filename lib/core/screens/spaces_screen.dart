@@ -4,6 +4,7 @@ import '../models/session.dart';
 import '../services/chat_space_store.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
+import '../expressive/expressive.dart';
 class SpacesScreen extends StatefulWidget {
   final ChatSpaceStore store;
   final List<Session> sessions;
@@ -177,7 +178,7 @@ class _SpacesScreenState extends State<SpacesScreen> {
         ],
       ),
       body: state == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: ExpressiveLoadingIndicator())
           : ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [

@@ -17,6 +17,7 @@ import '../utils/relative_time.dart';
 import 'chat_screen.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
+import '../expressive/expressive.dart';
 class CronScreen extends StatefulWidget {
   final SavedConnection connection;
 
@@ -546,7 +547,7 @@ class _CronScreenState extends State<CronScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: ExpressiveLoadingIndicator());
     }
 
     if (_error != null) {

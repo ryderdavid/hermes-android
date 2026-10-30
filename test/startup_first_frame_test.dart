@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/expressive/expressive.dart';
 import 'package:hermes_android/core/services/android_launch_intent_service.dart';
 import 'package:hermes_android/core/services/android_share_intent_service.dart';
 import 'package:hermes_android/core/services/connection_manager.dart';
@@ -92,18 +93,18 @@ void main() {
     // The frame is a real MaterialApp/Scaffold, not an empty runApp placeholder.
     expect(find.byType(MaterialApp), findsOneWidget);
     expect(find.byType(Scaffold), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(ExpressiveLoadingIndicator), findsOneWidget);
     expect(find.byType(HermesApp), findsNothing);
     await tester.pump();
     expect(credentials.reads, 1);
     expect(shareProbes, 1);
     expect(launchProbes, 1);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(ExpressiveLoadingIndicator), findsOneWidget);
 
     credentials.readResult.complete(jsonEncode({'api_key': 'test-credential'}));
     await tester.pumpAndSettle();
     expect(find.byType(HermesApp), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.byType(ExpressiveLoadingIndicator), findsNothing);
     final home = tester.widget<HomeScreen>(find.byType(HomeScreen));
     expect(home.connManager.getConnections().single.apiKey, 'test-credential');
   });
@@ -130,7 +131,7 @@ void main() {
           },
         ),
       );
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(ExpressiveLoadingIndicator), findsOneWidget);
       await tester.pump();
       expect(credentials.reads, 1);
       credentials.readResult.completeError(StateError('Keystore unavailable'));
@@ -176,7 +177,7 @@ void main() {
     messenger.setMockMethodCallHandler(launchChannel, (_) async => 'quickChat');
 
     await tester.pumpWidget(const StartupApp());
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(ExpressiveLoadingIndicator), findsOneWidget);
     await tester.pump();
     expect(find.byType(HomeScreen), findsNothing);
     initialShare.complete('Shared draft');

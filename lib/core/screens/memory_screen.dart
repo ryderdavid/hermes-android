@@ -11,6 +11,7 @@ import '../widgets/hermes_components.dart';
 import '../services/connection_manager.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
+import '../expressive/expressive.dart';
 class MemoryScreen extends StatefulWidget {
   final SavedConnection connection;
   const MemoryScreen({required this.connection, super.key});
@@ -137,7 +138,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: ExpressiveLoadingIndicator());
     }
 
     if (_error != null) {

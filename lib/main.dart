@@ -27,6 +27,7 @@ import 'core/widgets/config_backup_card.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
+import 'core/expressive/expressive.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -124,7 +125,7 @@ class _StartupAppState extends State<StartupApp> {
       debugShowCheckedModeBanner: false,
       theme: hermesTheme(Brightness.light),
       darkTheme: hermesTheme(Brightness.dark),
-      home: const Scaffold(body: Center(child: CircularProgressIndicator())),
+      home: const Scaffold(body: Center(child: ExpressiveLoadingIndicator())),
     );
   }
 }

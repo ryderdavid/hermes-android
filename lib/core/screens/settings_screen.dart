@@ -794,7 +794,7 @@ class _VoicePickerState extends State<_VoicePicker> {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(16),
-          child: Center(child: CircularProgressIndicator()),
+          child: Center(child: ExpressiveLoadingIndicator()),
         ),
       );
     }

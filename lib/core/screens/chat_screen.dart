@@ -4858,7 +4858,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   Widget _buildBody() {
     if (_loading && _messages.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: ExpressiveLoadingIndicator());
     }
 
     if (_error != null && _messages.isEmpty) {
