@@ -2581,4 +2581,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get pure_black_description => 'Usa un fondo negro en el tema oscuro';
+
+  @override
+  String search_connection(String label) {
+    return 'Buscar en $label';
+  }
 }

@@ -23,6 +23,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../models/session.dart';
+import '../expressive/expressive.dart';
 import '../theme/hermes_theme.dart';
 import '../utils/home_digest.dart';
 import 'hermes_components.dart';
@@ -241,28 +242,153 @@ class HomePaneState extends State<HomePane> {
   }
 
   List<Widget> _section(HomeSection section) {
+    VoidCallback? open(HomeItem item) => widget.onOpenSession == null
+        ? null
+        : () => widget.onOpenSession!(item.session);
     return [
       SectionHeader(
         title: section.title(context.l10n),
         count: section.totalCount,
       ),
-      for (final item in section.items)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            HermesSpacing.lg,
-            0,
-            HermesSpacing.lg,
-            HermesSpacing.md,
+      if (section.kind == HomeSectionKind.needsYou)
+        // Material 3 Expressive carousel: what is waiting on you leads Home
+        // as large cards, the rest stays in compact segmented lists.
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: HermesSpacing.lg),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < section.items.length; i++) ...[
+                  if (i > 0) const SizedBox(width: HermesSpacing.sm),
+                  _NeedsYouCard(
+                    item: section.items[i],
+                    width: section.items.length == 1
+                        ? MediaQuery.sizeOf(context).width -
+                              2 * HermesSpacing.lg
+                        : 292,
+                    onTap: open(section.items[i]),
+                  ),
+                ],
+              ],
+            ),
           ),
-          child: _HomeItemCard(
-            item: item,
-            onTap: widget.onOpenSession == null
-                ? null
-                : () => widget.onOpenSession!(item.session),
+        )
+      else
+        SegmentedListGroup(
+          padding: const EdgeInsets.symmetric(horizontal: HermesSpacing.lg),
+          children: [
+            for (final item in section.items)
+              _HomeItemCard(item: item, onTap: open(item)),
+          ],
+        ),
+      if (section.overflow > 0)
+        Padding(
+          padding: const EdgeInsets.only(top: HermesSpacing.sm),
+          child: _OverflowNote(count: section.overflow),
+        )
+      else
+        const SizedBox(height: HermesSpacing.sm),
+    ];
+  }
+}
+
+/// A "Needs you" carousel card: tertiary container, 28dp corners, the
+/// reason Hermes is waiting and where.
+class _NeedsYouCard extends StatelessWidget {
+  final HomeItem item;
+  final double width;
+  final VoidCallback? onTap;
+
+  const _NeedsYouCard({required this.item, required this.width, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final title = item.session.title.trim().isEmpty
+        ? context.l10n.untitled_chat
+        : item.session.title;
+    final ink = scheme.onTertiaryContainer;
+    return SizedBox(
+      width: width,
+      child: Material(
+        color: scheme.tertiaryContainer,
+        borderRadius: const BorderRadius.all(
+          Radius.circular(HermesRadius.xlPlus),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 168),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      SizedBox.square(
+                        dimension: 36,
+                        child: DecoratedBox(
+                          decoration: ShapeDecoration(
+                            color: scheme.tertiary,
+                            shape: const ExpressiveShapeBorder(
+                              ExpressiveShape.clover,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.front_hand_outlined,
+                            size: 18,
+                            color: scheme.onTertiary,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      StatusChip(status: item.status),
+                    ],
+                  ),
+                  const SizedBox(height: HermesSpacing.md),
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: ink,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (item.attentionLabel != null) ...[
+                    const SizedBox(height: HermesSpacing.xs),
+                    Text(
+                      item.attentionLabel!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(color: ink),
+                    ),
+                  ],
+                  const Spacer(),
+                  if (item.projectName != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: HermesSpacing.sm),
+                      child: Text(
+                        item.projectName!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: ink.withValues(alpha: 0.86),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
-      if (section.overflow > 0) _OverflowNote(count: section.overflow),
-    ];
+      ),
+    );
   }
 }
 
@@ -340,56 +466,70 @@ class _HomeItemCard extends StatelessWidget {
     final project = item.projectName;
     final reason = item.attentionLabel;
 
+    final mark = project == null
+        ? MarkStyle.unassigned
+        : MarkStyle.forKey(project);
     return HermesCard(
       onTap: onTap,
       // Only blocked work is tinted: tinting every row would make none of
       // them read as urgent.
       status: item.status == HermesStatus.blocked ? item.status : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.symmetric(
+        horizontal: HermesSpacing.lg,
+        vertical: HermesSpacing.md,
+      ),
+      child: Row(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
+          ShapeMark(style: mark, label: project ?? title),
+          const SizedBox(width: HermesSpacing.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: tokens.typography.section.copyWith(
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: tokens.onSurface,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-              const SizedBox(width: HermesSpacing.sm),
-              StatusChip(
-                status: item.status,
-                label: item.recentlyActive
-                    ? context.l10n.recently_active
-                    : null,
-              ),
-            ],
+                if (reason != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    reason,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: tokens.typography.body.copyWith(
+                      color: tokens.colorForStatus(HermesStatus.blocked),
+                    ),
+                  ),
+                ],
+                if (project != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    project,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: tokens.typography.body.copyWith(color: tokens.muted),
+                  ),
+                ],
+                if (item.status == HermesStatus.running) ...[
+                  const SizedBox(height: HermesSpacing.sm),
+                  const SizedBox(
+                    width: 120,
+                    child: WavyProgressIndicator(animate: false, height: 10),
+                  ),
+                ],
+              ],
+            ),
           ),
-          if (reason != null) ...[
-            const SizedBox(height: HermesSpacing.xs),
-            Text(
-              reason,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: tokens.typography.body.copyWith(
-                color: tokens.colorForStatus(HermesStatus.blocked),
-              ),
-            ),
-          ],
-          if (project != null) ...[
-            const SizedBox(height: HermesSpacing.xs),
-            Text(
-              project,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: tokens.typography.label.copyWith(color: tokens.muted),
-            ),
-          ],
+          const SizedBox(width: HermesSpacing.sm),
+          StatusChip(
+            status: item.status,
+            label: item.recentlyActive ? context.l10n.recently_active : null,
+          ),
         ],
       ),
     );

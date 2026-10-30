@@ -15,9 +15,9 @@
 
 ## 3. Home and panes
 
-- [ ] 3.1 Workspace destinations use `LargeHeader`; Home leads with a `SearchBar` that opens chat search.
-- [ ] 3.2 Home pane: "Needs you" carousel cards (approval, running with wavy progress) and recent chats as a segmented list with shape marks.
-- [ ] 3.3 Projects, Activity and More panes adopt segmented lists and shape marks.
+- [x] 3.1 Workspace destinations use `LargeHeader`; Home leads with a `SearchBar` that opens chat search.
+- [x] 3.2 Home pane: "Needs you" carousel cards (approval, running with wavy progress) and recent chats as a segmented list with shape marks.
+- [x] 3.3 Projects, Activity and More panes adopt segmented lists and shape marks.
 
 ## 4. Chats
 

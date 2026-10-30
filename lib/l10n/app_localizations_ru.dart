@@ -2585,4 +2585,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pure_black_description => 'Чёрный фон в тёмной теме';
+
+  @override
+  String search_connection(String label) {
+    return 'Поиск в $label';
+  }
 }

@@ -2495,6 +2495,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pure_black_description => '深色主题使用黑色背景';
+
+  @override
+  String search_connection(String label) {
+    return '搜索 $label';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4982,4 +4987,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get pure_black_description => '深色主题使用黑色背景';
+
+  @override
+  String search_connection(String label) {
+    return '搜索 $label';
+  }
 }

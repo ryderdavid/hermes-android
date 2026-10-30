@@ -2581,6 +2581,11 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get pure_black_description => 'Usar fundo preto no tema escuro';
+
+  @override
+  String search_connection(String label) {
+    return 'Pesquisar em $label';
+  }
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -5155,4 +5160,9 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get pure_black_description => 'Usar fundo preto no tema escuro';
+
+  @override
+  String search_connection(String label) {
+    return 'Pesquisar em $label';
+  }
 }

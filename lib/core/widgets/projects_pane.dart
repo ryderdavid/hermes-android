@@ -10,6 +10,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../expressive/expressive.dart';
 
 import '../models/hermes_project.dart';
 import '../models/projects_tree_overview.dart';
@@ -314,43 +315,47 @@ class _ProjectsPaneState extends State<ProjectsPane>
                   : null,
               onAction: _hasLocalSpaces ? _showMigrationPreview : null,
             ),
-            for (final project in view.projects)
-              Padding(
+            SegmentedListGroup(
+              padding: const EdgeInsets.fromLTRB(
+                HermesSpacing.lg,
+                0,
+                HermesSpacing.lg,
+                HermesSpacing.md,
+              ),
+              children: [
+                for (final project in view.projects)
+                  _ProjectCard(
+                    project: project,
+                    isActive: project.id == view.activeId,
+                    onTap: () => unawaited(_openProject(project.id)),
+                    overview: _overviewFor(project.id),
+                    onRename: () => _renameProject(project),
+                    onArchive: () => _archiveProject(project),
+                  ),
+              ],
+            ),
+            if (view.archived.isNotEmpty) ...[
+              SectionHeader(
+                title: context.l10n.archived,
+                count: view.archived.length,
+              ),
+              SegmentedListGroup(
                 padding: const EdgeInsets.fromLTRB(
                   HermesSpacing.lg,
                   0,
                   HermesSpacing.lg,
                   HermesSpacing.md,
                 ),
-                child: _ProjectCard(
-                  project: project,
-                  isActive: project.id == view.activeId,
-                  onTap: () => unawaited(_openProject(project.id)),
-                  overview: _overviewFor(project.id),
-                  onRename: () => _renameProject(project),
-                  onArchive: () => _archiveProject(project),
-                ),
+                children: [
+                  for (final project in view.archived)
+                    _ProjectCard(
+                      project: project,
+                      isActive: false,
+                      onTap: () {},
+                      onRestore: () => _restoreProject(project),
+                    ),
+                ],
               ),
-            if (view.archived.isNotEmpty) ...[
-              SectionHeader(
-                title: context.l10n.archived,
-                count: view.archived.length,
-              ),
-              for (final project in view.archived)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    HermesSpacing.lg,
-                    0,
-                    HermesSpacing.lg,
-                    HermesSpacing.md,
-                  ),
-                  child: _ProjectCard(
-                    project: project,
-                    isActive: false,
-                    onTap: () {},
-                    onRestore: () => _restoreProject(project),
-                  ),
-                ),
             ],
           ],
         ),
@@ -433,19 +438,21 @@ class _CompatibilityMode extends StatelessWidget {
               title: context.l10n.on_this_device,
               count: localSpaces.length,
             ),
-            for (final space in localSpaces)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  HermesSpacing.lg,
-                  0,
-                  HermesSpacing.lg,
-                  HermesSpacing.md,
-                ),
-                child: _LocalSpaceCard(
-                  space: space,
-                  sessionCount: counts[space.id] ?? 0,
-                ),
+            SegmentedListGroup(
+              padding: const EdgeInsets.fromLTRB(
+                HermesSpacing.lg,
+                0,
+                HermesSpacing.lg,
+                HermesSpacing.md,
               ),
+              children: [
+                for (final space in localSpaces)
+                  _LocalSpaceCard(
+                    space: space,
+                    sessionCount: counts[space.id] ?? 0,
+                  ),
+              ],
+            ),
           ],
         ],
       ),
@@ -468,19 +475,7 @@ class _LocalSpaceCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: tokens.muted.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(HermesRadius.sm),
-            ),
-            child: Icon(
-              Icons.phone_android_rounded,
-              size: 20,
-              color: tokens.muted,
-            ),
-          ),
+          const TonalIcon(Icons.phone_android_rounded),
           const SizedBox(width: HermesSpacing.md),
           Expanded(
             child: Column(
@@ -573,14 +568,11 @@ class _ProjectCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: tokens.accent.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(HermesRadius.sm),
-            ),
-            child: Icon(Icons.folder_rounded, size: 20, color: tokens.accent),
+          // The project's expressive mark: the same shape and colour it
+          // has on Home, in Chats and in the chat app bar.
+          ShapeMark(
+            style: MarkStyle.forKey(project.name),
+            icon: Icons.folder_rounded,
           ),
           const SizedBox(width: HermesSpacing.md),
           Expanded(

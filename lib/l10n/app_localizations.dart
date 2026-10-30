@@ -4371,6 +4371,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use a black background in dark theme'**
   String get pure_black_description;
+
+  /// No description provided for @search_connection.
+  ///
+  /// In en, this message translates to:
+  /// **'Search {label}'**
+  String search_connection(String label);
 }
 
 class _AppLocalizationsDelegate

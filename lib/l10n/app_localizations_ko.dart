@@ -2516,4 +2516,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get pure_black_description => '어두운 테마에서 검은색 배경 사용';
+
+  @override
+  String search_connection(String label) {
+    return '$label 검색';
+  }
 }

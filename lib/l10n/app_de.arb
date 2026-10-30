@@ -703,5 +703,6 @@
   "color_wallpaper_description": "Passt sich deinem Hintergrund an",
   "color_wallpaper_unavailable": "Hintergrundfarben erfordern Android 12 oder höher",
   "pure_black": "Reines Schwarz",
-  "pure_black_description": "Schwarzer Hintergrund im dunklen Design"
+  "pure_black_description": "Schwarzer Hintergrund im dunklen Design",
+  "search_connection": "{label} durchsuchen"
 }

@@ -17,6 +17,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import '../expressive/segmented_list.dart';
 
 import '../theme/hermes_theme.dart';
 import 'hermes_components.dart';
@@ -214,16 +215,18 @@ class MorePane extends StatelessWidget {
       children: [
         for (final section in sections) ...[
           SectionHeader(title: section.title),
-          for (final entry in section.entries)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                HermesSpacing.lg,
-                0,
-                HermesSpacing.lg,
-                HermesSpacing.md,
-              ),
-              child: _MoreEntryCard(entry: entry, onSelect: onSelect),
+          SegmentedListGroup(
+            padding: const EdgeInsets.fromLTRB(
+              HermesSpacing.lg,
+              0,
+              HermesSpacing.lg,
+              HermesSpacing.md,
             ),
+            children: [
+              for (final entry in section.entries)
+                _MoreEntryCard(entry: entry, onSelect: onSelect),
+            ],
+          ),
         ],
       ],
     );
@@ -251,20 +254,14 @@ class _MoreEntryCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: (dimmed ? tokens.muted : tokens.accent).withValues(
-                  alpha: 0.14,
-                ),
-                borderRadius: BorderRadius.circular(HermesRadius.sm),
-              ),
-              child: Icon(
-                entry.icon,
-                size: 20,
-                color: dimmed ? tokens.muted : tokens.accent,
-              ),
+            TonalIcon(
+              entry.icon,
+              tone: dimmed
+                  ? (
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
+                      tokens.muted,
+                    )
+                  : null,
             ),
             const SizedBox(width: HermesSpacing.md),
             Expanded(

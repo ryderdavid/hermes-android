@@ -703,5 +703,6 @@
   "color_wallpaper_description": "Se adapta a tu fondo de pantalla",
   "color_wallpaper_unavailable": "Los colores del fondo requieren Android 12 o posterior",
   "pure_black": "Negro puro",
-  "pure_black_description": "Usa un fondo negro en el tema oscuro"
+  "pure_black_description": "Usa un fondo negro en el tema oscuro",
+  "search_connection": "Buscar en {label}"
 }

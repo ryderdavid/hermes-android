@@ -703,5 +703,6 @@
   "color_wallpaper_description": "与壁纸一致",
   "color_wallpaper_unavailable": "壁纸取色需要 Android 12 或更高版本",
   "pure_black": "纯黑",
-  "pure_black_description": "深色主题使用黑色背景"
+  "pure_black_description": "深色主题使用黑色背景",
+  "search_connection": "搜索 {label}"
 }

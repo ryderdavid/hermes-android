@@ -703,5 +703,6 @@
   "color_wallpaper_description": "배경화면에 맞춤",
   "color_wallpaper_unavailable": "배경화면 색상은 Android 12 이상이 필요합니다",
   "pure_black": "완전한 검정",
-  "pure_black_description": "어두운 테마에서 검은색 배경 사용"
+  "pure_black_description": "어두운 테마에서 검은색 배경 사용",
+  "search_connection": "{label} 검색"
 }

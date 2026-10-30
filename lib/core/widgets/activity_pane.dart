@@ -23,6 +23,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../expressive/segmented_list.dart';
 
 import '../theme/hermes_theme.dart';
 import '../utils/activity_feed.dart';
@@ -173,22 +174,24 @@ class ActivityPaneState extends State<ActivityPane> {
         title: group.title(context.l10n),
         count: group.totalCount,
       ),
-      for (final item in group.items)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            HermesSpacing.lg,
-            0,
-            HermesSpacing.lg,
-            HermesSpacing.md,
-          ),
-          child: _ActivityItemCard(
+      SegmentedListGroup(
+        padding: const EdgeInsets.fromLTRB(
+          HermesSpacing.lg,
+          0,
+          HermesSpacing.lg,
+          HermesSpacing.md,
+        ),
+        children: [
+          for (final item in group.items)
+            _ActivityItemCard(
             item: item,
             now: _now,
             onTap: widget.onOpenItem == null
                 ? null
                 : () => widget.onOpenItem!(item),
           ),
-        ),
+        ],
+      ),
       if (group.overflow > 0) _OverflowNote(count: group.overflow),
     ];
   }

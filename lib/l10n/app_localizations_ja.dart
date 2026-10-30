@@ -2515,4 +2515,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get pure_black_description => 'ダークテーマで黒い背景を使用します';
+
+  @override
+  String search_connection(String label) {
+    return '$label を検索';
+  }
 }

@@ -20,6 +20,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import '../expressive/segmented_list.dart';
 
 import '../models/hermes_project.dart';
 import '../models/project_sessions_tree.dart';
@@ -666,16 +667,15 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
           ),
           if (tree != null && tree.repos.isNotEmpty) ...[
             SectionHeader(title: context.l10n.repositories),
-            for (final repo in tree.repos)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  HermesSpacing.lg,
-                  0,
-                  HermesSpacing.lg,
-                  HermesSpacing.md,
-                ),
-                child: _RepoCard(repo: repo),
+            SegmentedListGroup(
+              padding: const EdgeInsets.fromLTRB(
+                HermesSpacing.lg,
+                0,
+                HermesSpacing.lg,
+                HermesSpacing.md,
               ),
+              children: [for (final repo in tree.repos) _RepoCard(repo: repo)],
+            ),
           ],
           if (tree?.path != null) ...[
             SectionHeader(title: context.l10n.location),

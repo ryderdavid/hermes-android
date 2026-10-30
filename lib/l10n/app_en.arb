@@ -705,5 +705,13 @@
   "color_wallpaper_description": "Matches your wallpaper",
   "color_wallpaper_unavailable": "Wallpaper colors need Android 12 or later",
   "pure_black": "Pure black",
-  "pure_black_description": "Use a black background in dark theme"
+  "pure_black_description": "Use a black background in dark theme",
+  "search_connection": "Search {label}",
+  "@search_connection": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  }
 }

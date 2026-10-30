@@ -703,5 +703,6 @@
   "color_wallpaper_description": "壁紙に合わせます",
   "color_wallpaper_unavailable": "壁紙の色には Android 12 以降が必要です",
   "pure_black": "ピュアブラック",
-  "pure_black_description": "ダークテーマで黒い背景を使用します"
+  "pure_black_description": "ダークテーマで黒い背景を使用します",
+  "search_connection": "{label} を検索"
 }

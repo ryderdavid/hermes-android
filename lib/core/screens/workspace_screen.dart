@@ -32,6 +32,7 @@ import '../services/projects_repository.dart';
 import '../services/quick_chat_store.dart';
 import '../services/remote_files_client.dart';
 import '../services/shared_attachment_preparer.dart';
+import '../expressive/expressive.dart';
 import '../theme/hermes_theme.dart';
 import '../utils/activity_feed.dart';
 import '../utils/home_turn_signals.dart';
@@ -1688,21 +1689,33 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final tokens = HermesTokens.of(context);
-
-    return Scaffold(
-      backgroundColor: tokens.surface,
-      appBar: AppBar(
-        title: Text(widget.connection.label),
-        centerTitle: false,
-        actions: [
-          if (_destination == HermesDestination.home) ...[
+  /// Home leads with a Material 3 Expressive search bar that opens the
+  /// global chat search; the inbox sits inside it.
+  Widget _buildHomeSearchBar(BuildContext context) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: Tooltip(
+        message: l10n.search_all_chats,
+        excludeFromSemantics: true,
+        child: SearchBar(
+          hintText: l10n.search_connection(widget.connection.label),
+          elevation: const WidgetStatePropertyAll(0),
+          backgroundColor: WidgetStatePropertyAll(scheme.surfaceContainerHigh),
+          constraints: const BoxConstraints(minHeight: 56, maxHeight: 56),
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.only(left: 16, right: 4),
+          ),
+          leading: Icon(Icons.search, color: scheme.onSurfaceVariant),
+          onTap: () => _openWorkspaceSessionView(WorkspaceSessionView.search),
+          // Read-only: tapping hands off to the Chats search field.
+          keyboardType: TextInputType.none,
+          trailing: [
             IconButton(
               tooltip: _inboxActionCount == 0
-                  ? context.l10n.open_inbox
-                  : context.l10n.open_inbox_2(_inboxActionCount),
+                  ? l10n.open_inbox
+                  : l10n.open_inbox_2(_inboxActionCount),
               onPressed: _openInbox,
               icon: Badge(
                 isLabelVisible: _inboxActionCount > 0,
@@ -1710,14 +1723,56 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
                 child: const Icon(Icons.inbox_outlined),
               ),
             ),
-            IconButton(
-              tooltip: context.l10n.search_all_chats,
-              onPressed: () =>
-                  _openWorkspaceSessionView(WorkspaceSessionView.search),
-              icon: const Icon(Icons.search),
+            Semantics(
+              label: widget.connection.label,
+              child: ShapeMark(
+                style: MarkStyle.forKey(widget.connection.id),
+                label: widget.connection.label,
+                size: 36,
+              ),
             ),
           ],
-        ],
+        ),
+      ),
+    );
+  }
+
+  /// Other destinations: the destination name, emphasized and left-aligned,
+  /// with the connection as the Material 3 Expressive app bar subtitle.
+  Widget _buildDestinationTitle(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          _destination.label(context.l10n),
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          widget.connection.label,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = HermesTokens.of(context);
+
+    return Scaffold(
+      backgroundColor: tokens.surface,
+      appBar: AppBar(
+        toolbarHeight: 72,
+        titleSpacing: _destination == HermesDestination.home ? 4 : null,
+        title: _destination == HermesDestination.home
+            ? _buildHomeSearchBar(context)
+            : _buildDestinationTitle(context),
       ),
       body: HermesShell(
         initialDestination: HermesDestination.home,

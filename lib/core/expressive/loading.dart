@@ -213,7 +213,8 @@ class _WavyProgressIndicatorState extends State<WavyProgressIndicator>
             animation: _phase,
             builder: (context, _) => CustomPaint(
               painter: _WavePainter(
-                value: value,
+                // A still indeterminate wave shows a fixed stretch of wave.
+                value: value ?? (widget.animate ? null : 0.6),
                 phase: _phase.value,
                 color: widget.color ?? scheme.primary,
                 track: widget.trackColor ?? scheme.secondaryContainer,

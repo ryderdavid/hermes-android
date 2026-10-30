@@ -2588,4 +2588,9 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get pure_black_description =>
       'Schwarzer Hintergrund im dunklen Design';
+
+  @override
+  String search_connection(String label) {
+    return '$label durchsuchen';
+  }
 }
