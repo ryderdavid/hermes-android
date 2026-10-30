@@ -1,10 +1,39 @@
-# Fork handover — Material You redesign
+# Fork handover — Material You and Expressive
 
-Branch `feat/material-you` on https://github.com/ryderdavid/hermes-android.
+Current branch: `feat/expressive` on https://github.com/ryderdavid/hermes-android
+(it builds on `feat/backup-full-coverage` and `feat/material-you`).
 Upstream: https://github.com/rusty4444/hermes-android (base `63670ab`, v2.1.30+2173).
-Design target: https://claude.ai/artifact/LTFtuBnyjddRXc3XbgmJpB
+Design targets: https://claude.ai/artifact/LTFtuBnyjddRXc3XbgmJpB (Material You),
+https://claude.ai/artifact/SA3UYuCG2gsuo3PiADX5rT (Hermes Expressive).
 
-## Status (2026-10-23): complete
+## Expressive refactor (2026-10-30): complete
+
+- **All 20 tasks are done.** The OpenSpec change is archived at
+  `openspec/changes/archive/2026-10-30-expressive-refactor/`, and its specs
+  are merged into `openspec/specs/`. Its 8 epics and task beads are closed.
+- **What changed:** an in-repo Material 3 Expressive kit in
+  `lib/core/expressive/`:
+  - shape marks, spring tokens, the loading indicator and wavy progress
+  - segmented lists, and connected and split buttons
+
+  Every main screen is rebuilt on it: Home, Chats, Projects, Activity, More,
+  Chat, the approval sheet, Settings, and a new Appearance page. See
+  `docs/releases/v2.1.30-you.3.md`.
+- **Released:** [v2.1.30-you.3](https://github.com/ryderdavid/hermes-android/releases/tag/v2.1.30-you.3),
+  signed with the fork's key. The arm64 APK was also sent to the phone over
+  Tailscale.
+- **Verified:**
+  - `flutter analyze` is clean, the hard-coded colour lint passes, and
+    `flutter test` passes 1,717 tests, including 149 goldens and the
+    accessibility guidelines.
+  - Smoke-tested on the Fire HD 10 against `tools/fake_gateway`: home, chat
+    streaming with the Send/Stop morph, Settings, and live theme switching on
+    Appearance.
+- **Not checked on a device:** the approval sheet. The Fire's saved
+  connection uses the REST path, so the fixture never asked for approval.
+  Widget tests and goldens cover the sheet.
+
+## Material You redesign (2026-10-23): complete
 
 - **All 35 tasks are done.** The OpenSpec change is archived at
   `openspec/changes/archive/2026-10-23-material-you-redesign/`, and its specs
@@ -37,13 +66,14 @@ Design target: https://claude.ai/artifact/LTFtuBnyjddRXc3XbgmJpB
 
 - `hmy-xfw` Migrate to the standalone `material_ui` package (then
   `dynamic_color` 2.x).
-- `hmy-kr1` Adopt Material 3 Expressive shapes and motion.
+  When it ships the Expressive components, swap them in for
+  `lib/core/expressive/`.
 - `hmy-4fo` Propose the theming layer upstream as an opt-in.
 
 ## Working on the fork
 
 ```bash
-git clone -b feat/material-you https://github.com/ryderdavid/hermes-android
+git clone -b feat/expressive https://github.com/ryderdavid/hermes-android
 cd hermes-android
 bd bootstrap                     # beads are published to refs/dolt/data
 flutter pub get && flutter analyze && flutter test
