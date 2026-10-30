@@ -79,7 +79,10 @@ void main() {
       expect(
         tester
             .widget<IconButton>(
-              find.widgetWithIcon(IconButton, Icons.attach_file),
+              find.ancestor(
+                of: find.byTooltip('Attach image or file'),
+                matching: find.byType(IconButton),
+              ),
             )
             .onPressed,
         isNotNull,

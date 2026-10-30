@@ -43,7 +43,7 @@ Color? _sendBackground(WidgetTester tester) {
 }
 
 void main() {
-  testWidgets('one rounded field owns attach and mic; send sits outside', (
+  testWidgets('attach sits outside the field; the field owns the mic', (
     tester,
   ) async {
     await _pump(tester, ComposerHost());
@@ -56,13 +56,15 @@ void main() {
     expect(decoration.color, scheme.surfaceContainerHigh);
     expect(decoration.border, isNull);
     expect(decoration.borderRadius, BorderRadius.circular(24));
-    for (final inside in ['Attach image or file', 'Speak to Hermes']) {
-      final rect = tester.getRect(find.byTooltip(inside));
-      expect(field.contains(rect.center), isTrue, reason: inside);
-    }
-    final attach = tester.getRect(find.byTooltip('Attach image or file'));
+
     final mic = tester.getRect(find.byTooltip('Speak to Hermes'));
-    expect(attach.left, lessThan(mic.left));
+    expect(field.contains(mic.center), isTrue);
+
+    final attach = tester.getRect(find.byTooltip('Attach image or file'));
+    expect(field.contains(attach.center), isFalse);
+    expect(attach.right, lessThan(field.left));
+    expect(attach.size, const Size(48, 48));
+    expect(attach.bottom, field.bottom);
 
     final send = tester.getRect(_send);
     expect(field.contains(send.center), isFalse);
@@ -128,36 +130,37 @@ void main() {
     expect(find.bySemanticsLabel('Attachment drafts'), findsOneWidget);
   });
 
-  testWidgets('model and spoken replies are compact chips above the field', (
+  testWidgets('the composer holds only attach, the field and send', (
     tester,
   ) async {
-    final host = ComposerHost();
+    await _pump(tester, ComposerHost());
+
+    // Model and spoken replies moved to the chat app bar and overflow menu.
+    expect(find.byKey(const Key('chat-model-chip')), findsNothing);
+    expect(find.byKey(const Key('chat-spoken-replies-chip')), findsNothing);
+    expect(find.byType(IconButton), findsNWidgets(3));
+  });
+
+  testWidgets('Stop springs to a rounded square; Send is round', (
+    tester,
+  ) async {
+    final host = ComposerHost(text: 'Hi');
     final state = await _pump(tester, host);
-    final model = find.byKey(const Key('chat-model-chip'));
-    final spoken = find.byKey(const Key('chat-spoken-replies-chip'));
-    final field = tester.getRect(_field);
-
-    for (final chip in [model, spoken]) {
-      expect(tester.getRect(chip).bottom, lessThanOrEqualTo(field.top));
+    double radius(IconData icon) {
+      final button = tester.widget<IconButton>(
+        find.widgetWithIcon(IconButton, icon),
+      );
+      final shape =
+          button.style!.shape!.resolve(<WidgetState>{})!
+              as RoundedRectangleBorder;
+      return (shape.borderRadius as BorderRadius).topLeft.x;
     }
-    // Only the send button sits in the input row beside the field.
-    expect(find.byType(IconButton).evaluate().length, 3);
 
-    await tester.tap(model);
-    expect(host.modelPickerOpens, 1);
-
-    expect(tester.widget<FilterChip>(spoken).selected, isTrue);
-    await tester.tap(spoken);
-    state.update(() {});
-    await tester.pump();
-    expect(host.voiceReplyEnabled, isFalse);
-    expect(tester.widget<FilterChip>(spoken).selected, isFalse);
-
-    // The choice survives unrelated rebuilds (typing, a turn starting).
-    await tester.enterText(find.byKey(const Key('chat-message-composer')), 'x');
+    expect(radius(Icons.send), 24);
     state.update(() => host.streaming = true);
     await tester.pump();
-    expect(tester.widget<FilterChip>(spoken).selected, isFalse);
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(radius(Icons.stop_rounded), closeTo(14, 0.5));
   });
 
   testWidgets('keeps upstream field behaviour: Enter is a newline', (

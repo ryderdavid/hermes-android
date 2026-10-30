@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hermes_android/core/expressive/expressive.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hermes_android/core/models/gateway_activity.dart';
 import 'package:hermes_android/core/widgets/gateway_activity_card.dart';
@@ -71,7 +72,7 @@ void main() {
     expect(_isExpanded(tester), isFalse);
     // ...and the closed header still says what is going on.
     expect(find.text('Hermes is using 2 tools'), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(ExpressiveLoadingIndicator), findsOneWidget);
   });
 
   testWidgets(
@@ -102,14 +103,14 @@ void main() {
   testWidgets('a collapsed card reports the turn finishing', (tester) async {
     await _pumpCard(tester, [_running('terminal', 'call-1')]);
     await _tapHeader(tester);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(ExpressiveLoadingIndicator), findsOneWidget);
 
     await _pumpCard(tester, [_finished('terminal', 'call-1')]);
 
     expect(_isExpanded(tester), isFalse);
     expect(find.text('1 completed'), findsOneWidget);
-    expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.byIcon(Icons.done_all_rounded), findsOneWidget);
+    expect(find.byType(ExpressiveLoadingIndicator), findsNothing);
   });
 
   testWidgets('an untouched card still opens and closes with the turn', (

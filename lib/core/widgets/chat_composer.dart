@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../controllers/voice_composer_controller.dart';
+import '../expressive/expressive.dart';
 import '../l10n/l10n.dart';
 import '../models/attachment_draft.dart';
 import 'attachment_draft_tile.dart';
@@ -18,10 +19,6 @@ class ChatComposer extends StatelessWidget {
     required this.availableHeight,
     required this.textController,
     required this.textEnabled,
-    required this.modelName,
-    required this.modelScope,
-    required this.modelLoading,
-    required this.onChooseModel,
     required this.attachments,
     required this.attachmentsBusy,
     required this.onMoveAttachment,
@@ -30,8 +27,6 @@ class ChatComposer extends StatelessWidget {
     required this.voiceComposer,
     required this.onStartVoice,
     required this.onAttach,
-    required this.voiceReplyEnabled,
-    required this.onToggleVoiceReply,
     required this.streaming,
     required this.onSend,
     required this.onStop,
@@ -48,13 +43,6 @@ class ChatComposer extends StatelessWidget {
   /// The gateway's live turn status line, shown while a turn runs.
   final String? turnStatus;
 
-  final String modelName;
-
-  /// Whether [modelName] is this chat's override or the profile default.
-  final String modelScope;
-  final bool modelLoading;
-  final VoidCallback? onChooseModel;
-
   final List<AttachmentDraft> attachments;
   final bool attachmentsBusy;
   final void Function(AttachmentDraft draft, int offset) onMoveAttachment;
@@ -64,9 +52,6 @@ class ChatComposer extends StatelessWidget {
   final VoiceComposerController voiceComposer;
   final VoidCallback? onStartVoice;
   final VoidCallback? onAttach;
-
-  final bool voiceReplyEnabled;
-  final VoidCallback onToggleVoiceReply;
 
   /// A turn is streaming: the primary action is Stop.
   final bool streaming;
@@ -98,7 +83,6 @@ class ChatComposer extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (turnStatus != null) _buildTurnStatus(context),
-                    _buildChipRow(context),
                     if (attachments.isNotEmpty) _buildAttachmentTray(context),
                     if (voiceComposer.listening)
                       VoiceComposerIndicator(
@@ -120,20 +104,16 @@ class ChatComposer extends StatelessWidget {
   Widget _buildTurnStatus(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(4, 2, 4, 2),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.fromLTRB(4, 2, 4, 6),
+      padding: const EdgeInsets.fromLTRB(8, 6, 14, 6),
       decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.secondaryContainer.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         children: [
-          const SizedBox.square(
-            dimension: 14,
-            child: CircularProgressIndicator(strokeWidth: 1.8),
-          ),
+          // Material 3 Expressive loading indicator while Hermes works.
+          const ExpressiveLoadingIndicator(size: 28),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -144,73 +124,6 @@ class ChatComposer extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  /// Model and spoken-reply controls as compact chips above the field, so
-  /// the input row holds only the field and the send button.
-  Widget _buildChipRow(BuildContext context) {
-    final l10n = context.l10n;
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
-        child: Row(
-          children: [
-            Semantics(
-              label: l10n.choose_chat_model,
-              value: modelName,
-              button: true,
-              enabled: onChooseModel != null,
-              excludeSemantics: true,
-              child: ConstrainedBox(
-                // Long model ids ellipsize instead of pushing the row wide.
-                constraints: const BoxConstraints(maxWidth: 260),
-                child: ActionChip(
-                  key: const Key('chat-model-chip'),
-                  avatar: modelLoading
-                      ? const SizedBox.square(
-                          dimension: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.tune, size: 18),
-                  label: Text(
-                    l10n.model_scope_label(modelName, modelScope),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  onPressed: onChooseModel,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Semantics(
-              label: l10n.spoken_replies,
-              value: voiceReplyEnabled ? l10n.on : l10n.off,
-              toggled: voiceReplyEnabled,
-              button: true,
-              excludeSemantics: true,
-              child: Tooltip(
-                message: voiceReplyEnabled
-                    ? l10n.spoken_replies_on
-                    : l10n.spoken_replies_off,
-                child: FilterChip(
-                  key: const Key('chat-spoken-replies-chip'),
-                  avatar: Icon(
-                    voiceReplyEnabled ? Icons.volume_up : Icons.volume_off,
-                    size: 18,
-                  ),
-                  showCheckmark: false,
-                  label: Text(l10n.spoken_replies),
-                  selected: voiceReplyEnabled,
-                  onSelected: (_) => onToggleVoiceReply(),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -250,15 +163,36 @@ class ChatComposer extends StatelessWidget {
     );
   }
 
-  /// One rounded field that owns attach (leading) and dictation (trailing),
-  /// with a single send/stop button outside it, bottom-aligned and never
-  /// taller than the field.
+  /// Material 3 Expressive composer (design D8): a tonal attach circle, one
+  /// rounded field that owns dictation, and a single Send/Stop button, all
+  /// bottom-aligned and never taller than the field.
   Widget _buildInputRow(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     const noBorder = InputBorder.none;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        Semantics(
+          label: context.l10n.add_attachment,
+          button: true,
+          enabled: onAttach != null,
+          excludeSemantics: true,
+          onTap: onAttach,
+          child: IconButton.filledTonal(
+            icon: const Icon(Icons.add),
+            onPressed: onAttach,
+            tooltip: context.l10n.attach_image_or_file,
+            style: IconButton.styleFrom(
+              backgroundColor: scheme.surfaceContainerHigh,
+              foregroundColor: scheme.onSurfaceVariant,
+            ),
+            constraints: const BoxConstraints.tightFor(
+              width: fieldHeight,
+              height: fieldHeight,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
         Expanded(
           child: Container(
             key: const Key('chat-composer-field'),
@@ -270,22 +204,7 @@ class ChatComposer extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Semantics(
-                  label: context.l10n.add_attachment,
-                  button: true,
-                  enabled: onAttach != null,
-                  excludeSemantics: true,
-                  child: IconButton(
-                    icon: const Icon(Icons.attach_file),
-                    color: scheme.onSurfaceVariant,
-                    onPressed: onAttach,
-                    tooltip: context.l10n.attach_image_or_file,
-                    constraints: const BoxConstraints.tightFor(
-                      width: fieldHeight,
-                      height: fieldHeight,
-                    ),
-                  ),
-                ),
+                const SizedBox(width: 18),
                 Expanded(
                   // The field is centred in the 48dp pill: a field stretched
                   // by an outer constraint puts all its spare height below
@@ -352,56 +271,73 @@ class ChatComposer extends StatelessWidget {
 
   Widget _buildSendButton(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Semantics(
-      label: streaming ? context.l10n.stop_response : context.l10n.send_message,
-      button: true,
-      enabled: streaming || onSend != null,
-      excludeSemantics: true,
-      // excludeSemantics drops the inner IconButton's tap action, so the
-      // merged node must re-declare it: without it the button reports as a
-      // non-clickable button to Android accessibility services (TalkBack,
-      // voice keyboards pressing Send via ACTION_CLICK).
-      onTap: streaming ? onStop : onSend,
-      child: streaming
-          ? IconButton.filled(
-              icon: const Icon(Icons.stop_rounded),
-              onPressed: onStop,
-              tooltip: context.l10n.stop_response,
-              constraints: const BoxConstraints.tightFor(
-                width: fieldHeight,
-                height: fieldHeight,
-              ),
-            )
-          : ListenableBuilder(
-              listenable: textController,
-              builder: (context, _) {
-                // Empty sends are already a no-op in ChatScreen; the button
-                // just looks disabled until there is something to send.
-                final hasContent =
-                    textController.text.trim().isNotEmpty ||
-                    attachments.isNotEmpty;
-                final looksEnabled = onSend != null && hasContent;
-                return IconButton.filled(
-                  icon: const Icon(Icons.send),
-                  onPressed: onSend,
-                  tooltip: context.l10n.send,
-                  style: looksEnabled
-                      ? null
-                      : IconButton.styleFrom(
-                          backgroundColor: scheme.onSurface.withValues(
-                            alpha: 0.12,
-                          ),
-                          foregroundColor: scheme.onSurface.withValues(
-                            alpha: 0.38,
-                          ),
-                        ),
+    // Send is round; Stop springs to a rounded square, so the change of
+    // meaning is visible in the shape as well as the icon.
+    return TweenAnimationBuilder<double>(
+      tween: Tween(end: streaming ? 14 : fieldHeight / 2),
+      duration: HermesSprings.shapeDuration,
+      curve: HermesSprings.shape,
+      builder: (context, radius, _) {
+        final shape = RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radius.clamp(0, fieldHeight / 2)),
+        );
+        return Semantics(
+          label: streaming
+              ? context.l10n.stop_response
+              : context.l10n.send_message,
+          button: true,
+          enabled: streaming || onSend != null,
+          excludeSemantics: true,
+          // excludeSemantics drops the inner IconButton's tap action, so the
+          // merged node must re-declare it: without it the button reports as
+          // a non-clickable button to Android accessibility services
+          // (TalkBack, voice keyboards pressing Send via ACTION_CLICK).
+          onTap: streaming ? onStop : onSend,
+          child: streaming
+              ? IconButton.filled(
+                  icon: const Icon(Icons.stop_rounded),
+                  onPressed: onStop,
+                  tooltip: context.l10n.stop_response,
+                  style: IconButton.styleFrom(shape: shape),
                   constraints: const BoxConstraints.tightFor(
                     width: fieldHeight,
                     height: fieldHeight,
                   ),
-                );
-              },
-            ),
+                )
+              : ListenableBuilder(
+                  listenable: textController,
+                  builder: (context, _) {
+                    // Empty sends are already a no-op in ChatScreen; the
+                    // button just looks disabled until there is something to
+                    // send.
+                    final hasContent =
+                        textController.text.trim().isNotEmpty ||
+                        attachments.isNotEmpty;
+                    final looksEnabled = onSend != null && hasContent;
+                    return IconButton.filled(
+                      icon: const Icon(Icons.send),
+                      onPressed: onSend,
+                      tooltip: context.l10n.send,
+                      style: looksEnabled
+                          ? IconButton.styleFrom(shape: shape)
+                          : IconButton.styleFrom(
+                              shape: shape,
+                              backgroundColor: scheme.onSurface.withValues(
+                                alpha: 0.12,
+                              ),
+                              foregroundColor: scheme.onSurface.withValues(
+                                alpha: 0.38,
+                              ),
+                            ),
+                      constraints: const BoxConstraints.tightFor(
+                        width: fieldHeight,
+                        height: fieldHeight,
+                      ),
+                    );
+                  },
+                ),
+        );
+      },
     );
   }
 

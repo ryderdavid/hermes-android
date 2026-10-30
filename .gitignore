@@ -62,3 +62,7 @@ mutation-test-report/
 .beads-credential-key
 .beads/proxieddb/
 *.gate.lock*
+
+# Golden test diff output
+test/goldens/failures/
+**/failures/*.png

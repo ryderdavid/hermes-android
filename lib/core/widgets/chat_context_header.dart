@@ -38,11 +38,12 @@ class ChatContextHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = HermesTokens.of(context);
     final project = projectName?.trim();
 
+    // Same surface as the app bar so the strip reads as part of it; the pills
+    // carry the tone.
     return Material(
-      color: tokens.raised,
+      color: Theme.of(context).colorScheme.surface,
       child: SizedBox(
         height: 48,
         width: double.infinity,
@@ -128,19 +129,18 @@ class _ContextChip extends StatelessWidget {
     return Container(
       constraints: const BoxConstraints(maxWidth: 220),
       padding: const EdgeInsets.symmetric(
-        horizontal: HermesSpacing.sm,
-        vertical: HermesSpacing.xs,
+        horizontal: HermesSpacing.md,
+        vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: tokens.surface,
-        borderRadius: BorderRadius.circular(HermesRadius.sm),
-        border: Border.all(color: tokens.border),
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(HermesRadius.xxl),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: iconColor ?? tokens.muted),
-          const SizedBox(width: 5),
+          Icon(icon, size: 14, color: iconColor ?? tokens.muted),
+          const SizedBox(width: 6),
           Flexible(
             child: Text(
               label,

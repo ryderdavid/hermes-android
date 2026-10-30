@@ -68,6 +68,8 @@ void main() {
     expect(comfortable.margin, ChatDensity.comfortable.bubbleMargin);
   });
 
+  // Hermes replies are full width at every density; your bubbles keep the
+  // density's side inset.
   testWidgets('compact bubbles are wider for the same unwrapped line', (
     tester,
   ) async {
@@ -78,7 +80,7 @@ void main() {
     await pumpBubble(
       tester,
       density: ChatDensity.comfortable,
-      isUser: false,
+      isUser: true,
       content: longLine,
     );
     final comfortableWidth = tester
@@ -88,7 +90,7 @@ void main() {
     await pumpBubble(
       tester,
       density: ChatDensity.compact,
-      isUser: false,
+      isUser: true,
       content: longLine,
     );
     final compactWidth = tester

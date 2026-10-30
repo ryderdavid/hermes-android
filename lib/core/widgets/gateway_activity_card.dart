@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../expressive/expressive.dart';
 import '../models/gateway_activity.dart';
 import '../l10n/l10n.dart';
 import '../theme/hermes_theme.dart';
@@ -130,6 +131,7 @@ class _GatewayActivityCardState extends State<GatewayActivityCard> {
       latestKnownToolActivity(activities),
     );
 
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: HermesSpacing.lg,
@@ -138,50 +140,96 @@ class _GatewayActivityCardState extends State<GatewayActivityCard> {
       child: HermesCard(
         status: cardStatus,
         padding: EdgeInsets.zero,
-        child: ClipRRect(
-          borderRadius: HermesRadius.card,
-          child: Material(
-            color: Colors.transparent,
-            child: ExpansionTile(
-              controller: _tileController,
-              // No PageStorageKey: the previous key was derived from the
-              // activity list, so every new tool call produced a new key and
-              // with it a fresh ExpansionTile — which re-expanded the card the
-              // user had just collapsed. Expansion state belongs to this State.
-              initiallyExpanded: _initialExpanded,
-              onExpansionChanged: _handleExpansionChanged,
-              leading: active
-                  ? const SizedBox.square(
-                      dimension: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Icon(
-                      failures > 0
-                          ? Icons.error_outline
-                          : Icons.check_circle_outline,
-                      color: failures > 0
-                          ? Theme.of(context).colorScheme.error
-                          : Theme.of(context).colorScheme.primary,
-                    ),
-              title: Text(context.l10n.tool_activity),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(subtitle),
-                  Text(
-                    latestTime,
-                    style: Theme.of(context).textTheme.bodySmall,
+        child: Material(
+          color: Colors.transparent,
+          child: ExpansionTile(
+            controller: _tileController,
+            // No PageStorageKey: the previous key was derived from the
+            // activity list, so every new tool call produced a new key and
+            // with it a fresh ExpansionTile — which re-expanded the card the
+            // user had just collapsed. Expansion state belongs to this State.
+            initiallyExpanded: _initialExpanded,
+            onExpansionChanged: _handleExpansionChanged,
+            shape: const RoundedRectangleBorder(),
+            collapsedShape: const RoundedRectangleBorder(),
+            tilePadding: const EdgeInsets.fromLTRB(12, 4, 16, 4),
+            childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            leading: active
+                ? const ExpressiveLoadingIndicator(size: 40)
+                : _ActivityBadge(
+                    shape: failures > 0
+                        ? ExpressiveShape.burst
+                        : ExpressiveShape.sunny,
+                    icon: failures > 0
+                        ? Icons.priority_high_rounded
+                        : Icons.done_all_rounded,
+                    fill: failures > 0
+                        ? scheme.errorContainer
+                        : scheme.primaryContainer,
+                    foreground: failures > 0
+                        ? scheme.onErrorContainer
+                        : scheme.onPrimaryContainer,
                   ),
-                ],
-              ),
+            title: Text(
+              context.l10n.tool_activity,
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Divider(height: 1),
-                for (final activity in activities)
-                  _GatewayActivityRow(activity: activity, expanded: _expanded),
+                Text(subtitle),
+                Text(latestTime, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
+            children: [
+              for (final (index, activity) in activities.indexed)
+                SegmentScope(
+                  position: SegmentPosition.of(index, activities.length),
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index == activities.length - 1 ? 0 : 2,
+                    ),
+                    child: _GatewayActivityRow(
+                      activity: activity,
+                      expanded: _expanded,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// A finished card's leading mark: a small expressive shape carrying the
+/// outcome, so done and failed read apart at a glance.
+class _ActivityBadge extends StatelessWidget {
+  const _ActivityBadge({
+    required this.shape,
+    required this.icon,
+    required this.fill,
+    required this.foreground,
+  });
+
+  final ExpressiveShape shape;
+  final IconData icon;
+  final Color fill;
+  final Color foreground;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: 40,
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
+          color: fill,
+          shape: ExpressiveShapeBorder(shape),
+        ),
+        child: Icon(icon, size: 20, color: foreground),
       ),
     );
   }
@@ -216,8 +264,13 @@ class _GatewayActivityRow extends StatelessWidget {
         ?startLabel,
         timeLabel,
       ].join(', '),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerLowest,
+          borderRadius: (SegmentScope.maybeOf(context) ?? SegmentPosition.only)
+              .radius(outer: HermesRadius.lg, inner: 4),
+        ),
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -231,12 +284,10 @@ class _GatewayActivityRow extends StatelessWidget {
                       size: 19,
                       color: color,
                     )
-                  : SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: color,
-                      ),
+                  : ExpressiveLoadingIndicator(
+                      size: 20,
+                      contained: false,
+                      color: color,
                     ),
             ),
             const SizedBox(width: 12),

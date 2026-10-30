@@ -21,19 +21,13 @@ class ComposerHost {
   List<AttachmentDraft> attachments;
 
   bool streaming = false;
-  bool voiceReplyEnabled = true;
   int sends = 0;
   int stops = 0;
-  int modelPickerOpens = 0;
 
   ChatComposer build({double availableHeight = 600}) => ChatComposer(
     availableHeight: availableHeight,
     textController: textController,
     textEnabled: true,
-    modelName: 'gpt-oss-20b',
-    modelScope: 'this chat',
-    modelLoading: false,
-    onChooseModel: () => modelPickerOpens++,
     attachments: attachments,
     attachmentsBusy: false,
     onMoveAttachment: (_, _) {},
@@ -42,8 +36,6 @@ class ComposerHost {
     voiceComposer: voiceComposer,
     onStartVoice: streaming ? null : () {},
     onAttach: streaming ? null : () {},
-    voiceReplyEnabled: voiceReplyEnabled,
-    onToggleVoiceReply: () => voiceReplyEnabled = !voiceReplyEnabled,
     streaming: streaming,
     onSend: () => sends++,
     onStop: () => stops++,

@@ -807,7 +807,7 @@ void main() {
       );
       expect(
         tester
-            .widget<ActionChip>(find.byKey(const Key('chat-model-chip')))
+            .widget<TextButton>(find.byKey(const Key('chat-model-chip')))
             .onPressed,
         isNull,
         reason: 'model changes must not race the authoritative history fetch',

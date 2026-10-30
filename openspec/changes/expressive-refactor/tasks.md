@@ -25,10 +25,10 @@
 
 ## 5. Chat
 
-- [ ] 5.1 App bar: shape avatar, title, model subtitle that opens the model picker; spoken replies as a checkable overflow item.
-- [ ] 5.2 Assistant replies without bubbles; user bubble `primaryContainer` with 24/24/6/24 corners; compact density respected.
-- [ ] 5.3 Tool-activity card and turn status restyled; shape loading indicator while working.
-- [ ] 5.4 Composer: attach circle outside, pill with dictation, Send/Stop spring morph; chip row removed; tests updated.
+- [x] 5.1 App bar: shape avatar, title, model subtitle that opens the model picker; spoken replies as a checkable overflow item.
+- [x] 5.2 Assistant replies without bubbles; user bubble `primaryContainer` with 24/24/6/24 corners; compact density respected.
+- [x] 5.3 Tool-activity card and turn status restyled; shape loading indicator while working.
+- [x] 5.4 Composer: attach circle outside, pill with dictation, Send/Stop spring morph; chip row removed; tests updated.
 
 ## 6. Sheets
 

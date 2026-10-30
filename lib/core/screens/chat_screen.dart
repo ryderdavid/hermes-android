@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../expressive/expressive.dart';
 import '../theme/hermes_theme.dart';
 import '../widgets/hermes_components.dart';
 import '../widgets/session_name_dialog.dart';
@@ -4530,19 +4531,145 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     };
   }
 
+  void _toggleVoiceReply() {
+    setState(() => _voiceReplyEnabled = !_voiceReplyEnabled);
+    if (!_voiceReplyEnabled) {
+      _flutterTts.stop();
+    }
+  }
+
+  /// Material 3 Expressive chat app bar: the project's shape mark, the chat
+  /// title, and the model as a tappable subtitle that opens the per-chat
+  /// model picker (design D7).
+  Widget _buildAppBarTitle(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final model = _sessionModel ?? widget.session.model;
+    final modelBlocked =
+        _sending ||
+        _streaming ||
+        _pendingReattachResync ||
+        _loadingModelOptions ||
+        _changingModel;
+    final project = _projectName;
+    return Row(
+      children: [
+        ShapeMark(
+          style: project == null || project.isEmpty
+              ? MarkStyle.unassigned
+              : MarkStyle.forKey(project),
+          label: project ?? _sessionTitle,
+          icon: project == null || project.isEmpty
+              ? Icons.chat_bubble_outline
+              : null,
+          size: 40,
+        ),
+        const SizedBox(width: 4),
+        // The whole title block is the model picker's 48dp target (tap the
+        // title to switch model, as on Pixel's assistant apps); the chat
+        // title stays its own TalkBack node above the button.
+        Expanded(
+          child: Stack(
+            children: [
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 48),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _sessionTitle.trim().isEmpty
+                            ? l10n.untitled_chat
+                            : _sessionTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      ExcludeSemantics(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (_loadingModelOptions || _changingModel) ...[
+                              const ExpressiveLoadingIndicator(
+                                size: 14,
+                                contained: false,
+                              ),
+                              const SizedBox(width: 4),
+                            ],
+                            Flexible(
+                              child: Text(
+                                l10n.model_scope_label(
+                                  model,
+                                  _sessionModelOverride
+                                      ? l10n.this_chat
+                                      : l10n.profile_default,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: modelBlocked
+                                      ? theme.colorScheme.onSurfaceVariant
+                                            .withValues(alpha: 0.6)
+                                      : theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_drop_down,
+                              size: 18,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: Semantics(
+                  container: true,
+                  label: l10n.choose_chat_model,
+                  value: model,
+                  button: true,
+                  enabled: !modelBlocked,
+                  excludeSemantics: true,
+                  onTap: modelBlocked ? null : _showModelSelector,
+                  child: TextButton(
+                    key: const Key('chat-model-chip'),
+                    onPressed: modelBlocked ? null : _showModelSelector,
+                    style: TextButton.styleFrom(
+                      minimumSize: Size.zero,
+                      padding: EdgeInsets.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(HermesRadius.md),
+                      ),
+                    ),
+                    child: const SizedBox.expand(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: Text(
-          _sessionTitle.trim().isEmpty
-              ? context.l10n.untitled_chat
-              : _sessionTitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        titleSpacing: 0,
+        title: _buildAppBarTitle(context),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: ChatContextHeader(
@@ -4559,11 +4686,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               padding: EdgeInsets.only(right: 8),
               child: Row(
                 children: [
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
+                  ExpressiveLoadingIndicator(size: 24, contained: false),
                   SizedBox(width: 8),
                   Text(context.l10n.responding, style: TextStyle(fontSize: 13)),
                 ],
@@ -4573,6 +4696,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             PopupMenuButton<String>(
               tooltip: context.l10n.chat_actions,
               onSelected: (action) {
+                if (action == 'spoken') _toggleVoiceReply();
                 if (action == 'refresh' && !_pendingReattachResync) {
                   _fetchMessages();
                 }
@@ -4580,6 +4704,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 if (action == 'rename') unawaited(_renameSession());
               },
               itemBuilder: (_) => [
+                // Spoken replies moved here from the composer (design D7).
+                CheckedPopupMenuItem(
+                  value: 'spoken',
+                  checked: _voiceReplyEnabled,
+                  child: Text(context.l10n.spoken_replies),
+                ),
                 PopupMenuItem(
                   value: 'rename',
                   enabled: _canRename,
@@ -4703,12 +4833,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _streaming ||
         _sending ||
         _pendingReattachResync;
-    final modelBlocked =
-        _sending ||
-        _streaming ||
-        _pendingReattachResync ||
-        _loadingModelOptions ||
-        _changingModel;
     final sendBlocked =
         _transcriptLoadBlocksComposer ||
         _sending ||
@@ -4721,12 +4845,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       turnStatus: _gatewayTurnStatus != null && (_sending || _streaming)
           ? _gatewayTurnStatus!.text
           : null,
-      modelName: _sessionModel ?? widget.session.model,
-      modelScope: _sessionModelOverride
-          ? context.l10n.this_chat
-          : context.l10n.profile_default,
-      modelLoading: _loadingModelOptions || _changingModel,
-      onChooseModel: modelBlocked ? null : _showModelSelector,
       attachments: _attachmentDrafts,
       attachmentsBusy: _sending,
       onMoveAttachment: _moveAttachment,
@@ -4735,13 +4853,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       voiceComposer: _voiceComposer,
       onStartVoice: controlsBlocked ? null : _startVoiceInput,
       onAttach: controlsBlocked ? null : _showAttachmentPicker,
-      voiceReplyEnabled: _voiceReplyEnabled,
-      onToggleVoiceReply: () {
-        setState(() => _voiceReplyEnabled = !_voiceReplyEnabled);
-        if (!_voiceReplyEnabled) {
-          _flutterTts.stop();
-        }
-      },
       streaming: _streaming,
       onSend: sendBlocked ? null : _sendMessage,
       onStop: _stopResponse,
@@ -5275,9 +5386,6 @@ class MessageBubble extends StatelessWidget {
     final userBubbleColor = hermesUserMessageBubbleBackground(
       theme.colorScheme,
     );
-    final assistantBubbleColor = hermesAssistantMessageBubbleBackground(
-      theme.colorScheme,
-    );
     final assistantTextColor = theme.colorScheme.onSurface;
 
     // Collect extra metadata for verbose mode
@@ -5303,14 +5411,27 @@ class MessageBubble extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         margin: density.bubbleMargin,
+        // Material 3 Expressive chat (design D7): your messages are bubbles
+        // with a tighter corner on the sender side; Hermes replies are
+        // full-width prose with no bubble, which reads better for long
+        // markdown and code.
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width - density.maxWidthInset,
+          maxWidth: isUser
+              ? MediaQuery.of(context).size.width - density.maxWidthInset
+              : double.infinity,
         ),
         padding: density.bubblePadding,
-        decoration: BoxDecoration(
-          color: isUser ? userBubbleColor : assistantBubbleColor,
-          borderRadius: BorderRadius.circular(density.bubbleRadius),
-        ),
+        decoration: isUser
+            ? BoxDecoration(
+                color: userBubbleColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(density.bubbleRadius + 6),
+                  topRight: Radius.circular(density.bubbleRadius + 6),
+                  bottomLeft: Radius.circular(density.bubbleRadius + 6),
+                  bottomRight: const Radius.circular(6),
+                ),
+              )
+            : null,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,

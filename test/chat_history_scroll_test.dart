@@ -144,7 +144,6 @@ void main() {
             'Add attachment',
             'Message',
             'Start voice input',
-            'Spoken replies',
             'Send message',
           ]) {
             expect(find.bySemanticsLabel(label), findsOneWidget);

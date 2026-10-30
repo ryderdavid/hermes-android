@@ -181,8 +181,6 @@ void main() {
       ComposerScaffold(host: ComposerHost()),
     );
     for (final label in [
-      'Choose chat model',
-      'Spoken replies',
       'Add attachment',
       'Message',
       'Start voice input',
