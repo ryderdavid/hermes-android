@@ -10,8 +10,8 @@
 
 ## 2. Theme
 
-- [ ] 2.1 Emphasized type styles and `HermesTypography.emphasized`; corner tokens; `LargeHeader` widget.
-- [ ] 2.2 64dp NavigationBar, FAB sizes and shapes, sheet and dialog shapes, list tile defaults; shell golden regenerated.
+- [x] 2.1 Emphasized type styles and `HermesTypography.emphasized`; corner tokens; `LargeHeader` widget.
+- [x] 2.2 64dp NavigationBar, FAB sizes and shapes, sheet and dialog shapes, list tile defaults; shell golden regenerated.
 
 ## 3. Home and panes
 

@@ -3,6 +3,7 @@
 library;
 
 export 'buttons.dart';
+export 'large_header.dart';
 export 'loading.dart';
 export 'segmented_list.dart';
 export 'shapes.dart';

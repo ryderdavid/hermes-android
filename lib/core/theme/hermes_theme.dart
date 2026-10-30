@@ -76,11 +76,20 @@ abstract final class HermesRadius {
   static const double sm = 8;
   static const double md = 12;
   static const double lg = 16;
+
+  /// Material 3 Expressive large-increased: cards and list tiles.
+  static const double lgPlus = 20;
   static const double xl = 24;
 
-  static const BorderRadius card = BorderRadius.all(Radius.circular(md));
+  /// Expressive extra-large: sheets, dialogs, hero cards.
+  static const double xlPlus = 28;
+
+  /// Expressive extra-extra-large: carousel cards, large FABs.
+  static const double xxl = 48;
+
+  static const BorderRadius card = BorderRadius.all(Radius.circular(lgPlus));
   static const BorderRadius sheet = BorderRadius.vertical(
-    top: Radius.circular(xl),
+    top: Radius.circular(xlPlus),
   );
 }
 
@@ -133,6 +142,18 @@ class HermesTypography {
     required this.label,
     required this.mono,
   });
+
+  /// Material 3 Expressive emphasized variant of [style]: heavier, so the
+  /// one thing that matters most on a screen stands out (design D5).
+  static TextStyle emphasized(TextStyle style) {
+    final weight = style.fontWeight ?? FontWeight.w400;
+    final heavier = switch (weight.value) {
+      <= 400 => FontWeight.w600,
+      <= 500 => FontWeight.w700,
+      _ => FontWeight.w800,
+    };
+    return style.copyWith(fontWeight: heavier);
+  }
 
   /// The upstream wordmark face, for `HermesHeader` and onboarding only.
   static const String wordmarkFamily = 'Cinzel';
@@ -472,12 +493,16 @@ ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
     cardTheme: CardThemeData(
-      color: scheme.surfaceContainer,
+      color: scheme.surfaceContainerLow,
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: const RoundedRectangleBorder(borderRadius: HermesRadius.card),
     ),
-    listTileTheme: ListTileThemeData(iconColor: scheme.onSurfaceVariant),
+    listTileTheme: ListTileThemeData(
+      iconColor: scheme.onSurfaceVariant,
+      minTileHeight: 56,
+      shape: const RoundedRectangleBorder(borderRadius: HermesRadius.card),
+    ),
     switchTheme: SwitchThemeData(
       thumbIcon: WidgetStateProperty.resolveWith(
         (states) => states.contains(WidgetState.selected)
@@ -495,15 +520,29 @@ ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
       space: 1,
       thickness: 1,
     ),
+    // Material 3 Expressive FABs: 16dp corners at 56dp, 20dp at the 80dp
+    // medium size; extended FABs are 56dp tall with a 16dp corner.
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: scheme.primaryContainer,
       foregroundColor: scheme.onPrimaryContainer,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(HermesRadius.lg)),
+      ),
+      largeSizeConstraints: const BoxConstraints.tightFor(
+        width: 80,
+        height: 80,
+      ),
+      extendedSizeConstraints: const BoxConstraints(
+        minHeight: 56,
+        minWidth: 80,
+      ),
+      extendedPadding: const EdgeInsetsDirectional.only(start: 16, end: 20),
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: scheme.surfaceContainerHigh,
       surfaceTintColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(28)),
+        borderRadius: BorderRadius.all(Radius.circular(HermesRadius.xlPlus)),
       ),
     ),
     bottomSheetTheme: BottomSheetThemeData(
@@ -511,9 +550,7 @@ ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
       surfaceTintColor: Colors.transparent,
       showDragHandle: true,
       dragHandleColor: scheme.onSurfaceVariant.withValues(alpha: 0.4),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: HermesRadius.sheet),
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: scheme.inverseSurface,
@@ -530,7 +567,11 @@ ThemeData hermesTheme(Brightness brightness, {ColorScheme? colorScheme}) {
     // longest catalogue entries overflow their destination and wrap — ja
     // アクティビティ (seven glyphs) is the first to go. 11sp with no tracking
     // fits the widest shipped labels while staying legible.
+    // Material 3 Expressive navigation bar: 64dp, labels always shown.
     navigationBarTheme: NavigationBarThemeData(
+      height: 64,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      indicatorShape: const StadiumBorder(),
       backgroundColor: scheme.surfaceContainer,
       indicatorColor: scheme.secondaryContainer,
       surfaceTintColor: Colors.transparent,

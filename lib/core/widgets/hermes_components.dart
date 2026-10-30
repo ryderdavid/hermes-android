@@ -7,6 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../expressive/segmented_list.dart';
 import '../theme/hermes_theme.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
@@ -39,7 +40,7 @@ class StatusChip extends StatelessWidget {
     final tokens = HermesTokens.of(context);
     final color = tokens.colorForStatus(status);
     final text = label ?? defaultStatusLabel(context, status);
-    final fill = color.withValues(alpha: 0.14);
+    final fill = color.withValues(alpha: 0.16);
     // Chips sit on raised surfaces; keep 12sp text at AA on the tinted fill.
     final ink = legibleOn(
       color,
@@ -52,18 +53,21 @@ class StatusChip extends StatelessWidget {
       container: true,
       child: ExcludeSemantics(
         child: Container(
+          // Material 3 Expressive status label: a tonal pill, no outline.
           padding: const EdgeInsets.symmetric(
-            horizontal: HermesSpacing.sm,
-            vertical: HermesSpacing.xs,
+            horizontal: HermesSpacing.sm + 2,
+            vertical: 3,
           ),
           decoration: BoxDecoration(
             color: fill,
-            borderRadius: BorderRadius.circular(HermesRadius.sm),
-            border: Border.all(color: color.withValues(alpha: 0.4)),
+            borderRadius: BorderRadius.circular(HermesRadius.md),
           ),
           child: Text(
             text,
-            style: tokens.typography.label.copyWith(color: ink),
+            style: tokens.typography.label.copyWith(
+              color: ink,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),
@@ -100,29 +104,26 @@ class SectionHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // Material 3 Expressive list section title: emphasized label in
+          // the primary role, the count beside it in the muted role.
           Flexible(
-            child: Text(
-              title,
-              style: tokens.typography.section.copyWith(
-                color: tokens.onSurface,
+            child: Semantics(
+              header: true,
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
           if (count != null) ...[
             const SizedBox(width: HermesSpacing.sm),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: HermesSpacing.sm,
-                vertical: 2,
-              ),
-              decoration: BoxDecoration(
-                color: tokens.raised,
-                borderRadius: BorderRadius.circular(HermesRadius.sm),
-                border: Border.all(color: tokens.border),
-              ),
-              child: Text(
-                '$count',
-                style: tokens.typography.label.copyWith(color: tokens.muted),
+            Text(
+              '$count',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: tokens.muted,
               ),
             ),
           ],
@@ -166,29 +167,30 @@ class HermesCard extends StatelessWidget {
     final tokens = HermesTokens.of(context);
     final accent = status == null ? null : tokens.colorForStatus(status!);
 
+    // Material 3 Expressive: a borderless tonal tile. Inside a segmented
+    // group it takes the group's corners; alone it is a 20dp card. Status
+    // tints the fill rather than adding an outline.
+    final scheme = Theme.of(context).colorScheme;
+    final radius =
+        SegmentScope.maybeOf(context)?.radius() ?? HermesRadius.card;
+    final base = scheme.surfaceContainerLow;
+    final fill = accent == null
+        ? base
+        : Color.alphaBlend(accent.withValues(alpha: 0.12), base);
+
     final surface = Container(
       constraints: const BoxConstraints(minHeight: 48),
       padding: padding,
-      decoration: BoxDecoration(
-        color: accent == null ? tokens.raised : accent.withValues(alpha: 0.08),
-        borderRadius: HermesRadius.card,
-        border: Border.all(
-          color: accent == null ? tokens.border : accent.withValues(alpha: 0.5),
-        ),
-      ),
       child: child,
     );
 
-    if (onTap == null && onLongPress == null) return surface;
-
     return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        onLongPress: onLongPress,
-        borderRadius: HermesRadius.card,
-        child: surface,
-      ),
+      color: fill,
+      borderRadius: radius,
+      clipBehavior: Clip.antiAlias,
+      child: onTap == null && onLongPress == null
+          ? surface
+          : InkWell(onTap: onTap, onLongPress: onLongPress, child: surface),
     );
   }
 }

@@ -148,26 +148,40 @@ void main() {
       expect(find.text('Static'), findsOneWidget);
     });
 
-    testWidgets('an accented card shows its status edge', (tester) async {
+    testWidgets('an accented card is tinted by its status', (tester) async {
       await _pump(
         tester,
         const HermesCard(status: HermesStatus.blocked, child: Text('Blocked')),
       );
+      await _pump(tester, const HermesCard(child: Text('Plain')));
+      final plainContext = tester.element(find.byType(HermesCard));
+      final plain = tester
+          .widget<Material>(
+            find
+                .descendant(
+                  of: find.byType(HermesCard),
+                  matching: find.byType(Material),
+                )
+                .first,
+          )
+          .color;
 
-      final context = tester.element(find.byType(HermesCard));
-      final tokens = HermesTokens.of(context);
-      final container = tester.widget<Container>(
+      await _pump(
+        tester,
+        const HermesCard(status: HermesStatus.blocked, child: Text('Blocked')),
+      );
+      final material = tester.widget<Material>(
         find
             .descendant(
               of: find.byType(HermesCard),
-              matching: find.byType(Container),
+              matching: find.byType(Material),
             )
             .first,
       );
-      final decoration = container.decoration as BoxDecoration;
 
-      expect(decoration.border, isNotNull);
-      expect(decoration.color, isNot(tokens.surface));
+      // Expressive cards have no outline; status shows as a tinted fill.
+      expect(plain, Theme.of(plainContext).colorScheme.surfaceContainerLow);
+      expect(material.color, isNot(plain));
     });
   });
 
