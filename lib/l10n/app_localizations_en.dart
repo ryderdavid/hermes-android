@@ -2587,4 +2587,48 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get appearance_preview_answer =>
       'Like this — your colors, your text size.';
+
+  @override
+  String get chat_icons => 'Chat icons';
+
+  @override
+  String get chat_icons_letter => 'Letter';
+
+  @override
+  String get chat_icons_on_device => 'On device';
+
+  @override
+  String get chat_icons_by_hermes => 'By Hermes';
+
+  @override
+  String get chat_icons_letter_blurb =>
+      'The first letter of the chat title, on the same shape for every chat.';
+
+  @override
+  String get chat_icons_on_device_blurb =>
+      'An icon matched to the chat title on this phone. Instant and private, but it only knows common topics.';
+
+  @override
+  String get chat_icons_hermes_blurb =>
+      'Hermes reads each chat title and picks an icon from the Material set. A new chat shows the on-device match until Hermes answers.';
+
+  @override
+  String get chat_icons_mixed_shapes => 'Mixed shapes';
+
+  @override
+  String get chat_icons_mixed_shapes_description =>
+      'Each chat keeps a shape picked at random';
+
+  @override
+  String get chat_icons_relabel => 'Relabel all chats';
+
+  @override
+  String chat_icons_relabel_status(int labelled, int waiting) {
+    return '$labelled labelled by Hermes · $waiting waiting';
+  }
+
+  @override
+  String chat_icons_privacy(String connection) {
+    return 'Only chat titles are sent, in batches, to a hidden chat on $connection. It uses this profile\'s default model.';
+  }
 }

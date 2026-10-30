@@ -710,5 +710,17 @@
   "theme_label": "테마",
   "text_and_chats": "텍스트 및 채팅",
   "appearance_preview_question": "답장은 어떻게 보이나요?",
-  "appearance_preview_answer": "이렇게요. 내 색상과 텍스트 크기로요."
+  "appearance_preview_answer": "이렇게요. 내 색상과 텍스트 크기로요.",
+  "chat_icons": "채팅 아이콘",
+  "chat_icons_letter": "글자",
+  "chat_icons_on_device": "기기에서",
+  "chat_icons_by_hermes": "Hermes가 선택",
+  "chat_icons_letter_blurb": "채팅 제목의 첫 글자를 모든 채팅에 같은 모양으로 표시합니다.",
+  "chat_icons_on_device_blurb": "이 휴대전화에서 채팅 제목에 맞는 아이콘을 고릅니다. 즉시 표시되고 비공개이지만 흔한 주제만 알아봅니다.",
+  "chat_icons_hermes_blurb": "Hermes가 각 채팅 제목을 읽고 Material 아이콘 중에서 고릅니다. 새 채팅은 Hermes가 답할 때까지 기기에서 고른 아이콘을 표시합니다.",
+  "chat_icons_mixed_shapes": "다양한 모양",
+  "chat_icons_mixed_shapes_description": "채팅마다 무작위로 고른 모양을 유지합니다",
+  "chat_icons_relabel": "모든 채팅 다시 지정",
+  "chat_icons_relabel_status": "Hermes가 {labelled}개 지정 · {waiting}개 대기 중",
+  "chat_icons_privacy": "채팅 제목만 {connection}의 숨겨진 채팅으로 묶어서 보냅니다. 이 프로필의 기본 모델을 사용합니다."
 }

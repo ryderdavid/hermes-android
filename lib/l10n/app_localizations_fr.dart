@@ -2614,4 +2614,48 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get appearance_preview_answer =>
       'Comme ceci : vos couleurs, votre taille de texte.';
+
+  @override
+  String get chat_icons => 'Icônes des chats';
+
+  @override
+  String get chat_icons_letter => 'Lettre';
+
+  @override
+  String get chat_icons_on_device => 'Sur l\'appareil';
+
+  @override
+  String get chat_icons_by_hermes => 'Par Hermes';
+
+  @override
+  String get chat_icons_letter_blurb =>
+      'La première lettre du titre du chat, dans la même forme pour tous les chats.';
+
+  @override
+  String get chat_icons_on_device_blurb =>
+      'Une icône choisie d\'après le titre du chat sur ce téléphone. Instantané et privé, mais ne connaît que les sujets courants.';
+
+  @override
+  String get chat_icons_hermes_blurb =>
+      'Hermes lit chaque titre et choisit une icône Material. Un nouveau chat affiche l\'icône de l\'appareil jusqu\'à la réponse de Hermes.';
+
+  @override
+  String get chat_icons_mixed_shapes => 'Formes variées';
+
+  @override
+  String get chat_icons_mixed_shapes_description =>
+      'Chaque chat garde une forme choisie au hasard';
+
+  @override
+  String get chat_icons_relabel => 'Réattribuer toutes les icônes';
+
+  @override
+  String chat_icons_relabel_status(int labelled, int waiting) {
+    return '$labelled attribuées par Hermes · $waiting en attente';
+  }
+
+  @override
+  String chat_icons_privacy(String connection) {
+    return 'Seuls les titres sont envoyés, par lots, à un chat masqué sur $connection. Le modèle par défaut de ce profil est utilisé.';
+  }
 }

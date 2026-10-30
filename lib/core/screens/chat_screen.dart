@@ -62,6 +62,9 @@ import '../widgets/gateway_sensitive_prompt_dialog.dart';
 import '../widgets/media_artifact_card.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
+import '../chat_icons/chat_icon_store.dart';
+import '../chat_icons/chat_mark.dart';
+import '../../main.dart';
 
 /// The user's bubble sits on the scheme's primary container with its paired
 /// on-color, so it follows the active palette and keeps the contrast Material
@@ -4538,6 +4541,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   /// Material 3 Expressive chat app bar: the project's shape mark, the chat
   /// title, and the model as a tappable subtitle that opens the per-chat
   /// model picker (design D7).
+  /// The chat's labels, read-only: an open chat shows Hermes's icon but
+  /// never asks for one (Home and Chats do).
+  Widget _withChatIcons(BuildContext context, Widget child) {
+    final prefs = context
+        .findAncestorStateOfType<HermesAppState>()
+        ?.widget
+        .connManager
+        .prefs;
+    if (prefs == null) return child;
+    return ChatIconScope(
+      store: ChatIconStore.forConnection(prefs, widget.connection.id),
+      child: child,
+    );
+  }
+
   Widget _buildAppBarTitle(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
@@ -4551,15 +4569,20 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final project = _projectName;
     return Row(
       children: [
-        ShapeMark(
-          style: project == null || project.isEmpty
-              ? MarkStyle.unassigned
-              : MarkStyle.forKey(project),
-          label: project ?? _sessionTitle,
-          icon: project == null || project.isEmpty
-              ? Icons.chat_bubble_outline
-              : null,
-          size: 40,
+        _withChatIcons(
+          context,
+          ChatMark(
+            sessionId: widget.session.id,
+            title: _sessionTitle,
+            letterStyle: project == null || project.isEmpty
+                ? MarkStyle.unassigned
+                : MarkStyle.forKey(project),
+            letterLabel: project ?? _sessionTitle,
+            letterIcon: project == null || project.isEmpty
+                ? Icons.chat_bubble_outline
+                : null,
+            size: 40,
+          ),
         ),
         const SizedBox(width: 4),
         // The whole title block is the model picker's 48dp target (tap the

@@ -10,11 +10,20 @@ import 'package:flutter/material.dart';
 /// at avatar and indicator sizes, and cheap to morph between.
 @immutable
 class ExpressiveShape {
-  const ExpressiveShape(this.name, this.lobes, this.amplitude);
+  const ExpressiveShape(
+    this.name,
+    this.lobes,
+    this.amplitude, [
+    this.rotation = 0,
+  ]);
 
   final String name;
   final int lobes;
   final double amplitude;
+
+  /// Turn applied to every outline, in radians, so shapes like the 4-sided
+  /// cookie sit flat rather than on a point.
+  final double rotation;
 
   static const cookie = ExpressiveShape('cookie', 9, 0.07);
   static const clover = ExpressiveShape('clover', 4, 0.22);
@@ -22,9 +31,26 @@ class ExpressiveShape {
   static const burst = ExpressiveShape('burst', 12, 0.08);
   static const flower = ExpressiveShape('flower', 6, 0.14);
   static const soft = ExpressiveShape('soft', 4, 0.06);
+  static const cookie6 = ExpressiveShape('cookie6', 6, 0.09);
+  static const cookie4 = ExpressiveShape('cookie4', 4, 0.13, math.pi / 4);
+  static const clover8 = ExpressiveShape('clover8', 8, 0.15);
+  static const pentagon = ExpressiveShape('pentagon', 5, 0.08, -math.pi / 2);
 
   /// Shapes used for project and connection marks, in assignment order.
   static const marks = [cookie, flower, clover, burst, sunny, soft];
+
+  /// Shapes a chat's topic icon may sit in, picked by a hash of its id.
+  static const chatMarks = [
+    cookie,
+    cookie6,
+    cookie4,
+    clover,
+    clover8,
+    sunny,
+    burst,
+    flower,
+    pentagon,
+  ];
 
   /// The outline inside [rect], starting at angle 0 and turned by [rotation]
   /// radians.
@@ -37,8 +63,8 @@ class ExpressiveShape {
       final a = i * 2 * math.pi / steps;
       final r =
           radius * (1 + amplitude * math.cos(lobes * a)) / (1 + amplitude);
-      final p =
-          center + Offset(math.cos(a + rotation), math.sin(a + rotation)) * r;
+      final turn = a + rotation + this.rotation;
+      final p = center + Offset(math.cos(turn), math.sin(turn)) * r;
       if (i == 0) {
         path.moveTo(p.dx, p.dy);
       } else {
@@ -52,10 +78,11 @@ class ExpressiveShape {
   bool operator ==(Object other) =>
       other is ExpressiveShape &&
       other.lobes == lobes &&
-      other.amplitude == amplitude;
+      other.amplitude == amplitude &&
+      other.rotation == rotation;
 
   @override
-  int get hashCode => Object.hash(lobes, amplitude);
+  int get hashCode => Object.hash(lobes, amplitude, rotation);
 
   @override
   String toString() => 'ExpressiveShape.$name';
@@ -120,6 +147,13 @@ class MarkStyle {
   /// Chats with no project share this mark.
   static const unassigned = MarkStyle(ExpressiveShape.soft, MarkTone.secondary);
 
+  @override
+  bool operator ==(Object other) =>
+      other is MarkStyle && other.shape == shape && other.tone == tone;
+
+  @override
+  int get hashCode => Object.hash(shape, tone);
+
   (Color, Color) colors(ColorScheme scheme) => switch (tone) {
     MarkTone.primary => (scheme.primaryContainer, scheme.onPrimaryContainer),
     MarkTone.secondary => (
@@ -138,6 +172,7 @@ class ShapeMark extends StatelessWidget {
     this.label,
     this.icon,
     this.size = 44,
+    this.iconScale = 0.45,
     super.key,
   });
 
@@ -146,12 +181,15 @@ class ShapeMark extends StatelessWidget {
   final IconData? icon;
   final double size;
 
+  /// The icon's size as a fraction of [size].
+  final double iconScale;
+
   @override
   Widget build(BuildContext context) {
     final (fill, ink) = style.colors(Theme.of(context).colorScheme);
     final text = (label ?? '').trim();
     final glyph = icon != null
-        ? Icon(icon, size: size * 0.45, color: ink)
+        ? Icon(icon, size: size * iconScale, color: ink)
         : Text(
             text.isEmpty ? '' : text.characters.first.toUpperCase(),
             style: TextStyle(

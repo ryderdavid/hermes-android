@@ -453,7 +453,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: Text(context.l10n.appearance_summary),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const AppearanceScreen()),
+            MaterialPageRoute<void>(
+              builder: (_) => AppearanceScreen(
+                connectionId: widget.connection.id,
+                connectionLabel: widget.connection.label,
+              ),
+            ),
           ),
         ),
         if (verbose) _VerboseToggle(),

@@ -4413,6 +4413,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Like this — your colors, your text size.'**
   String get appearance_preview_answer;
+
+  /// No description provided for @chat_icons.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat icons'**
+  String get chat_icons;
+
+  /// No description provided for @chat_icons_letter.
+  ///
+  /// In en, this message translates to:
+  /// **'Letter'**
+  String get chat_icons_letter;
+
+  /// No description provided for @chat_icons_on_device.
+  ///
+  /// In en, this message translates to:
+  /// **'On device'**
+  String get chat_icons_on_device;
+
+  /// No description provided for @chat_icons_by_hermes.
+  ///
+  /// In en, this message translates to:
+  /// **'By Hermes'**
+  String get chat_icons_by_hermes;
+
+  /// No description provided for @chat_icons_letter_blurb.
+  ///
+  /// In en, this message translates to:
+  /// **'The first letter of the chat title, on the same shape for every chat.'**
+  String get chat_icons_letter_blurb;
+
+  /// No description provided for @chat_icons_on_device_blurb.
+  ///
+  /// In en, this message translates to:
+  /// **'An icon matched to the chat title on this phone. Instant and private, but it only knows common topics.'**
+  String get chat_icons_on_device_blurb;
+
+  /// No description provided for @chat_icons_hermes_blurb.
+  ///
+  /// In en, this message translates to:
+  /// **'Hermes reads each chat title and picks an icon from the Material set. A new chat shows the on-device match until Hermes answers.'**
+  String get chat_icons_hermes_blurb;
+
+  /// No description provided for @chat_icons_mixed_shapes.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed shapes'**
+  String get chat_icons_mixed_shapes;
+
+  /// No description provided for @chat_icons_mixed_shapes_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Each chat keeps a shape picked at random'**
+  String get chat_icons_mixed_shapes_description;
+
+  /// No description provided for @chat_icons_relabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Relabel all chats'**
+  String get chat_icons_relabel;
+
+  /// No description provided for @chat_icons_relabel_status.
+  ///
+  /// In en, this message translates to:
+  /// **'{labelled} labelled by Hermes · {waiting} waiting'**
+  String chat_icons_relabel_status(int labelled, int waiting);
+
+  /// No description provided for @chat_icons_privacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Only chat titles are sent, in batches, to a hidden chat on {connection}. It uses this profile\'s default model.'**
+  String chat_icons_privacy(String connection);
 }
 
 class _AppLocalizationsDelegate

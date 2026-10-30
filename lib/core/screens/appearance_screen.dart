@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../main.dart';
+import '../chat_icons/chat_icon_settings_section.dart';
 import '../expressive/expressive.dart';
 import '../l10n/l10n.dart';
 import '../services/appearance_preferences.dart';
@@ -16,7 +17,12 @@ import '../widgets/text_size_settings_card.dart';
 /// pure black, then text size and chat density. Everything here is stored on
 /// the device, so the page works without the dashboard.
 class AppearanceScreen extends StatelessWidget {
-  const AppearanceScreen({super.key});
+  const AppearanceScreen({this.connectionId, this.connectionLabel, super.key});
+
+  /// The connection Settings was opened for: Chat icons' relabel row and
+  /// privacy note name it.
+  final String? connectionId;
+  final String? connectionLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +54,11 @@ class AppearanceScreen extends StatelessWidget {
             children: [
               AppearanceColorPicker(preferences: AppearancePreferences(prefs)),
             ],
+          ),
+          ChatIconSettingsSection(
+            preferences: prefs,
+            connectionId: connectionId,
+            connectionLabel: connectionLabel,
           ),
           SettingsGroup(
             title: l10n.text_and_chats,

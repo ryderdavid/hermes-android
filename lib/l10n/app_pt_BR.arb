@@ -710,5 +710,17 @@
   "theme_label": "Tema",
   "text_and_chats": "Texto e chats",
   "appearance_preview_question": "Como as respostas vão ficar?",
-  "appearance_preview_answer": "Assim: suas cores, seu tamanho de texto."
+  "appearance_preview_answer": "Assim: suas cores, seu tamanho de texto.",
+  "chat_icons": "Ícones dos chats",
+  "chat_icons_letter": "Letra",
+  "chat_icons_on_device": "No aparelho",
+  "chat_icons_by_hermes": "Pelo Hermes",
+  "chat_icons_letter_blurb": "A primeira letra do título do chat, com a mesma forma em todos.",
+  "chat_icons_on_device_blurb": "Um ícone escolhido pelo título do chat neste telefone. Instantâneo e privado, mas só conhece temas comuns.",
+  "chat_icons_hermes_blurb": "O Hermes lê cada título e escolhe um ícone do conjunto Material. Um chat novo mostra o ícone do aparelho até o Hermes responder.",
+  "chat_icons_mixed_shapes": "Formas variadas",
+  "chat_icons_mixed_shapes_description": "Cada chat mantém uma forma escolhida ao acaso",
+  "chat_icons_relabel": "Reetiquetar todos os chats",
+  "chat_icons_relabel_status": "{labelled} etiquetados pelo Hermes · {waiting} aguardando",
+  "chat_icons_privacy": "Apenas os títulos são enviados, em lotes, para um chat oculto em {connection}. Usa o modelo padrão deste perfil."
 }

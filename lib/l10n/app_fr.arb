@@ -710,5 +710,17 @@
   "theme_label": "Thème",
   "text_and_chats": "Texte et chats",
   "appearance_preview_question": "À quoi ressembleront les réponses ?",
-  "appearance_preview_answer": "Comme ceci : vos couleurs, votre taille de texte."
+  "appearance_preview_answer": "Comme ceci : vos couleurs, votre taille de texte.",
+  "chat_icons": "Icônes des chats",
+  "chat_icons_letter": "Lettre",
+  "chat_icons_on_device": "Sur l'appareil",
+  "chat_icons_by_hermes": "Par Hermes",
+  "chat_icons_letter_blurb": "La première lettre du titre du chat, dans la même forme pour tous les chats.",
+  "chat_icons_on_device_blurb": "Une icône choisie d'après le titre du chat sur ce téléphone. Instantané et privé, mais ne connaît que les sujets courants.",
+  "chat_icons_hermes_blurb": "Hermes lit chaque titre et choisit une icône Material. Un nouveau chat affiche l'icône de l'appareil jusqu'à la réponse de Hermes.",
+  "chat_icons_mixed_shapes": "Formes variées",
+  "chat_icons_mixed_shapes_description": "Chaque chat garde une forme choisie au hasard",
+  "chat_icons_relabel": "Réattribuer toutes les icônes",
+  "chat_icons_relabel_status": "{labelled} attribuées par Hermes · {waiting} en attente",
+  "chat_icons_privacy": "Seuls les titres sont envoyés, par lots, à un chat masqué sur {connection}. Le modèle par défaut de ce profil est utilisé."
 }

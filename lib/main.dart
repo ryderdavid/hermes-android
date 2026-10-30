@@ -28,6 +28,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
 import 'core/expressive/expressive.dart';
+import 'core/chat_icons/chat_icon_settings.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -275,6 +276,7 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     AppearancePreferences(widget.connManager.prefs).read();
+    ChatIconPreferences(widget.connManager.prefs).read();
     _turnApplicationController = GatewayTurnApplicationController();
     // The keep-alive follows the work: a turn settling (or starting) while
     // backgrounded must end (or earn) the foreground service immediately,

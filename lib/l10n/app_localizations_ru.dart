@@ -2609,4 +2609,48 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get appearance_preview_answer =>
       'Вот так — ваши цвета и размер текста.';
+
+  @override
+  String get chat_icons => 'Значки чатов';
+
+  @override
+  String get chat_icons_letter => 'Буква';
+
+  @override
+  String get chat_icons_on_device => 'На устройстве';
+
+  @override
+  String get chat_icons_by_hermes => 'От Hermes';
+
+  @override
+  String get chat_icons_letter_blurb =>
+      'Первая буква названия чата в одинаковой форме для всех чатов.';
+
+  @override
+  String get chat_icons_on_device_blurb =>
+      'Значок подбирается по названию чата на этом телефоне. Мгновенно и приватно, но знает только распространённые темы.';
+
+  @override
+  String get chat_icons_hermes_blurb =>
+      'Hermes читает название каждого чата и выбирает значок из набора Material. Пока Hermes не ответит, новый чат показывает значок с устройства.';
+
+  @override
+  String get chat_icons_mixed_shapes => 'Разные формы';
+
+  @override
+  String get chat_icons_mixed_shapes_description =>
+      'У каждого чата своя случайно выбранная форма';
+
+  @override
+  String get chat_icons_relabel => 'Подобрать значки заново';
+
+  @override
+  String chat_icons_relabel_status(int labelled, int waiting) {
+    return 'Hermes подобрал: $labelled · в очереди: $waiting';
+  }
+
+  @override
+  String chat_icons_privacy(String connection) {
+    return 'Отправляются только названия чатов, пакетами, в скрытый чат на $connection. Используется модель профиля по умолчанию.';
+  }
 }

@@ -692,9 +692,46 @@ class ApiClient {
       sessions: list
           .whereType<Map<String, dynamic>>()
           .map((s) => Session.fromJson(s))
+          .where((s) => !s.isChatIconLabelling)
           .toList(),
       hasMore: data['has_more'] == true,
     );
+  }
+
+  /// One non-streaming agent turn in [sessionId], returning the assistant's
+  /// text. Used for background work such as chat icon labelling, which keeps
+  /// to its own hidden session; never for a chat the user can see.
+  Future<String> completeOnce({
+    required String sessionId,
+    required String system,
+    required String user,
+    Duration timeout = const Duration(minutes: 2),
+  }) async {
+    final res = await _http
+        .post(
+          Uri.parse('$baseUrl/v1/chat/completions'),
+          headers: {..._headers, 'X-Hermes-Session-Id': sessionId},
+          body: jsonEncode({
+            'model': 'hermes-agent',
+            'stream': false,
+            'messages': [
+              {'role': 'system', 'content': system},
+              {'role': 'user', 'content': user},
+            ],
+          }),
+        )
+        .timeout(timeout);
+    if (res.statusCode != 200) {
+      throw Exception('HTTP ${res.statusCode}');
+    }
+    final data = jsonDecode(res.body);
+    final choices = data is Map ? data['choices'] : null;
+    if (choices is List && choices.isNotEmpty && choices.first is Map) {
+      final message = (choices.first as Map)['message'];
+      final content = message is Map ? message['content'] : null;
+      if (content is String) return content;
+    }
+    throw const FormatException('Gateway returned no message');
   }
 
   Future<List<Session>> getSessions({Duration timeout = requestTimeout}) async {
@@ -1681,6 +1718,7 @@ class DashboardClient {
       final rows = list
           .whereType<Map<String, dynamic>>()
           .map((s) => Session.fromJson(s))
+          .where((s) => !s.isChatIconLabelling)
           .toList();
       var newRows = 0;
       for (final row in rows) {

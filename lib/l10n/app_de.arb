@@ -710,5 +710,17 @@
   "theme_label": "Design",
   "text_and_chats": "Text und Chats",
   "appearance_preview_question": "Wie sehen Antworten aus?",
-  "appearance_preview_answer": "So – deine Farben, deine Textgröße."
+  "appearance_preview_answer": "So – deine Farben, deine Textgröße.",
+  "chat_icons": "Chat-Symbole",
+  "chat_icons_letter": "Buchstabe",
+  "chat_icons_on_device": "Auf dem Gerät",
+  "chat_icons_by_hermes": "Von Hermes",
+  "chat_icons_letter_blurb": "Der erste Buchstabe des Chat-Titels, für jeden Chat in derselben Form.",
+  "chat_icons_on_device_blurb": "Ein Symbol, das auf diesem Telefon zum Chat-Titel passend gewählt wird. Sofort und privat, kennt aber nur gängige Themen.",
+  "chat_icons_hermes_blurb": "Hermes liest jeden Chat-Titel und wählt ein Symbol aus dem Material-Satz. Ein neuer Chat zeigt die Zuordnung auf dem Gerät, bis Hermes antwortet.",
+  "chat_icons_mixed_shapes": "Gemischte Formen",
+  "chat_icons_mixed_shapes_description": "Jeder Chat behält eine zufällig gewählte Form",
+  "chat_icons_relabel": "Alle Chats neu zuordnen",
+  "chat_icons_relabel_status": "{labelled} von Hermes zugeordnet · {waiting} ausstehend",
+  "chat_icons_privacy": "Nur Chat-Titel werden gebündelt an einen verborgenen Chat auf {connection} gesendet. Dabei wird das Standardmodell dieses Profils verwendet."
 }

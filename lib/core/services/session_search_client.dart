@@ -113,6 +113,7 @@ class SessionSearchClient {
     return results
         .whereType<Map<String, dynamic>>()
         .map(SessionSearchHit.fromJson)
+        .where((hit) => !hit.session.isChatIconLabelling)
         .toList(growable: false);
   }
 

@@ -710,5 +710,17 @@
   "theme_label": "主题",
   "text_and_chats": "文字和聊天",
   "appearance_preview_question": "回复会是什么样子？",
-  "appearance_preview_answer": "就像这样——你的颜色，你的文字大小。"
+  "appearance_preview_answer": "就像这样——你的颜色，你的文字大小。",
+  "chat_icons": "聊天图标",
+  "chat_icons_letter": "字母",
+  "chat_icons_on_device": "设备上",
+  "chat_icons_by_hermes": "由 Hermes 选择",
+  "chat_icons_letter_blurb": "使用聊天标题的首字母，所有聊天使用同一形状。",
+  "chat_icons_on_device_blurb": "在本机根据聊天标题匹配图标。即时且私密，但只认识常见话题。",
+  "chat_icons_hermes_blurb": "Hermes 读取每个聊天标题，从 Material 图标中选择一个。在 Hermes 回复前，新聊天显示设备上匹配的图标。",
+  "chat_icons_mixed_shapes": "多种形状",
+  "chat_icons_mixed_shapes_description": "每个聊天保留一个随机选择的形状",
+  "chat_icons_relabel": "重新标记所有聊天",
+  "chat_icons_relabel_status": "Hermes 已标记 {labelled} 个 · {waiting} 个等待中",
+  "chat_icons_privacy": "只会把聊天标题分批发送到 {connection} 上的一个隐藏聊天，并使用此配置文件的默认模型。"
 }

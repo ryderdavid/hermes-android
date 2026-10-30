@@ -12,6 +12,7 @@ import '../widgets/hermes_shell.dart';
 import '../widgets/session_name_dialog.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
+import '../chat_icons/chat_mark.dart';
 
 const kWorkspaceSessionSearchKey = Key('workspace-session-search');
 
@@ -853,17 +854,25 @@ class WorkspaceSessionsScreenState extends State<WorkspaceSessionsScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // The chat's project mark (or the shared Unassigned mark), with
-          // the pin state as its glyph.
-          ShapeMark(
-            style: projectLabel == null
+          // The chat's project mark (or the shared Unassigned mark) with the
+          // pin state as its glyph; with topic icons on, the pin moves to a
+          // corner badge.
+          ChatMark(
+            sessionId: session.id,
+            title: session.title,
+            letterStyle: projectLabel == null
                 ? MarkStyle.unassigned
                 : MarkStyle.forKey(projectLabel),
-            icon: locallyPinned
+            letterIcon: locallyPinned
                 ? Icons.push_pin
                 : session.pinned
                 ? Icons.push_pin_outlined
                 : Icons.chat_bubble_outline,
+            badge: locallyPinned
+                ? Icons.push_pin
+                : session.pinned
+                ? Icons.push_pin_outlined
+                : null,
             size: 44,
           ),
           const SizedBox(width: HermesSpacing.lg),

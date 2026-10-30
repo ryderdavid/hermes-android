@@ -1,3 +1,5 @@
+import '../chat_icons/chat_icon_labeller.dart';
+
 /// How recently a session must have been touched to count as live when the
 /// Gateway does not report `is_active` itself.
 ///
@@ -85,6 +87,12 @@ class Session {
   /// `is_active: false` on every row (`_project_tree_row` in the gateway's
   /// `methods_projects`), so project rows must fall back to the recency
   /// window instead of rendering every fresh chat as Done.
+  /// The hidden session Hermes labels chat icons in (design D2), or a
+  /// continuation of one; no list in the app shows it.
+  bool get isChatIconLabelling =>
+      ChatIconLabeller.isLabellingSessionId(id) ||
+      ChatIconLabeller.isLabellingSessionId(lineageRootId);
+
   factory Session.fromJson(
     Map<String, dynamic> json, {
     bool ignoreIsActive = false,

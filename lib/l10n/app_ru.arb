@@ -710,5 +710,17 @@
   "theme_label": "Тема",
   "text_and_chats": "Текст и чаты",
   "appearance_preview_question": "Как будут выглядеть ответы?",
-  "appearance_preview_answer": "Вот так — ваши цвета и размер текста."
+  "appearance_preview_answer": "Вот так — ваши цвета и размер текста.",
+  "chat_icons": "Значки чатов",
+  "chat_icons_letter": "Буква",
+  "chat_icons_on_device": "На устройстве",
+  "chat_icons_by_hermes": "От Hermes",
+  "chat_icons_letter_blurb": "Первая буква названия чата в одинаковой форме для всех чатов.",
+  "chat_icons_on_device_blurb": "Значок подбирается по названию чата на этом телефоне. Мгновенно и приватно, но знает только распространённые темы.",
+  "chat_icons_hermes_blurb": "Hermes читает название каждого чата и выбирает значок из набора Material. Пока Hermes не ответит, новый чат показывает значок с устройства.",
+  "chat_icons_mixed_shapes": "Разные формы",
+  "chat_icons_mixed_shapes_description": "У каждого чата своя случайно выбранная форма",
+  "chat_icons_relabel": "Подобрать значки заново",
+  "chat_icons_relabel_status": "Hermes подобрал: {labelled} · в очереди: {waiting}",
+  "chat_icons_privacy": "Отправляются только названия чатов, пакетами, в скрытый чат на {connection}. Используется модель профиля по умолчанию."
 }

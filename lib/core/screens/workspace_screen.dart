@@ -56,6 +56,10 @@ import '../widgets/update_available_dialog.dart';
 import 'workspace_sessions_screen.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
+import '../../main.dart';
+import '../chat_icons/chat_icon_labeller.dart';
+import '../chat_icons/chat_icon_store.dart';
+import '../chat_icons/chat_mark.dart';
 
 /// Builds the Projects repository for a connection. Injectable for tests.
 typedef ProjectsRepositoryFactory =
@@ -315,6 +319,35 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
 
   late final WorkspaceTurnSignalsLoader _loadTurnSignals =
       widget.turnSignalsLoader ?? _loadTurnSignalsFromJournal;
+
+  ChatIconStore? _chatIconStore;
+  ChatIconLabeller? _chatIconLabeller;
+
+  /// Hands this connection's chat icon labels to every [ChatMark] on Home and
+  /// in Chats, with a labeller that asks Hermes for missing ones (it only
+  /// sends anything in By Hermes mode).
+  Widget _withChatIcons(BuildContext context, Widget child) {
+    final prefs = context
+        .findAncestorStateOfType<HermesAppState>()
+        ?.widget
+        .connManager
+        .prefs;
+    if (prefs == null) return child;
+    final store = _chatIconStore ??= ChatIconStore.forConnection(
+      prefs,
+      widget.connection.id,
+    );
+    final labeller = _chatIconLabeller ??= ChatIconLabeller(
+      store: store,
+      complete: ({required sessionId, required system, required user}) =>
+          _sessionClient.completeOnce(
+            sessionId: sessionId,
+            system: system,
+            user: user,
+          ),
+    );
+    return ChatIconScope(store: store, labeller: labeller, child: child);
+  }
 
   ApiClient get _sessionClient {
     final connection = widget.connection;
@@ -885,6 +918,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
     }
     // Screen-owned transport clients close with the screen — both hold live
     // http.Client pools that leak otherwise.
+    _chatIconLabeller?.dispose();
     _sessionsApi?.close();
     _archivedSessionsClient?.close();
     super.dispose();
@@ -1774,30 +1808,33 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
             ? _buildHomeSearchBar(context)
             : _buildDestinationTitle(context),
       ),
-      body: HermesShell(
-        initialDestination: HermesDestination.home,
-        // The badge is the only attention signal visible from another
-        // destination, so blocked work has to raise it even while the user is
-        // in Projects or More.
-        badges: {
-          HermesDestination.home: _turnSignals.attention.length,
-          HermesDestination.activity: _activityBlockedCount,
-        },
-        onDestinationChanged: (destination) =>
-            setState(() => _destination = destination),
-        // The FAB belongs to the shell, not to this Scaffold: above the shell
-        // it would float over the bottom bar and swallow taps on More.
-        floatingActionButton:
-            _destination == HermesDestination.home ||
-                _destination == HermesDestination.chats
-            ? FloatingActionButton.extended(
-                key: kWorkspaceNewChatButtonKey,
-                onPressed: () => unawaited(_startNewChat()),
-                icon: const Icon(Icons.add),
-                label: Text(context.l10n.new_label),
-              )
-            : null,
-        builder: _pane,
+      body: _withChatIcons(
+        context,
+        HermesShell(
+          initialDestination: HermesDestination.home,
+          // The badge is the only attention signal visible from another
+          // destination, so blocked work has to raise it even while the user is
+          // in Projects or More.
+          badges: {
+            HermesDestination.home: _turnSignals.attention.length,
+            HermesDestination.activity: _activityBlockedCount,
+          },
+          onDestinationChanged: (destination) =>
+              setState(() => _destination = destination),
+          // The FAB belongs to the shell, not to this Scaffold: above the shell
+          // it would float over the bottom bar and swallow taps on More.
+          floatingActionButton:
+              _destination == HermesDestination.home ||
+                  _destination == HermesDestination.chats
+              ? FloatingActionButton.extended(
+                  key: kWorkspaceNewChatButtonKey,
+                  onPressed: () => unawaited(_startNewChat()),
+                  icon: const Icon(Icons.add),
+                  label: Text(context.l10n.new_label),
+                )
+              : null,
+          builder: _pane,
+        ),
       ),
     );
   }

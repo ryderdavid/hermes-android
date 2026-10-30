@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/chat_icons/chat_icon_settings.dart';
 import 'package:hermes_android/core/models/session.dart';
 import 'package:hermes_android/core/widgets/home_pane.dart';
 
@@ -70,6 +71,33 @@ void main() {
         variant: variant,
       );
       await matchGolden(tester, 'screens/home_populated_${variant.name}.png');
+    });
+    testWidgets('home topic icons ${variant.name}', (tester) async {
+      chatIconSelection.value = const ChatIconSettings(
+        mode: ChatIconMode.onDevice,
+      );
+      addTearDown(() => chatIconSelection.value = const ChatIconSettings());
+      await pumpGolden(
+        tester,
+        Scaffold(
+          body: HomePane(
+            loadSessions: () async => _sessions,
+            clock: () => _now,
+            attention: const {
+              'backup': 'Approve the prune command',
+              'print': 'Hermes asked which printer to reset',
+            },
+            running: const {'media'},
+            projectNames: const {
+              'backup': 'Home lab',
+              'media': 'Home lab',
+              'garden': 'Garden',
+            },
+          ),
+        ),
+        variant: variant,
+      );
+      await matchGolden(tester, 'screens/home_topic_icons_${variant.name}.png');
     });
   }
 }

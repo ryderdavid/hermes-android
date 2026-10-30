@@ -2611,4 +2611,48 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get appearance_preview_answer => 'So – deine Farben, deine Textgröße.';
+
+  @override
+  String get chat_icons => 'Chat-Symbole';
+
+  @override
+  String get chat_icons_letter => 'Buchstabe';
+
+  @override
+  String get chat_icons_on_device => 'Auf dem Gerät';
+
+  @override
+  String get chat_icons_by_hermes => 'Von Hermes';
+
+  @override
+  String get chat_icons_letter_blurb =>
+      'Der erste Buchstabe des Chat-Titels, für jeden Chat in derselben Form.';
+
+  @override
+  String get chat_icons_on_device_blurb =>
+      'Ein Symbol, das auf diesem Telefon zum Chat-Titel passend gewählt wird. Sofort und privat, kennt aber nur gängige Themen.';
+
+  @override
+  String get chat_icons_hermes_blurb =>
+      'Hermes liest jeden Chat-Titel und wählt ein Symbol aus dem Material-Satz. Ein neuer Chat zeigt die Zuordnung auf dem Gerät, bis Hermes antwortet.';
+
+  @override
+  String get chat_icons_mixed_shapes => 'Gemischte Formen';
+
+  @override
+  String get chat_icons_mixed_shapes_description =>
+      'Jeder Chat behält eine zufällig gewählte Form';
+
+  @override
+  String get chat_icons_relabel => 'Alle Chats neu zuordnen';
+
+  @override
+  String chat_icons_relabel_status(int labelled, int waiting) {
+    return '$labelled von Hermes zugeordnet · $waiting ausstehend';
+  }
+
+  @override
+  String chat_icons_privacy(String connection) {
+    return 'Nur Chat-Titel werden gebündelt an einen verborgenen Chat auf $connection gesendet. Dabei wird das Standardmodell dieses Profils verwendet.';
+  }
 }

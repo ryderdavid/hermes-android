@@ -2538,4 +2538,46 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get appearance_preview_answer => 'こんな感じです。あなたの色と文字サイズで。';
+
+  @override
+  String get chat_icons => 'チャットのアイコン';
+
+  @override
+  String get chat_icons_letter => '文字';
+
+  @override
+  String get chat_icons_on_device => '端末上';
+
+  @override
+  String get chat_icons_by_hermes => 'Hermes が選択';
+
+  @override
+  String get chat_icons_letter_blurb => 'チャットのタイトルの最初の文字を、すべて同じ形で表示します。';
+
+  @override
+  String get chat_icons_on_device_blurb =>
+      'この端末でチャットのタイトルに合うアイコンを選びます。すぐに表示されプライベートですが、一般的な話題にしか対応しません。';
+
+  @override
+  String get chat_icons_hermes_blurb =>
+      'Hermes が各チャットのタイトルを読み、Material のアイコンから選びます。新しいチャットは Hermes が答えるまで端末上の候補を表示します。';
+
+  @override
+  String get chat_icons_mixed_shapes => 'いろいろな形';
+
+  @override
+  String get chat_icons_mixed_shapes_description => 'チャットごとにランダムに選んだ形を保ちます';
+
+  @override
+  String get chat_icons_relabel => 'すべてのチャットを再判定';
+
+  @override
+  String chat_icons_relabel_status(int labelled, int waiting) {
+    return 'Hermes が $labelled 件を判定 · $waiting 件待機中';
+  }
+
+  @override
+  String chat_icons_privacy(String connection) {
+    return 'チャットのタイトルだけが、まとめて $connection の非表示のチャットに送られます。このプロファイルの既定のモデルを使います。';
+  }
 }

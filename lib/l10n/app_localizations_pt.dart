@@ -2606,6 +2606,50 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get appearance_preview_answer =>
       'Assim: suas cores, seu tamanho de texto.';
+
+  @override
+  String get chat_icons => 'Ícones dos chats';
+
+  @override
+  String get chat_icons_letter => 'Letra';
+
+  @override
+  String get chat_icons_on_device => 'No aparelho';
+
+  @override
+  String get chat_icons_by_hermes => 'Pelo Hermes';
+
+  @override
+  String get chat_icons_letter_blurb =>
+      'A primeira letra do título do chat, com a mesma forma em todos.';
+
+  @override
+  String get chat_icons_on_device_blurb =>
+      'Um ícone escolhido pelo título do chat neste telefone. Instantâneo e privado, mas só conhece temas comuns.';
+
+  @override
+  String get chat_icons_hermes_blurb =>
+      'O Hermes lê cada título e escolhe um ícone do conjunto Material. Um chat novo mostra o ícone do aparelho até o Hermes responder.';
+
+  @override
+  String get chat_icons_mixed_shapes => 'Formas variadas';
+
+  @override
+  String get chat_icons_mixed_shapes_description =>
+      'Cada chat mantém uma forma escolhida ao acaso';
+
+  @override
+  String get chat_icons_relabel => 'Reetiquetar todos os chats';
+
+  @override
+  String chat_icons_relabel_status(int labelled, int waiting) {
+    return '$labelled etiquetados pelo Hermes · $waiting aguardando';
+  }
+
+  @override
+  String chat_icons_privacy(String connection) {
+    return 'Apenas os títulos são enviados, em lotes, para um chat oculto em $connection. Usa o modelo padrão deste perfil.';
+  }
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -5205,4 +5249,48 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   @override
   String get appearance_preview_answer =>
       'Assim: suas cores, seu tamanho de texto.';
+
+  @override
+  String get chat_icons => 'Ícones dos chats';
+
+  @override
+  String get chat_icons_letter => 'Letra';
+
+  @override
+  String get chat_icons_on_device => 'No aparelho';
+
+  @override
+  String get chat_icons_by_hermes => 'Pelo Hermes';
+
+  @override
+  String get chat_icons_letter_blurb =>
+      'A primeira letra do título do chat, com a mesma forma em todos.';
+
+  @override
+  String get chat_icons_on_device_blurb =>
+      'Um ícone escolhido pelo título do chat neste telefone. Instantâneo e privado, mas só conhece temas comuns.';
+
+  @override
+  String get chat_icons_hermes_blurb =>
+      'O Hermes lê cada título e escolhe um ícone do conjunto Material. Um chat novo mostra o ícone do aparelho até o Hermes responder.';
+
+  @override
+  String get chat_icons_mixed_shapes => 'Formas variadas';
+
+  @override
+  String get chat_icons_mixed_shapes_description =>
+      'Cada chat mantém uma forma escolhida ao acaso';
+
+  @override
+  String get chat_icons_relabel => 'Reetiquetar todos os chats';
+
+  @override
+  String chat_icons_relabel_status(int labelled, int waiting) {
+    return '$labelled etiquetados pelo Hermes · $waiting aguardando';
+  }
+
+  @override
+  String chat_icons_privacy(String connection) {
+    return 'Apenas os títulos são enviados, em lotes, para um chat oculto em $connection. Usa o modelo padrão deste perfil.';
+  }
 }

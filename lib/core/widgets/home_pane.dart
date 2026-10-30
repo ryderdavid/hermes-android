@@ -29,6 +29,7 @@ import '../utils/home_digest.dart';
 import 'hermes_components.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
+import '../chat_icons/chat_mark.dart';
 
 /// Reads the sessions Home ranks. Injectable so the pane can be tested — and
 /// later re-pointed at a cache — without reaching for a transport.
@@ -480,7 +481,12 @@ class _HomeItemCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          ShapeMark(style: mark, label: project ?? title),
+          ChatMark(
+            sessionId: item.session.id,
+            title: title,
+            letterStyle: mark,
+            letterLabel: project ?? title,
+          ),
           const SizedBox(width: HermesSpacing.lg),
           Expanded(
             child: Column(

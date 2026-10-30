@@ -2518,6 +2518,47 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get appearance_preview_answer => '就像这样——你的颜色，你的文字大小。';
+
+  @override
+  String get chat_icons => '聊天图标';
+
+  @override
+  String get chat_icons_letter => '字母';
+
+  @override
+  String get chat_icons_on_device => '设备上';
+
+  @override
+  String get chat_icons_by_hermes => '由 Hermes 选择';
+
+  @override
+  String get chat_icons_letter_blurb => '使用聊天标题的首字母，所有聊天使用同一形状。';
+
+  @override
+  String get chat_icons_on_device_blurb => '在本机根据聊天标题匹配图标。即时且私密，但只认识常见话题。';
+
+  @override
+  String get chat_icons_hermes_blurb =>
+      'Hermes 读取每个聊天标题，从 Material 图标中选择一个。在 Hermes 回复前，新聊天显示设备上匹配的图标。';
+
+  @override
+  String get chat_icons_mixed_shapes => '多种形状';
+
+  @override
+  String get chat_icons_mixed_shapes_description => '每个聊天保留一个随机选择的形状';
+
+  @override
+  String get chat_icons_relabel => '重新标记所有聊天';
+
+  @override
+  String chat_icons_relabel_status(int labelled, int waiting) {
+    return 'Hermes 已标记 $labelled 个 · $waiting 个等待中';
+  }
+
+  @override
+  String chat_icons_privacy(String connection) {
+    return '只会把聊天标题分批发送到 $connection 上的一个隐藏聊天，并使用此配置文件的默认模型。';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -5028,4 +5069,45 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get appearance_preview_answer => '就像这样——你的颜色，你的文字大小。';
+
+  @override
+  String get chat_icons => '聊天图标';
+
+  @override
+  String get chat_icons_letter => '字母';
+
+  @override
+  String get chat_icons_on_device => '设备上';
+
+  @override
+  String get chat_icons_by_hermes => '由 Hermes 选择';
+
+  @override
+  String get chat_icons_letter_blurb => '使用聊天标题的首字母，所有聊天使用同一形状。';
+
+  @override
+  String get chat_icons_on_device_blurb => '在本机根据聊天标题匹配图标。即时且私密，但只认识常见话题。';
+
+  @override
+  String get chat_icons_hermes_blurb =>
+      'Hermes 读取每个聊天标题，从 Material 图标中选择一个。在 Hermes 回复前，新聊天显示设备上匹配的图标。';
+
+  @override
+  String get chat_icons_mixed_shapes => '多种形状';
+
+  @override
+  String get chat_icons_mixed_shapes_description => '每个聊天保留一个随机选择的形状';
+
+  @override
+  String get chat_icons_relabel => '重新标记所有聊天';
+
+  @override
+  String chat_icons_relabel_status(int labelled, int waiting) {
+    return 'Hermes 已标记 $labelled 个 · $waiting 个等待中';
+  }
+
+  @override
+  String chat_icons_privacy(String connection) {
+    return '只会把聊天标题分批发送到 $connection 上的一个隐藏聊天，并使用此配置文件的默认模型。';
+  }
 }

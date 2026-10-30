@@ -719,5 +719,34 @@
   "theme_label": "Theme",
   "text_and_chats": "Text and chats",
   "appearance_preview_question": "How will replies look?",
-  "appearance_preview_answer": "Like this — your colors, your text size."
+  "appearance_preview_answer": "Like this — your colors, your text size.",
+  "chat_icons": "Chat icons",
+  "chat_icons_letter": "Letter",
+  "chat_icons_on_device": "On device",
+  "chat_icons_by_hermes": "By Hermes",
+  "chat_icons_letter_blurb": "The first letter of the chat title, on the same shape for every chat.",
+  "chat_icons_on_device_blurb": "An icon matched to the chat title on this phone. Instant and private, but it only knows common topics.",
+  "chat_icons_hermes_blurb": "Hermes reads each chat title and picks an icon from the Material set. A new chat shows the on-device match until Hermes answers.",
+  "chat_icons_mixed_shapes": "Mixed shapes",
+  "chat_icons_mixed_shapes_description": "Each chat keeps a shape picked at random",
+  "chat_icons_relabel": "Relabel all chats",
+  "chat_icons_relabel_status": "{labelled} labelled by Hermes · {waiting} waiting",
+  "@chat_icons_relabel_status": {
+    "placeholders": {
+      "labelled": {
+        "type": "int"
+      },
+      "waiting": {
+        "type": "int"
+      }
+    }
+  },
+  "chat_icons_privacy": "Only chat titles are sent, in batches, to a hidden chat on {connection}. It uses this profile's default model.",
+  "@chat_icons_privacy": {
+    "placeholders": {
+      "connection": {
+        "type": "String"
+      }
+    }
+  }
 }
