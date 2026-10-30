@@ -1,10 +1,28 @@
 # Fork handover — Material You and Expressive
 
-Current branch: `feat/expressive` on https://github.com/ryderdavid/hermes-android
+Current branch: `feat/chat-topic-icons` (on top of `feat/expressive`) on https://github.com/ryderdavid/hermes-android
 (it builds on `feat/backup-full-coverage` and `feat/material-you`).
 Upstream: https://github.com/rusty4444/hermes-android (base `63670ab`, v2.1.30+2173).
 Design targets: https://claude.ai/artifact/LTFtuBnyjddRXc3XbgmJpB (Material You),
 https://claude.ai/artifact/SA3UYuCG2gsuo3PiADX5rT (Hermes Expressive).
+
+## Topic icons for chats (2026-10-30): complete
+
+- **What:** Settings › Appearance › Chat icons offers Letter (the default),
+  On device or By Hermes. With icons on, chats are drawn in nine expressive
+  shapes with a topic icon. The code is in `lib/core/chat_icons/`. The
+  OpenSpec change is archived at
+  `openspec/changes/archive/*-chat-topic-icons/`. Mockup:
+  https://claude.ai/artifact/NixjUP4i9TzuvG2LYvNwyZ
+- **By Hermes** sends only titles, in batches, to one hidden chat a day
+  (`hermes-android-chat-icons-YYYYMMDD`). The app filters it out of every
+  list, but the Hermes web dashboard still shows it.
+- **Released:** [v2.1.30-you.4](https://github.com/ryderdavid/hermes-android/releases/tag/v2.1.30-you.4)
+  from branch `feat/chat-topic-icons`, which builds on `feat/expressive`.
+- **Not checked against a real gateway:** By Hermes. The fake gateway always
+  streams its answer, so the labeller only exercised its failure and back-off
+  path on the device. Unit tests cover the JSON path, and the gateway's
+  source returns `chat.completion` JSON when `stream` is false.
 
 ## Expressive refactor (2026-10-30): complete
 
@@ -73,7 +91,7 @@ https://claude.ai/artifact/SA3UYuCG2gsuo3PiADX5rT (Hermes Expressive).
 ## Working on the fork
 
 ```bash
-git clone -b feat/expressive https://github.com/ryderdavid/hermes-android
+git clone -b feat/chat-topic-icons https://github.com/ryderdavid/hermes-android
 cd hermes-android
 bd bootstrap                     # beads are published to refs/dolt/data
 flutter pub get && flutter analyze && flutter test

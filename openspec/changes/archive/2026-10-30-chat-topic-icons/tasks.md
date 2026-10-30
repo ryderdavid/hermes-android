@@ -19,4 +19,4 @@
 ## 4. Verify and deliver
 
 - [x] 4.1 Full suite, analyze, colour lint, goldens for the chat icons, accessibility guidelines.
-- [ ] 4.2 Release 2.1.30-you.4, signed split APKs, GitHub release, APK to the phone over Tailscale.
+- [x] 4.2 Release 2.1.30-you.4, signed split APKs, GitHub release, APK to the phone over Tailscale.
