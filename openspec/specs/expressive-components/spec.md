@@ -1,7 +1,7 @@
 # expressive-components Specification
 
 ## Purpose
-TBD - created by archiving change expressive-refactor. Update Purpose after archive.
+The in-repo Material 3 Expressive kit the screens are built from: shape marks, segmented lists, spring motion, loading and progress indicators, and connected and split buttons.
 ## Requirements
 ### Requirement: Expressive shape marks
 Projects, connections and agent avatars SHALL be drawn as Material 3 Expressive shapes (cookie, clover, sunny, burst, flower, soft) filled with a container role, and a given project SHALL always get the same shape and role.

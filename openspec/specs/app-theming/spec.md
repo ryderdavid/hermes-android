@@ -1,7 +1,7 @@
 # app-theming Specification
 
 ## Purpose
-TBD - created by archiving change material-you-redesign. Update Purpose after archive.
+How the app takes its colours, type and system chrome from Material 3 so it looks native on Android: wallpaper colours where available, user-chosen sources and theme modes, emphasized type, and no hard-coded colours.
 ## Requirements
 ### Requirement: Dynamic color by default
 On Android 12 or later the app SHALL derive its light and dark color schemes from the system's wallpaper-based palette when the Color setting is *System*. *System* SHALL be the default for new installs.

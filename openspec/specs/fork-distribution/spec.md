@@ -1,7 +1,7 @@
 # fork-distribution Specification
 
 ## Purpose
-TBD - created by archiving change material-you-redesign. Update Purpose after archive.
+How the Material You fork is installed and updated alongside upstream: its own app id and signing key, its own update channel, and its themed launcher icon and splash.
 ## Requirements
 ### Requirement: Side-by-side install
 The fork SHALL use an Android application ID distinct from upstream for both release and debug builds, and a distinct launcher label.

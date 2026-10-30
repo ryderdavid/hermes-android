@@ -1,7 +1,7 @@
 # chat-icons Specification
 
 ## Purpose
-TBD - created by archiving change chat-topic-icons. Update Purpose after archive.
+How chats are marked in lists and their app bar: the Letter, On device or By Hermes topic icons, the stable shape and tone each chat gets, and the hidden session Hermes labels titles in.
 ## Requirements
 ### Requirement: Chat icon modes
 The Appearance page SHALL offer a Chat icons choice of Letter, On device or By Hermes. Letter SHALL be the default and SHALL draw chats as before.

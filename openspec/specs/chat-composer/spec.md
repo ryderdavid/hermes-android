@@ -1,7 +1,7 @@
 # chat-composer Specification
 
 ## Purpose
-TBD - created by archiving change material-you-redesign. Update Purpose after archive.
+The message composer at the bottom of a chat: one rounded input with dictation, attach outside the field, and a Send/Stop button, behaving the same as before the redesign.
 ## Requirements
 ### Requirement: Single rounded input container
 The composer SHALL present the text input as one fully rounded container filled with a surface-container role, with no outline in its resting state, a minimum height of 48 dp, and growth to a bounded maximum as text wraps.
