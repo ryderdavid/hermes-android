@@ -22,6 +22,7 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
   AgentCredentialService? _service;
   bool _saved = false;
   bool _autoAnswer = false;
+  bool _fetch = false;
   List<AgentSudoAuditEntry> _audit = const [];
 
   String get _connectionIdentity =>
@@ -44,6 +45,7 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
       _service = service;
       _saved = saved;
       _autoAnswer = service.isAutoAnswerEnabled(_connectionIdentity);
+      _fetch = service.isFetchEnabled(_connectionIdentity);
       _audit = service.auditEntries();
     });
   }
@@ -56,6 +58,7 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
     setState(() {
       _saved = saved;
       _autoAnswer = service.isAutoAnswerEnabled(_connectionIdentity);
+      _fetch = service.isFetchEnabled(_connectionIdentity);
       _audit = service.auditEntries();
     });
   }
@@ -87,6 +90,34 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
       if (!saved) return;
     }
     await service.setAutoAnswerEnabled(_connectionIdentity, true);
+    await _refresh();
+  }
+
+  Future<void> _onFetchChanged(bool value) async {
+    final service = _service;
+    if (service == null) return;
+    final biometricReason = context.l10n.agent_sudo_biometric_reason;
+    if (!value) {
+      await service.setFetchEnabled(_connectionIdentity, false);
+      await _refresh();
+      return;
+    }
+    if (!_saved) {
+      final saved = await _showSaveDialog();
+      if (!saved) return;
+    }
+    final gate = BiometricGate();
+    if (await gate.isAvailable()) {
+      final ok = await gate.authenticate(localizedReason: biometricReason);
+      if (!ok) {
+        await _refresh();
+        return;
+      }
+    } else {
+      final saved = await _showSaveDialog();
+      if (!saved) return;
+    }
+    await service.setFetchEnabled(_connectionIdentity, true);
     await _refresh();
   }
 
@@ -205,6 +236,7 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
     if (confirmed != true) return;
     await service.clearSudoPassword(_connectionIdentity);
     await service.setAutoAnswerEnabled(_connectionIdentity, false);
+    await service.setFetchEnabled(_connectionIdentity, false);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.agent_sudo_cleared_snackbar)),
@@ -243,6 +275,16 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
             value: _autoAnswer,
             onChanged: _onAutoAnswerChanged,
           ),
+          SwitchListTile(
+            secondary: TonalIcon(
+              Icons.download_outlined,
+              tone: (scheme.errorContainer, scheme.onErrorContainer),
+            ),
+            title: Text(l10n.agent_sudo_fetch),
+            subtitle: Text(l10n.agent_sudo_fetch_subtitle),
+            value: _fetch,
+            onChanged: _onFetchChanged,
+          ),
           ListTile(
             leading: const Icon(Icons.key_outlined),
             title: Text(l10n.agent_sudo_save),
@@ -273,7 +315,7 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
                           dense: true,
                           title: Text(entry.connectionLabel),
                           subtitle: Text(
-                            '${DateTime.fromMillisecondsSinceEpoch(entry.timestampMillis).toLocal()} · ${entry.requestId}',
+                            '${entry.kind == AgentSudoAuditEntry.kindFetch ? l10n.agent_sudo_audit_kind_fetch : l10n.agent_sudo_audit_kind_auto} · ${DateTime.fromMillisecondsSinceEpoch(entry.timestampMillis).toLocal()} · ${entry.requestId}',
                           ),
                         ),
                       )

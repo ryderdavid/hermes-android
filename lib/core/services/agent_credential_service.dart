@@ -12,30 +12,38 @@ import 'connection_manager.dart' show CredentialStore;
 /// Audit entries deliberately never contain the credential value: only when,
 /// which connection, and which request were involved.
 class AgentSudoAuditEntry {
+  static const kindAutoAnswer = 'auto_answer';
+  static const kindFetch = 'fetch';
+
   final int timestampMillis;
   final String connectionLabel;
   final String requestId;
+  final String kind;
 
   const AgentSudoAuditEntry({
     required this.timestampMillis,
     required this.connectionLabel,
     required this.requestId,
+    this.kind = kindAutoAnswer,
   });
 
   Map<String, dynamic> toJson() => {
     'ts': timestampMillis,
     'connection': connectionLabel,
     'request': requestId,
+    'kind': kind,
   };
 
   static AgentSudoAuditEntry? fromJson(Map<String, dynamic> json) {
     final ts = json['ts'];
     final request = json['request']?.toString().trim() ?? '';
     if (ts is! int || request.isEmpty) return null;
+    final kind = json['kind'] == kindFetch ? kindFetch : kindAutoAnswer;
     return AgentSudoAuditEntry(
       timestampMillis: ts,
       connectionLabel: json['connection']?.toString() ?? '',
       requestId: request,
+      kind: kind,
     );
   }
 }
@@ -55,6 +63,7 @@ class AgentSudoAuditEntry {
 class AgentCredentialService {
   static const _sudoKeyPrefix = 'sudo_password';
   static const _autoAnswerKeyPrefix = 'agent_auto_answer_sudo';
+  static const _fetchKeyPrefix = 'agent_credential_fetch';
   static const _auditKey = 'agent_sudo_audit';
   static const int auditCapacity = 200;
 
@@ -88,6 +97,9 @@ class AgentCredentialService {
 
   static String _autoAnswerKey(String connectionIdentity) =>
       '$_autoAnswerKeyPrefix|$connectionIdentity';
+
+  static String _fetchKey(String connectionIdentity) =>
+      '$_fetchKeyPrefix|$connectionIdentity';
 
   /// Reads the stored SUDO password, or null when absent or unreadable.
   Future<String?> readSudoPassword(String connectionIdentity) async {
@@ -136,9 +148,24 @@ class AgentCredentialService {
       isAutoAnswerEnabled(connectionIdentity) &&
       await hasSudoPassword(connectionIdentity);
 
+  /// Whether the paired Mac may fetch the stored SUDO password on demand.
+  /// Defaults to off and is a plain (non-secret) preference.
+  bool isFetchEnabled(String connectionIdentity) =>
+      _preferences.getBool(_fetchKey(connectionIdentity)) ?? false;
+
+  Future<void> setFetchEnabled(String connectionIdentity, bool enabled) async {
+    await _preferences.setBool(_fetchKey(connectionIdentity), enabled);
+  }
+
+  /// True only when fetch is enabled and a credential is readable.
+  Future<bool> canFetch(String connectionIdentity) async =>
+      isFetchEnabled(connectionIdentity) &&
+      await hasSudoPassword(connectionIdentity);
+
   Future<void> recordAutoAnswer({
     required String connectionLabel,
     required String requestId,
+    String kind = AgentSudoAuditEntry.kindAutoAnswer,
   }) async {
     final raw = _preferences.getString(_auditKey);
     final entries = <AgentSudoAuditEntry>[];
@@ -162,6 +189,7 @@ class AgentCredentialService {
         timestampMillis: DateTime.now().millisecondsSinceEpoch,
         connectionLabel: connectionLabel,
         requestId: requestId,
+        kind: kind,
       ),
     );
     final capped = entries.length > auditCapacity

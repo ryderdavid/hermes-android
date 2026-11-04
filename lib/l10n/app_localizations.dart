@@ -4599,6 +4599,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'SUDO password cleared'**
   String get agent_sudo_cleared_snackbar;
+
+  /// No description provided for @agent_sudo_fetch.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Mac to fetch SUDO password'**
+  String get agent_sudo_fetch;
+
+  /// No description provided for @agent_sudo_fetch_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The paired Mac\'s Hermes can request and receive the actual password on demand. Every fetch is listed below and stops immediately when you turn this off or clear the password.'**
+  String get agent_sudo_fetch_subtitle;
+
+  /// No description provided for @agent_sudo_fetch_notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired Mac fetched the SUDO password'**
+  String get agent_sudo_fetch_notice;
+
+  /// No description provided for @agent_sudo_audit_kind_fetch.
+  ///
+  /// In en, this message translates to:
+  /// **'fetch'**
+  String get agent_sudo_audit_kind_fetch;
+
+  /// No description provided for @agent_sudo_audit_kind_auto.
+  ///
+  /// In en, this message translates to:
+  /// **'auto-answer'**
+  String get agent_sudo_audit_kind_auto;
 }
 
 class _AppLocalizationsDelegate

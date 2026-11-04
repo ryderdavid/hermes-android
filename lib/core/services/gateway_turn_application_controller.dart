@@ -59,6 +59,13 @@ abstract interface class GatewayTurnApplicationSession {
     required String password,
   });
 
+  /// Answers an `agent_credential.request` owned by this session. A null
+  /// [value] sends a value-free refusal instead.
+  Future<bool> tryRespondToAgentCredential({
+    required String requestId,
+    required String? value,
+  });
+
   Future<bool> tryRespondToSecret({
     required String requestId,
     required String value,
@@ -388,6 +395,24 @@ class _CoordinatorGatewayTurnApplicationSession
     _requireOpen();
     if (!_client.ownsServerRequest(requestId, 'sudo')) return false;
     await _client.respondToSudo(requestId: requestId, password: password);
+    return true;
+  }
+
+  @override
+  Future<bool> tryRespondToAgentCredential({
+    required String requestId,
+    required String? value,
+  }) async {
+    _requireOpen();
+    if (!_client.ownsServerRequest(requestId, 'agent_credential')) return false;
+    if (value == null) {
+      await _client.refuseAgentCredential(requestId: requestId);
+    } else {
+      await _client.respondToAgentCredential(
+        requestId: requestId,
+        value: value,
+      );
+    }
     return true;
   }
 

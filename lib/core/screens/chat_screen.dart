@@ -3413,7 +3413,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _queueSensitivePrompt(event, responseGeneration);
       return;
     }
-    if (event.type == 'sudo.expire' || event.type == 'secret.expire') {
+    if (event.type == 'agent_credential.request') {
+      unawaited(_handleAgentCredentialFetch(event));
+      return;
+    }
+    if (event.type == 'sudo.expire' ||
+        event.type == 'secret.expire' ||
+        event.type == 'agent_credential.expire') {
       _expireSensitivePrompt(event);
       return;
     }
@@ -4056,6 +4062,61 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
+  /// Answers an `agent_credential.request` from the paired Mac: serves the
+  /// stored SUDO password when fetch is enabled for this connection, otherwise
+  /// sends a value-free refusal. The value is never logged or displayed.
+  Future<void> _handleAgentCredentialFetch(StreamEvent event) async {
+    final requestId = event.data['request_id']?.toString().trim() ?? '';
+    if (requestId.isEmpty) return;
+    final fetchNotice = context.l10n.agent_sudo_fetch_notice;
+    String? value;
+    try {
+      final service = await _agentCredentials;
+      if (await service.canFetch(_connectionIdentity)) {
+        value = await service.readSudoPassword(_connectionIdentity);
+      }
+    } catch (_) {
+      // Fail closed: refuse rather than serve from unreadable state.
+      value = null;
+    }
+    try {
+      final handled =
+          await _turnApplicationSession?.tryRespondToAgentCredential(
+            requestId: requestId,
+            value: value,
+          ) ??
+          false;
+      if (!handled) {
+        final gateway = _desktopGateway;
+        if (gateway == null) return;
+        if (value == null) {
+          await gateway.refuseAgentCredential(requestId: requestId);
+        } else {
+          await gateway.respondToAgentCredential(
+            requestId: requestId,
+            value: value,
+          );
+        }
+      }
+      if (value != null) {
+        final service = await _agentCredentials;
+        await service.recordAutoAnswer(
+          connectionLabel: widget.connection.label,
+          requestId: requestId,
+          kind: AgentSudoAuditEntry.kindFetch,
+        );
+        if (mounted) {
+          _notifyInputRequest(eventId: requestId, body: fetchNotice);
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(fetchNotice)));
+        }
+      }
+    } catch (_) {
+      // Never include the credential value in an error or diagnostic.
+    }
+  }
+
   void _enqueueSensitivePrompt(
     GatewaySensitivePromptRequest request,
     int responseGeneration,
@@ -4185,7 +4246,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final method = event.data['method']?.toString().trim() ?? '';
     if (requestId.isEmpty) return;
 
-    if (method == 'sudo' || method == 'secret') {
+    if (method == 'sudo' ||
+        method == 'secret' ||
+        method == 'agent_credential') {
       _expireSensitivePrompt(
         StreamEvent(type: '$method.expire', data: {'request_id': requestId}),
       );

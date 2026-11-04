@@ -1045,6 +1045,35 @@ class WsClient {
     );
   }
 
+  /// Answers an `agent_credential.request` from the paired Mac with the
+  /// stored SUDO password. Only ever sent on the paired gateway connection.
+  Future<void> respondToAgentCredential({
+    required String requestId,
+    required String value,
+  }) {
+    return _respondToSensitivePrompt(
+      method: 'agent_credential.respond',
+      requestId: requestId,
+      valueKey: 'value',
+      value: value,
+    );
+  }
+
+  /// Refuses an `agent_credential.request` without any credential material.
+  Future<void> refuseAgentCredential({required String requestId}) async {
+    if (requestId.trim().isEmpty) {
+      throw ArgumentError.value(
+        requestId,
+        'requestId',
+        'A Hermes request ID is required',
+      );
+    }
+    await send('agent_credential.respond', {
+      'request_id': requestId,
+      'error': 'fetch_disabled',
+    });
+  }
+
   Future<Map<String, dynamic>> respondToClarify({
     required String requestId,
     required String answer,

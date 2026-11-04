@@ -2712,6 +2712,22 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get agent_sudo_cleared_snackbar => 'SUDO password cleared';
+
+  @override
+  String get agent_sudo_fetch => 'Allow Mac to fetch SUDO password';
+
+  @override
+  String get agent_sudo_fetch_subtitle =>
+      'The paired Mac\'s Hermes can request and receive the actual password on demand. Every fetch is listed below and stops immediately when you turn this off or clear the password.';
+
+  @override
+  String get agent_sudo_fetch_notice => 'Paired Mac fetched the SUDO password';
+
+  @override
+  String get agent_sudo_audit_kind_fetch => 'fetch';
+
+  @override
+  String get agent_sudo_audit_kind_auto => 'auto-answer';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).

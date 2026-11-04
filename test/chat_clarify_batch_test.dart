@@ -144,6 +144,12 @@ class _BatchClarifySession implements GatewayTurnApplicationSession {
   }) async => false;
 
   @override
+  Future<bool> tryRespondToAgentCredential({
+    required String requestId,
+    required String? value,
+  }) async => false;
+
+  @override
   Future<bool> tryRespondToSecret({
     required String requestId,
     required String value,

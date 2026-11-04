@@ -767,5 +767,10 @@
   "agent_sudo_auto_answered_notice": "Sudo request answered automatically",
   "agent_sudo_clear_confirm": "Clear the saved SUDO password? Automatic answers stop immediately.",
   "agent_sudo_saved_snackbar": "SUDO password saved",
-  "agent_sudo_cleared_snackbar": "SUDO password cleared"
+  "agent_sudo_cleared_snackbar": "SUDO password cleared",
+  "agent_sudo_fetch": "Allow Mac to fetch SUDO password",
+  "agent_sudo_fetch_subtitle": "The paired Mac's Hermes can request and receive the actual password on demand. Every fetch is listed below and stops immediately when you turn this off or clear the password.",
+  "agent_sudo_fetch_notice": "Paired Mac fetched the SUDO password",
+  "agent_sudo_audit_kind_fetch": "fetch",
+  "agent_sudo_audit_kind_auto": "auto-answer"
 }

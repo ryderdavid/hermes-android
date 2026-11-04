@@ -203,6 +203,73 @@ void main() {
     });
   });
 
+  group('AgentCredentialService fetch permission', () {
+    test('fetch defaults to off and is independent per connection', () async {
+      final prefs = await SharedPreferences.getInstance();
+      final service = _service(_MemoryCredentialStore(), prefs);
+
+      expect(service.isFetchEnabled('conn-a'), isFalse);
+      await service.setFetchEnabled('conn-a', true);
+      expect(service.isFetchEnabled('conn-a'), isTrue);
+      expect(service.isFetchEnabled('conn-b'), isFalse);
+      expect(await service.canFetch('conn-a'), isFalse);
+    });
+
+    test('canFetch requires both the toggle and a stored password', () async {
+      final store = _MemoryCredentialStore();
+      final prefs = await SharedPreferences.getInstance();
+      final service = _service(store, prefs);
+
+      await service.setFetchEnabled('conn-a', true);
+      expect(await service.canFetch('conn-a'), isFalse);
+      await service.saveSudoPassword('conn-a', 'pw-a');
+      expect(await service.canFetch('conn-a'), isTrue);
+      await service.setFetchEnabled('conn-a', false);
+      expect(await service.canFetch('conn-a'), isFalse);
+    });
+
+    test('clearing the password disables fetch immediately', () async {
+      final store = _MemoryCredentialStore();
+      final prefs = await SharedPreferences.getInstance();
+      final service = _service(store, prefs);
+
+      await service.saveSudoPassword('conn-a', 'pw-a');
+      await service.setFetchEnabled('conn-a', true);
+      await service.clearSudoPassword('conn-a');
+      expect(await service.canFetch('conn-a'), isFalse);
+    });
+  });
+
+  group('AgentCredentialService audit kinds', () {
+    test(
+      'fetch kind round-trips and legacy entries read as auto_answer',
+      () async {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'agent_sudo_audit',
+          '[{"ts": 1, "connection": "legacy", "request": "r0"}]',
+        );
+        final service = _service(_MemoryCredentialStore(), prefs);
+
+        expect(
+          service.auditEntries().single.kind,
+          AgentSudoAuditEntry.kindAutoAnswer,
+        );
+
+        await service.recordAutoAnswer(
+          connectionLabel: 'Mac Studio',
+          requestId: 'req-f',
+          kind: AgentSudoAuditEntry.kindFetch,
+        );
+        final kinds = service.auditEntries().map((e) => e.kind).toList();
+        expect(kinds, [
+          AgentSudoAuditEntry.kindAutoAnswer,
+          AgentSudoAuditEntry.kindFetch,
+        ]);
+      },
+    );
+  });
+
   group('BiometricGate', () {
     test(
       'authenticates when the device supports it and the user confirms',

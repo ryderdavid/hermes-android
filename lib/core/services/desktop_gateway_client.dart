@@ -944,6 +944,39 @@ class DesktopGatewayClient {
     await client.respondToSecret(requestId: requestId, value: value);
   }
 
+  /// Answers an `agent_credential.request` server request with the stored
+  /// SUDO password when this client owns the request, else via the fallback
+  /// socket. The value is never logged here.
+  Future<void> respondToAgentCredential({
+    required String requestId,
+    required String value,
+  }) async {
+    final serverRequest = _serverRequests[requestId];
+    if (serverRequest?.method == 'agent_credential') {
+      if (!serverRequest!.respond({'value': value})) {
+        throw StateError('The server request socket is no longer connected');
+      }
+      _forgetServerRequest(requestId);
+      return;
+    }
+    final client = _connectedClient();
+    await client.respondToAgentCredential(requestId: requestId, value: value);
+  }
+
+  /// Refuses an `agent_credential.request` with no credential material.
+  Future<void> refuseAgentCredential({required String requestId}) async {
+    final serverRequest = _serverRequests[requestId];
+    if (serverRequest?.method == 'agent_credential') {
+      if (!serverRequest!.respond({'error': 'fetch_disabled'})) {
+        throw StateError('The server request socket is no longer connected');
+      }
+      _forgetServerRequest(requestId);
+      return;
+    }
+    final client = _connectedClient();
+    await client.refuseAgentCredential(requestId: requestId);
+  }
+
   Future<void> respondToClarify({
     required String requestId,
     required String answer,
