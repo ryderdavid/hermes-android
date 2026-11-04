@@ -18,9 +18,9 @@
 
 ## 4. Verify and deliver
 
-- [ ] 4.1 Run `flutter analyze` and full `flutter test` green, including the new tests. Verify with both outputs.
+- [x] 4.1 Run `flutter analyze` and full `flutter test` green, including the new tests. Verify with both outputs.
 - [ ] 4.2 Cross-repo QA: with the Mac-side change implemented, pair the phone, enable fetch, and from the Mac run an unattended sudo command end-to-end; confirm the phone audit shows a `fetch` entry and the Mac command succeeded. Verify on-device.
-- [ ] 4.3 Release as the next `-you.N` build with signed split APKs, GitHub release, Taildrop to the phone (same pipeline as v2.1.31-you.1).
+- [x] 4.3 Release as the next `-you.N` build with signed split APKs, GitHub release, Taildrop to the phone (same pipeline as v2.1.31-you.1).
 
 ## Workflow follow-up
 
