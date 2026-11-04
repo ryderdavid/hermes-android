@@ -22,6 +22,7 @@ import '../services/connection_manager.dart';
 import '../services/attachment_draft_service.dart';
 import '../services/composer_draft_store.dart';
 import '../services/chat_model_override_store.dart';
+import '../services/agent_credential_service.dart';
 import '../services/chat_density_preference.dart';
 import '../services/chat_history_window.dart';
 import '../services/desktop_gateway_client.dart';
@@ -391,6 +392,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   late final AttachmentDraftService _attachmentDraftService;
   late final AttachmentDraftSendCoordinator _attachmentSendCoordinator;
   late final Future<ChatModelOverrideStore> _chatModelStore;
+  late final Future<AgentCredentialService> _agentCredentials;
   late final Future<void> _sessionModelRestore;
   DesktopGatewayClient? _desktopGateway;
   GatewayTurnApplicationSession? _turnApplicationSession;
@@ -464,6 +466,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final Set<String> _cancelledInteractiveRequestIds = {};
   final List<_PendingSensitivePrompt> _sensitivePromptQueue = [];
   final Set<String> _expiredSensitivePromptIds = {};
+  final Set<String> _autoAnswerAttemptedIds = {};
   _PendingSensitivePrompt? _activeSensitivePrompt;
   bool _sensitivePromptRouteOpen = false;
   final List<_PendingClarifyPrompt> _clarifyPromptQueue = [];
@@ -588,6 +591,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _savedGatewayNotices[_gatewayNoticeIdentity] ?? const [],
     );
     _chatModelStore = ChatModelOverrideStore.open();
+    _agentCredentials = AgentCredentialService.open();
     _sessionModelRestore = _restoreSessionModelOverride();
     final hasDashboardAuth =
         widget.connection.dashboardProxied ||
@@ -3997,6 +4001,65 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       l10n: context.l10n,
     );
     if (request == null) return;
+    if (kind == GatewaySensitivePromptKind.sudo) {
+      // Sudo requests may be answered from the stored credential when the
+      // user enabled auto-answer for this connection.
+      unawaited(_handleSudoRequest(request, responseGeneration));
+      return;
+    }
+    _enqueueSensitivePrompt(request, responseGeneration);
+  }
+
+  /// Answers a sudo request from the stored SUDO password when auto-answer is
+  /// enabled for this connection, at most once per request id. Any failure
+  /// falls back to the manual dialog and is never retried automatically.
+  Future<void> _handleSudoRequest(
+    GatewaySensitivePromptRequest request,
+    int responseGeneration,
+  ) async {
+    final autoAnsweredNotice = context.l10n.agent_sudo_auto_answered_notice;
+    if (_autoAnswerAttemptedIds.add(request.requestId)) {
+      try {
+        final service = await _agentCredentials;
+        if (await service.canAutoAnswer(_connectionIdentity)) {
+          final password = await service.readSudoPassword(_connectionIdentity);
+          if (password != null) {
+            await _respondToGatewaySudo(
+              requestId: request.requestId,
+              password: password,
+            );
+            await service.recordAutoAnswer(
+              connectionLabel: widget.connection.label,
+              requestId: request.requestId,
+            );
+            if (mounted) {
+              // Mirror to a local notification when backgrounded; the body
+              // is a fixed notice string and never contains the password.
+              _notifyInputRequest(
+                eventId: request.requestId,
+                body: autoAnsweredNotice,
+              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(autoAnsweredNotice)));
+            }
+            return;
+          }
+        }
+      } catch (_) {
+        // The request may have expired or the gateway dropped; fall through
+        // to the manual dialog. Never include a sensitive value here.
+      }
+    }
+    if (mounted) {
+      _enqueueSensitivePrompt(request, responseGeneration);
+    }
+  }
+
+  void _enqueueSensitivePrompt(
+    GatewaySensitivePromptRequest request,
+    int responseGeneration,
+  ) {
     final duplicate =
         _expiredSensitivePromptIds.contains(request.requestId) ||
         _activeSensitivePrompt?.request.requestId == request.requestId ||
@@ -4102,6 +4165,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final requestId = event.data['request_id']?.toString().trim() ?? '';
     if (requestId.isEmpty) return;
     _expiredSensitivePromptIds.add(requestId);
+    _autoAnswerAttemptedIds.remove(requestId);
     _sensitivePromptQueue.removeWhere(
       (pending) => pending.request.requestId == requestId,
     );

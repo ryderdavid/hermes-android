@@ -2655,4 +2655,66 @@ class AppLocalizationsDe extends AppLocalizations {
   String chat_icons_privacy(String connection) {
     return 'Nur Chat-Titel werden gebündelt an einen verborgenen Chat auf $connection gesendet. Dabei wird das Standardmodell dieses Profils verwendet.';
   }
+
+  @override
+  String get agent_sudo_credential_title => 'Agent SUDO password';
+
+  @override
+  String get agent_sudo_credential_subtitle_saved =>
+      'Saved on this device (Keystore-protected). Never shown or logged.';
+
+  @override
+  String get agent_sudo_credential_subtitle_not_saved => 'Not saved';
+
+  @override
+  String get agent_sudo_auto_answer => 'Answer sudo automatically';
+
+  @override
+  String get agent_sudo_auto_answer_subtitle =>
+      'Hermes on this connection can run sudo without asking you each time. The password is only sent to this connection\'s gateway.';
+
+  @override
+  String get agent_sudo_save => 'Save SUDO password';
+
+  @override
+  String get agent_sudo_clear => 'Clear saved password';
+
+  @override
+  String get agent_sudo_audit_title => 'Auto-answered requests';
+
+  @override
+  String get agent_sudo_audit_empty => 'None yet';
+
+  @override
+  String get agent_sudo_password_dialog_title => 'Save SUDO password';
+
+  @override
+  String get agent_sudo_password_dialog_hint => 'Mac admin (sudo) password';
+
+  @override
+  String get agent_sudo_password_confirm_hint => 'Repeat the password';
+
+  @override
+  String get agent_sudo_password_mismatch => 'The passwords do not match';
+
+  @override
+  String get agent_sudo_password_empty => 'Enter a password';
+
+  @override
+  String get agent_sudo_biometric_reason =>
+      'Confirm to enable automatic sudo answers';
+
+  @override
+  String get agent_sudo_auto_answered_notice =>
+      'Sudo request answered automatically';
+
+  @override
+  String get agent_sudo_clear_confirm =>
+      'Clear the saved SUDO password? Automatic answers stop immediately.';
+
+  @override
+  String get agent_sudo_saved_snackbar => 'SUDO password saved';
+
+  @override
+  String get agent_sudo_cleared_snackbar => 'SUDO password cleared';
 }

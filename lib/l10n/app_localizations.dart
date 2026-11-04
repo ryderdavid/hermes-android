@@ -4485,6 +4485,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only chat titles are sent, in batches, to a hidden chat on {connection}. It uses this profile\'s default model.'**
   String chat_icons_privacy(String connection);
+
+  /// No description provided for @agent_sudo_credential_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent SUDO password'**
+  String get agent_sudo_credential_title;
+
+  /// No description provided for @agent_sudo_credential_subtitle_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device (Keystore-protected). Never shown or logged.'**
+  String get agent_sudo_credential_subtitle_saved;
+
+  /// No description provided for @agent_sudo_credential_subtitle_not_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Not saved'**
+  String get agent_sudo_credential_subtitle_not_saved;
+
+  /// No description provided for @agent_sudo_auto_answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer sudo automatically'**
+  String get agent_sudo_auto_answer;
+
+  /// No description provided for @agent_sudo_auto_answer_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hermes on this connection can run sudo without asking you each time. The password is only sent to this connection\'s gateway.'**
+  String get agent_sudo_auto_answer_subtitle;
+
+  /// No description provided for @agent_sudo_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save SUDO password'**
+  String get agent_sudo_save;
+
+  /// No description provided for @agent_sudo_clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear saved password'**
+  String get agent_sudo_clear;
+
+  /// No description provided for @agent_sudo_audit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-answered requests'**
+  String get agent_sudo_audit_title;
+
+  /// No description provided for @agent_sudo_audit_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'None yet'**
+  String get agent_sudo_audit_empty;
+
+  /// No description provided for @agent_sudo_password_dialog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Save SUDO password'**
+  String get agent_sudo_password_dialog_title;
+
+  /// No description provided for @agent_sudo_password_dialog_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Mac admin (sudo) password'**
+  String get agent_sudo_password_dialog_hint;
+
+  /// No description provided for @agent_sudo_password_confirm_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat the password'**
+  String get agent_sudo_password_confirm_hint;
+
+  /// No description provided for @agent_sudo_password_mismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The passwords do not match'**
+  String get agent_sudo_password_mismatch;
+
+  /// No description provided for @agent_sudo_password_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a password'**
+  String get agent_sudo_password_empty;
+
+  /// No description provided for @agent_sudo_biometric_reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm to enable automatic sudo answers'**
+  String get agent_sudo_biometric_reason;
+
+  /// No description provided for @agent_sudo_auto_answered_notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Sudo request answered automatically'**
+  String get agent_sudo_auto_answered_notice;
+
+  /// No description provided for @agent_sudo_clear_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the saved SUDO password? Automatic answers stop immediately.'**
+  String get agent_sudo_clear_confirm;
+
+  /// No description provided for @agent_sudo_saved_snackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'SUDO password saved'**
+  String get agent_sudo_saved_snackbar;
+
+  /// No description provided for @agent_sudo_cleared_snackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'SUDO password cleared'**
+  String get agent_sudo_cleared_snackbar;
 }
 
 class _AppLocalizationsDelegate

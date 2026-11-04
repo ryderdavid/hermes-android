@@ -14,7 +14,7 @@ Android client for [Hermes Agent](https://hermes-agent.nousresearch.com/) — ch
 
 ## Current release
 
-- Version: **2.1.30** (build 2173)
+- Version: **2.1.31** (build 2174)
 - Package: `com.hermesagent.hermes_android`
 - Recommended APK for modern phones: ARM64 release build from the
   [Releases](https://github.com/rusty4444/hermes-android/releases) page.
@@ -88,6 +88,13 @@ See [CHANGELOG.md](CHANGELOG.md) for the complete release history and
 [docs/HERMESAPK_DEVELOPMENT_LOG.md](docs/HERMESAPK_DEVELOPMENT_LOG.md) for the
 sanitized implementation and validation record.
 
+## What's new in v2.1.31
+
+- Save your Mac admin (SUDO) password once in Settings, Keystore-protected on
+  the device, and let Hermes on that paired connection run sudo automatically.
+  Off by default; enabling asks for your biometric or PIN; every auto-answer
+  is listed in an audit trail that never shows the password; clear anytime.
+
 ## What's new in v2.1.30
 
 - Enter inserts a new line instead of sending. Use the on-screen Send button.
@@ -104,14 +111,6 @@ sanitized implementation and validation record.
 - After a move, Chats shows the new Project and Unassigned no longer lists
   the conversation. Cancel or a failed move leaves its placement unchanged.
   See [Moving chats between Projects](docs/moving-chats.md).
-
-## What's new in v2.1.28
-
-- Rename chats from the Chats list or the open-chat menu. Both Remote Gateway
-  and REST-only connections save the title to Hermes. Returning from a renamed
-  chat refreshes the Chats list; search and exports use the saved name.
-- Blank names cannot submit. Cancelling leaves the title unchanged, and a
-  failed save keeps the previous title and shows the error.
 
 ## Features
 

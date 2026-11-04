@@ -748,5 +748,24 @@
         "type": "String"
       }
     }
-  }
+  },
+  "agent_sudo_credential_title": "Agent SUDO password",
+  "agent_sudo_credential_subtitle_saved": "Saved on this device (Keystore-protected). Never shown or logged.",
+  "agent_sudo_credential_subtitle_not_saved": "Not saved",
+  "agent_sudo_auto_answer": "Answer sudo automatically",
+  "agent_sudo_auto_answer_subtitle": "Hermes on this connection can run sudo without asking you each time. The password is only sent to this connection's gateway.",
+  "agent_sudo_save": "Save SUDO password",
+  "agent_sudo_clear": "Clear saved password",
+  "agent_sudo_audit_title": "Auto-answered requests",
+  "agent_sudo_audit_empty": "None yet",
+  "agent_sudo_password_dialog_title": "Save SUDO password",
+  "agent_sudo_password_dialog_hint": "Mac admin (sudo) password",
+  "agent_sudo_password_confirm_hint": "Repeat the password",
+  "agent_sudo_password_mismatch": "The passwords do not match",
+  "agent_sudo_password_empty": "Enter a password",
+  "agent_sudo_biometric_reason": "Confirm to enable automatic sudo answers",
+  "agent_sudo_auto_answered_notice": "Sudo request answered automatically",
+  "agent_sudo_clear_confirm": "Clear the saved SUDO password? Automatic answers stop immediately.",
+  "agent_sudo_saved_snackbar": "SUDO password saved",
+  "agent_sudo_cleared_snackbar": "SUDO password cleared"
 }

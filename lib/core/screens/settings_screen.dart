@@ -14,6 +14,7 @@ import '../expressive/expressive.dart';
 import '../theme/hermes_theme.dart';
 import 'appearance_screen.dart';
 import '../widgets/config_backup_card.dart';
+import '../widgets/agent_credential_card.dart';
 import '../widgets/settings_group.dart';
 import '../../main.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -202,6 +203,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         _buildHeader(),
         _ConnectionCard(connection: widget.connection),
+        const SizedBox(height: HermesSpacing.xl),
+        AgentCredentialCard(connection: widget.connection),
         const SizedBox(height: HermesSpacing.xl),
         _buildPreferencesGroup(verbose: true),
 

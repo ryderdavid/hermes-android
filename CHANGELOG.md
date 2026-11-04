@@ -4,6 +4,26 @@ All notable changes since v1.0.7 are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The [README](README.md)
 shows only the three latest releases.
 
+## [2.1.31] - 2026-11-04
+
+### Added
+
+- Agent SUDO password: save the Mac admin (sudo) password once under Settings,
+  stored Keystore-protected on the device in a dedicated namespace. Per
+  connection, "Answer sudo automatically" can be enabled (default off) after a
+  biometric/PIN confirmation; while enabled, gateway `sudo` requests on that
+  connection are answered without the manual dialog, at most once per request,
+  falling back to the dialog on any failure. Every auto-answer is recorded in
+  a local audit trail (timestamp, connection, request id — never the value) and
+  mirrored to a notification when the app is backgrounded. The password is only
+  ever sent as the answer to a `sudo` request on the connection it was saved
+  for, never logged, displayed, backed up, or sent over the legacy API. Clearing
+  the password takes effect immediately.
+
+### Thanks
+
+- Hermes Agent assisted with implementation, review and regression tests.
+
 ## [2.1.30] - 2026-10-22
 
 ### Fixed
