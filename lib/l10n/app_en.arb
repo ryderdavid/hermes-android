@@ -774,5 +774,13 @@
   "agent_sudo_audit_kind_fetch": "fetch",
   "agent_sudo_audit_kind_auto": "auto-answer",
   "agent_sudo_enable_cancelled": "Enable cancelled — the toggle stays off.",
-  "agent_sudo_enable_needs_password": "Save the SUDO password first to enable this."
+  "agent_sudo_enable_needs_password": "Save the SUDO password first to enable this.",
+  "agent_sudo_enable_biometric_error": "Biometric check failed ({code}) — re-enter the SUDO password to enable instead.",
+  "@agent_sudo_enable_biometric_error": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  }
 }

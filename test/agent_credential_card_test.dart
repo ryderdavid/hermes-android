@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hermes_android/core/services/agent_credential_service.dart';
 import 'package:hermes_android/core/services/biometric_gate.dart';
@@ -28,16 +29,20 @@ class _MemStore implements CredentialStore {
 }
 
 class _FakeAuth implements DeviceAuthenticator {
-  _FakeAuth({required this.supported, required this.result});
+  _FakeAuth({required this.supported, required this.result, this.throwCode});
 
   final bool supported;
   final bool result;
+  final String? throwCode;
 
   @override
   Future<bool> isDeviceSupported() async => supported;
 
   @override
-  Future<bool> authenticate({required String localizedReason}) async => result;
+  Future<bool> authenticate({required String localizedReason}) async {
+    if (throwCode != null) throw PlatformException(code: throwCode!);
+    return result;
+  }
 }
 
 final _conn = SavedConnection(
@@ -132,6 +137,36 @@ void main() {
     expect(service.isAutoAnswerEnabled(_identity), isFalse);
     expect(service.isFetchEnabled(_identity), isFalse);
   });
+
+  testWidgets(
+    'a biometric platform error names the code and offers the password fallback',
+    (tester) async {
+      final service = await _service();
+      await service.saveSudoPassword(_identity, 'pw');
+      final auth = _FakeAuth(
+        supported: true,
+        result: false,
+        throwCode: 'LockedOut',
+      );
+
+      await tester.pumpWidget(_wrap(service, auth));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(Switch).at(0));
+      await tester.pumpAndSettle();
+
+      expect(service.isAutoAnswerEnabled(_identity), isFalse);
+      expect(
+        find.textContaining('Biometric check failed (LockedOut)'),
+        findsOneWidget,
+      );
+      expect(
+        find.byType(AlertDialog),
+        findsOneWidget,
+        reason: 'on a biometric error the save dialog is the fallback gate',
+      );
+    },
+  );
 
   testWidgets('toggles do not turn on when the gate refuses', (tester) async {
     final service = await _service();

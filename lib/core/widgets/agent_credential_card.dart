@@ -92,15 +92,21 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
       }
     }
     final gate = (widget.gateFactory ?? BiometricGate.new)();
-    if (await gate.isAvailable()) {
-      final ok = await gate.authenticate(localizedReason: biometricReason);
-      if (!ok) {
-        _showEnableCancelled(l10n.agent_sudo_enable_cancelled);
-        await _refresh();
-        return;
-      }
+    final outcome = await gate.authenticateDetailed(
+      localizedReason: biometricReason,
+    );
+    if (outcome.result == BiometricGateResult.authenticated) {
+      // Gate passed; enable below.
+    } else if (outcome.result == BiometricGateResult.cancelled) {
+      _showEnableCancelled(l10n.agent_sudo_enable_cancelled);
+      await _refresh();
+      return;
     } else {
-      // No biometric/PIN on the device: re-enter the SUDO password as the gate.
+      // No biometric/PIN, or a platform error: say why, then fall back to
+      // re-entering the SUDO password as the gate.
+      _showEnableCancelled(
+        l10n.agent_sudo_enable_biometric_error(outcome.errorCode ?? 'unknown'),
+      );
       final saved = await _showSaveDialog();
       if (!saved) {
         _showEnableCancelled(l10n.agent_sudo_enable_needs_password);
@@ -129,14 +135,19 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
       }
     }
     final gate = (widget.gateFactory ?? BiometricGate.new)();
-    if (await gate.isAvailable()) {
-      final ok = await gate.authenticate(localizedReason: biometricReason);
-      if (!ok) {
-        _showEnableCancelled(l10n.agent_sudo_enable_cancelled);
-        await _refresh();
-        return;
-      }
+    final outcome = await gate.authenticateDetailed(
+      localizedReason: biometricReason,
+    );
+    if (outcome.result == BiometricGateResult.authenticated) {
+      // Gate passed; enable below.
+    } else if (outcome.result == BiometricGateResult.cancelled) {
+      _showEnableCancelled(l10n.agent_sudo_enable_cancelled);
+      await _refresh();
+      return;
     } else {
+      _showEnableCancelled(
+        l10n.agent_sudo_enable_biometric_error(outcome.errorCode ?? 'unknown'),
+      );
       final saved = await _showSaveDialog();
       if (!saved) {
         _showEnableCancelled(l10n.agent_sudo_enable_needs_password);

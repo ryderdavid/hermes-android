@@ -4641,6 +4641,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save the SUDO password first to enable this.'**
   String get agent_sudo_enable_needs_password;
+
+  /// No description provided for @agent_sudo_enable_biometric_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric check failed ({code}) — re-enter the SUDO password to enable instead.'**
+  String agent_sudo_enable_biometric_error(String code);
 }
 
 class _AppLocalizationsDelegate

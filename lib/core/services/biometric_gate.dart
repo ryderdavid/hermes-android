@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 
 /// Injectable device-authentication boundary so the gate can be tested with a
@@ -27,10 +28,31 @@ class LocalAuthDeviceAuthenticator implements DeviceAuthenticator {
       );
 }
 
+enum BiometricGateResult { authenticated, notAvailable, cancelled, error }
+
+class BiometricGateOutcome {
+  final BiometricGateResult result;
+  final String? errorCode;
+
+  const BiometricGateOutcome(this.result, [this.errorCode]);
+
+  static const authenticated = BiometricGateOutcome(
+    BiometricGateResult.authenticated,
+  );
+  static const notAvailable = BiometricGateOutcome(
+    BiometricGateResult.notAvailable,
+  );
+  static const cancelled = BiometricGateOutcome(BiometricGateResult.cancelled);
+  static BiometricGateOutcome error(String code) =>
+      BiometricGateOutcome(BiometricGateResult.error, code);
+}
+
 /// Device biometric/PIN gate used before enabling automatic sudo answers.
 ///
-/// Every method fails closed: any platform error or unavailable sensor
-/// reports "not authenticated", so the caller falls back to the manual flow.
+/// Every method fails closed: any platform error or unavailable sensor is
+/// reported as a non-authenticated [BiometricGateOutcome] carrying the platform
+/// error code, so the UI can say *why* the gate did not open instead of
+/// silently reverting a toggle.
 class BiometricGate {
   final DeviceAuthenticator _authenticator;
 
@@ -46,15 +68,28 @@ class BiometricGate {
     }
   }
 
-  /// Prompts the user with the device's own biometric/PIN screen.
-  Future<bool> authenticate({required String localizedReason}) async {
+  /// Prompts the user with the device's own biometric/PIN screen and reports
+  /// the precise outcome.
+  Future<BiometricGateOutcome> authenticateDetailed({
+    required String localizedReason,
+  }) async {
     try {
-      if (!await isAvailable()) return false;
-      return await _authenticator.authenticate(
+      if (!await isAvailable()) return BiometricGateOutcome.notAvailable;
+      final ok = await _authenticator.authenticate(
         localizedReason: localizedReason,
       );
+      return ok
+          ? BiometricGateOutcome.authenticated
+          : BiometricGateOutcome.cancelled;
+    } on PlatformException catch (e) {
+      return BiometricGateOutcome.error(e.code);
     } catch (_) {
-      return false;
+      return BiometricGateOutcome.error('unknown');
     }
   }
+
+  /// Convenience bool wrapper around [authenticateDetailed].
+  Future<bool> authenticate({required String localizedReason}) async =>
+      (await authenticateDetailed(localizedReason: localizedReason)).result ==
+      BiometricGateResult.authenticated;
 }

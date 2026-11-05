@@ -2739,4 +2739,9 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get agent_sudo_enable_needs_password =>
       'Save the SUDO password first to enable this.';
+
+  @override
+  String agent_sudo_enable_biometric_error(String code) {
+    return 'Biometric check failed ($code) — re-enter the SUDO password to enable instead.';
+  }
 }

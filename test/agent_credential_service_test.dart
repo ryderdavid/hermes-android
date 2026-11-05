@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hermes_android/core/services/agent_credential_service.dart';
 import 'package:hermes_android/core/services/biometric_gate.dart';
@@ -31,12 +32,12 @@ class _MemoryCredentialStore implements CredentialStore {
 class _FakeAuthenticator implements DeviceAuthenticator {
   bool supported;
   bool result;
-  bool throwOnAuthenticate;
+  String? throwCode;
 
   _FakeAuthenticator({
     this.supported = true,
     this.result = true,
-    this.throwOnAuthenticate = false,
+    this.throwCode,
   });
 
   @override
@@ -44,7 +45,7 @@ class _FakeAuthenticator implements DeviceAuthenticator {
 
   @override
   Future<bool> authenticate({required String localizedReason}) async {
-    if (throwOnAuthenticate) throw Exception('platform error');
+    if (throwCode != null) throw PlatformException(code: throwCode!);
     return result;
   }
 }
@@ -297,9 +298,47 @@ void main() {
       expect(await cancelled.authenticate(localizedReason: 'r'), isFalse);
 
       final erroring = BiometricGate(
-        authenticator: _FakeAuthenticator(throwOnAuthenticate: true),
+        authenticator: _FakeAuthenticator(throwCode: 'LockedOut'),
       );
       expect(await erroring.authenticate(localizedReason: 'r'), isFalse);
     });
+
+    test(
+      'authenticateDetailed distinguishes cancelled from platform errors',
+      () async {
+        final ok = BiometricGate(
+          authenticator: _FakeAuthenticator(result: true),
+        );
+        expect(
+          (await ok.authenticateDetailed(localizedReason: 'r')).result,
+          BiometricGateResult.authenticated,
+        );
+
+        final cancelled = BiometricGate(
+          authenticator: _FakeAuthenticator(result: false),
+        );
+        expect(
+          (await cancelled.authenticateDetailed(localizedReason: 'r')).result,
+          BiometricGateResult.cancelled,
+        );
+
+        final erroring = BiometricGate(
+          authenticator: _FakeAuthenticator(throwCode: 'LockedOut'),
+        );
+        final outcome = await erroring.authenticateDetailed(
+          localizedReason: 'r',
+        );
+        expect(outcome.result, BiometricGateResult.error);
+        expect(outcome.errorCode, 'LockedOut');
+
+        final noDevice = BiometricGate(
+          authenticator: _FakeAuthenticator(supported: false),
+        );
+        expect(
+          (await noDevice.authenticateDetailed(localizedReason: 'r')).result,
+          BiometricGateResult.notAvailable,
+        );
+      },
+    );
   });
 }
