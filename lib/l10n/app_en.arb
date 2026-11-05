@@ -772,5 +772,7 @@
   "agent_sudo_fetch_subtitle": "The paired Mac's Hermes can request and receive the actual password on demand. Every fetch is listed below and stops immediately when you turn this off or clear the password.",
   "agent_sudo_fetch_notice": "Paired Mac fetched the SUDO password",
   "agent_sudo_audit_kind_fetch": "fetch",
-  "agent_sudo_audit_kind_auto": "auto-answer"
+  "agent_sudo_audit_kind_auto": "auto-answer",
+  "agent_sudo_enable_cancelled": "Enable cancelled — the toggle stays off.",
+  "agent_sudo_enable_needs_password": "Save the SUDO password first to enable this."
 }

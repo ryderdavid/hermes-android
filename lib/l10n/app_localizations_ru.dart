@@ -2731,4 +2731,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get agent_sudo_audit_kind_auto => 'auto-answer';
+
+  @override
+  String get agent_sudo_enable_cancelled =>
+      'Enable cancelled — the toggle stays off.';
+
+  @override
+  String get agent_sudo_enable_needs_password =>
+      'Save the SUDO password first to enable this.';
 }

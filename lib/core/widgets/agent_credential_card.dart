@@ -10,9 +10,18 @@ import 'package:hermes_android/core/l10n/l10n.dart';
 /// answers, review the audit trail, or clear. The password itself is never
 /// displayed, logged, or copied into state that outlives the save dialog.
 class AgentCredentialCard extends StatefulWidget {
-  const AgentCredentialCard({required this.connection, super.key});
+  const AgentCredentialCard({
+    required this.connection,
+    super.key,
+    this.serviceFactory,
+    this.gateFactory,
+  });
 
   final SavedConnection connection;
+
+  /// Test hooks: how to build the credential service and the biometric gate.
+  final Future<AgentCredentialService> Function()? serviceFactory;
+  final BiometricGate Function()? gateFactory;
 
   @override
   State<AgentCredentialCard> createState() => _AgentCredentialCardState();
@@ -37,7 +46,8 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
   }
 
   Future<void> _load() async {
-    final service = await AgentCredentialService.open();
+    final service =
+        await (widget.serviceFactory ?? AgentCredentialService.open)();
     if (!mounted) return;
     final saved = await service.hasSudoPassword(_connectionIdentity);
     if (!mounted) return;
@@ -66,7 +76,8 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
   Future<void> _onAutoAnswerChanged(bool value) async {
     final service = _service;
     if (service == null) return;
-    final biometricReason = context.l10n.agent_sudo_biometric_reason;
+    final l10n = context.l10n;
+    final biometricReason = l10n.agent_sudo_biometric_reason;
     if (!value) {
       await service.setAutoAnswerEnabled(_connectionIdentity, false);
       await _refresh();
@@ -75,19 +86,26 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
     if (!_saved) {
       // Nothing stored yet: saving below is the gate.
       final saved = await _showSaveDialog();
-      if (!saved) return;
+      if (!saved) {
+        _showEnableCancelled(l10n.agent_sudo_enable_needs_password);
+        return;
+      }
     }
-    final gate = BiometricGate();
+    final gate = (widget.gateFactory ?? BiometricGate.new)();
     if (await gate.isAvailable()) {
       final ok = await gate.authenticate(localizedReason: biometricReason);
       if (!ok) {
+        _showEnableCancelled(l10n.agent_sudo_enable_cancelled);
         await _refresh();
         return;
       }
     } else {
       // No biometric/PIN on the device: re-enter the SUDO password as the gate.
       final saved = await _showSaveDialog();
-      if (!saved) return;
+      if (!saved) {
+        _showEnableCancelled(l10n.agent_sudo_enable_needs_password);
+        return;
+      }
     }
     await service.setAutoAnswerEnabled(_connectionIdentity, true);
     await _refresh();
@@ -96,7 +114,8 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
   Future<void> _onFetchChanged(bool value) async {
     final service = _service;
     if (service == null) return;
-    final biometricReason = context.l10n.agent_sudo_biometric_reason;
+    final l10n = context.l10n;
+    final biometricReason = l10n.agent_sudo_biometric_reason;
     if (!value) {
       await service.setFetchEnabled(_connectionIdentity, false);
       await _refresh();
@@ -104,21 +123,35 @@ class _AgentCredentialCardState extends State<AgentCredentialCard> {
     }
     if (!_saved) {
       final saved = await _showSaveDialog();
-      if (!saved) return;
+      if (!saved) {
+        _showEnableCancelled(l10n.agent_sudo_enable_needs_password);
+        return;
+      }
     }
-    final gate = BiometricGate();
+    final gate = (widget.gateFactory ?? BiometricGate.new)();
     if (await gate.isAvailable()) {
       final ok = await gate.authenticate(localizedReason: biometricReason);
       if (!ok) {
+        _showEnableCancelled(l10n.agent_sudo_enable_cancelled);
         await _refresh();
         return;
       }
     } else {
       final saved = await _showSaveDialog();
-      if (!saved) return;
+      if (!saved) {
+        _showEnableCancelled(l10n.agent_sudo_enable_needs_password);
+        return;
+      }
     }
     await service.setFetchEnabled(_connectionIdentity, true);
     await _refresh();
+  }
+
+  void _showEnableCancelled(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   /// Shows the two-field save dialog. Returns true when the password was saved.

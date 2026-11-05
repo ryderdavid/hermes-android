@@ -4629,6 +4629,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'auto-answer'**
   String get agent_sudo_audit_kind_auto;
+
+  /// No description provided for @agent_sudo_enable_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable cancelled — the toggle stays off.'**
+  String get agent_sudo_enable_cancelled;
+
+  /// No description provided for @agent_sudo_enable_needs_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the SUDO password first to enable this.'**
+  String get agent_sudo_enable_needs_password;
 }
 
 class _AppLocalizationsDelegate
