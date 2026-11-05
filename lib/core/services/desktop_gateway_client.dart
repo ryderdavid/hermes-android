@@ -727,7 +727,7 @@ class DesktopGatewayClient {
   }
 
   bool _handleServerRequest(WsClient client, GatewayServerRequest request) {
-    const supported = {'clarify', 'approval', 'sudo', 'secret'};
+    const supported = {'clarify', 'approval', 'sudo', 'secret', 'agent_credential'};
     if (!supported.contains(request.method)) return false;
 
     final gatewaySessionId = request.params['session_id']?.toString();
