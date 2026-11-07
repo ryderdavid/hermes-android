@@ -469,6 +469,8 @@
   "starting_hermes": "Starting Hermes…",
   "media_card_download": "Download file",
   "media_card_tap_to_download": "Tap to download",
+  "media_card_preview": "Live preview",
+  "media_card_open_externally": "Open in browser",
   "still_loading_your_projects": "Still loading your projects.",
   "stop": "Stop",
   "stop_response": "Stop response",

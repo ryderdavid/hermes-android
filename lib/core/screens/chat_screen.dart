@@ -5395,6 +5395,8 @@ class MessageBubble extends StatelessWidget {
               key: ValueKey((path, occurrence)),
               ref: segment.media!,
               filesClient: filesClient,
+              // Inline HTML previews mount only once the message is final.
+              allowPreview: mediaReferencesFinal,
             ),
           );
         } else if (segment.text.trim().isNotEmpty) {

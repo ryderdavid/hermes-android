@@ -2942,6 +2942,18 @@ abstract class AppLocalizations {
   /// **'Tap to download'**
   String get media_card_tap_to_download;
 
+  /// No description provided for @media_card_preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Live preview'**
+  String get media_card_preview;
+
+  /// No description provided for @media_card_open_externally.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in browser'**
+  String get media_card_open_externally;
+
   /// No description provided for @still_loading_your_projects.
   ///
   /// In en, this message translates to:

@@ -19,6 +19,10 @@ shows only the three latest releases.
   ever sent as the answer to a `sudo` request on the connection it was saved
   for, never logged, displayed, backed up, or sent over the legacy API. Clearing
   the password takes effect immediately.
+- Inline HTML artifact preview: `MEDIA:`-delivered `.html`/`.htm` artifacts now
+  render as a live sandboxed preview inside the chat card (final messages, up
+  to 5 MiB) — JavaScript on, file access off, no host JS bridge, all top-level
+  navigation blocked, strict injected CSP. Download/share stays on the card.
 
 ### Thanks
 

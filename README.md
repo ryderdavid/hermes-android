@@ -94,6 +94,9 @@ sanitized implementation and validation record.
   the device, and let Hermes on that paired connection run sudo automatically.
   Off by default; enabling asks for your biometric or PIN; every auto-answer
   is listed in an audit trail that never shows the password; clear anytime.
+- HTML artifacts from Hermes now preview live inside the chat card — a
+  sandboxed inline WebView (no file access, no leaving the page), with
+  download/share still one tap away.
 
 ## What's new in v2.1.30
 

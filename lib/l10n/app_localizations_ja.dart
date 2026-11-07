@@ -1637,6 +1637,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get media_card_tap_to_download => 'Tap to download';
 
   @override
+  String get media_card_preview => 'Live preview';
+
+  @override
+  String get media_card_open_externally => 'Open in browser';
+
+  @override
   String get still_loading_your_projects => 'プロジェクトを読み込み中です。';
 
   @override

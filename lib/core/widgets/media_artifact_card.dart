@@ -8,7 +8,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../services/remote_files_client.dart';
+import '../utils/html_artifact_preview.dart';
 import '../utils/media_tags.dart';
+import 'html_artifact_preview.dart';
 
 /// Download a gateway path and hand it to the system share sheet. Shared by
 /// [MediaArtifactCard] and inline `media-artifact://` markdown links.
@@ -41,10 +43,21 @@ class MediaArtifactCard extends StatefulWidget {
   final MediaTagRef ref;
   final RemoteFilesDataSource Function() filesClient;
 
+  /// True when the containing message is final. HTML refs mount their
+  /// sandboxed inline preview only then — a streaming `MEDIA:` path can
+  /// still grow, and mounting early would render a partial document.
+  final bool allowPreview;
+
+  /// Injectable preview pane so widget tests can pump the card without a
+  /// platform WebView. Defaults to [HtmlArtifactPreview].
+  final Widget Function(Uint8List bytes)? previewBuilder;
+
   const MediaArtifactCard({
     super.key,
     required this.ref,
     required this.filesClient,
+    this.allowPreview = false,
+    this.previewBuilder,
   });
 
   @override
@@ -58,6 +71,12 @@ class _MediaArtifactCardState extends State<MediaArtifactCard> {
   int _downloadGeneration = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _maybeStartPreviewDownload();
+  }
+
+  @override
   void didUpdateWidget(MediaArtifactCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Unkeyed list recycling and streaming ref growth can re-point this
@@ -68,6 +87,20 @@ class _MediaArtifactCardState extends State<MediaArtifactCard> {
       _bytes = null;
       _inFlight = null;
       _error = null;
+      _maybeStartPreviewDownload();
+    }
+    // A streaming message completing flips allowPreview without a path
+    // change — kick the preview download then too.
+    if (!oldWidget.allowPreview && widget.allowPreview) {
+      _maybeStartPreviewDownload();
+    }
+  }
+
+  /// HTML refs download themselves once the message is final, so the
+  /// preview can mount without a tap (bounded by [kMaxPreviewBytes]).
+  void _maybeStartPreviewDownload() {
+    if (widget.allowPreview && isPreviewableHtmlRef(widget.ref)) {
+      unawaited(_ensureBytes());
     }
   }
 
@@ -208,6 +241,27 @@ class _MediaArtifactCardState extends State<MediaArtifactCard> {
 
   bool get _isImage => _imageExts.contains(widget.ref.extension);
 
+  bool get _showPreview =>
+      isPreviewableHtmlRef(widget.ref) &&
+      shouldMountPreview(
+        isFinal: widget.allowPreview,
+        byteLength: _bytes?.length,
+      );
+
+  Widget _buildPreview(BuildContext context, Uint8List bytes) {
+    final builder = widget.previewBuilder;
+    if (builder != null) return builder(bytes);
+    return HtmlArtifactPreview(
+      // The download generation bumps when the ref path changes, so a
+      // re-pointed card never shows stale bytes under a new filename.
+      key: ValueKey(
+        'html-preview-${widget.ref.path}-$_downloadGeneration-${bytes.length}',
+      ),
+      bytes: bytes,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+    );
+  }
+
   String? get _mime {
     switch (widget.ref.extension) {
       case 'png':
@@ -322,6 +376,41 @@ class _MediaArtifactCardState extends State<MediaArtifactCard> {
                   _bytes!,
                   fit: BoxFit.cover,
                   cacheWidth: 1080,
+                ),
+              ),
+            if (_showPreview && _bytes != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.media_card_preview,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          key: const Key('media-card-open-external'),
+                          tooltip: l10n.media_card_open_externally,
+                          icon: const Icon(Icons.open_in_browser_outlined),
+                          onPressed: () => unawaited(_saveAndShare()),
+                        ),
+                      ],
+                    ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: AspectRatio(
+                        aspectRatio: 16 / 10,
+                        child: _buildPreview(context, _bytes!),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ListTile(
