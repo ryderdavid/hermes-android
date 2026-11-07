@@ -27,6 +27,11 @@ class HtmlArtifactPreview extends StatefulWidget {
   /// theme at the call site (no hardcoded colors).
   final Color backgroundColor;
 
+  /// Fullscreen canvas mode: enables pinch-zoom/pan in the WebView (no
+  /// on-screen zoom buttons) so canvas-style artifacts can be explored.
+  /// Off in the fixed in-bubble pane.
+  final bool enableZoom;
+
   final WebViewController Function()? controllerFactory;
   final Widget Function(WebViewController controller)? webViewBuilder;
 
@@ -34,6 +39,7 @@ class HtmlArtifactPreview extends StatefulWidget {
     super.key,
     required this.bytes,
     required this.backgroundColor,
+    this.enableZoom = false,
     this.controllerFactory,
     this.webViewBuilder,
   });
@@ -68,6 +74,11 @@ class _HtmlArtifactPreviewState extends State<HtmlArtifactPreview> {
       if (platform is AndroidWebViewController) {
         await platform.setAllowFileAccess(false);
         await platform.setAllowContentAccess(false);
+        // Display zoom controls are already off in the plugin's defaults
+        // (setDisplayZoomControls(false)); pinch-zoom needs only supportZoom.
+      }
+      if (widget.enableZoom) {
+        await _controller.enableZoom(true);
       }
       await _controller.loadHtmlString(
         injectArtifactCsp(decodeArtifactHtml(widget.bytes)),

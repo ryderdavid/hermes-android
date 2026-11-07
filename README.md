@@ -96,7 +96,8 @@ sanitized implementation and validation record.
   is listed in an audit trail that never shows the password; clear anytime.
 - HTML artifacts from Hermes now preview live inside the chat card — a
   sandboxed inline WebView (no file access, no leaving the page), with
-  download/share still one tap away.
+  download/share still one tap away. Maximize it for a fullscreen canvas with
+  pinch-zoom.
 
 ## What's new in v2.1.30
 

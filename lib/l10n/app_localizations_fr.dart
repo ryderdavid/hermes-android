@@ -1692,6 +1692,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get media_card_open_externally => 'Open in browser';
 
   @override
+  String get media_card_maximize => 'Maximize preview';
+
+  @override
+  String get media_card_close_preview => 'Close preview';
+
+  @override
   String get still_loading_your_projects =>
       'Chargement de vos projets en cours.';
 

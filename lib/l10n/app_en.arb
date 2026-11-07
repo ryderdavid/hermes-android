@@ -471,6 +471,8 @@
   "media_card_tap_to_download": "Tap to download",
   "media_card_preview": "Live preview",
   "media_card_open_externally": "Open in browser",
+  "media_card_maximize": "Maximize preview",
+  "media_card_close_preview": "Close preview",
   "still_loading_your_projects": "Still loading your projects.",
   "stop": "Stop",
   "stop_response": "Stop response",

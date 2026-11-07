@@ -164,4 +164,25 @@ void main() {
       expect(find.byKey(const Key('preview-stub')), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'maximize button opens a fullscreen preview dialog and close dismisses it',
+    (tester) async {
+      final files = FakeMediaFiles({'/out/mockup.html': smallHtml});
+      await pumpCard(tester, ref: htmlRef, files: files, allowPreview: true);
+      expect(find.byKey(const Key('media-card-maximize')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('media-card-maximize')));
+      await tester.pumpAndSettle();
+      // Fullscreen dialog carries the close button; the stub renders in both
+      // the in-bubble pane and the dialog.
+      expect(find.byKey(const Key('media-card-close-preview')), findsOneWidget);
+      expect(find.byKey(const Key('preview-stub')), findsNWidgets(2));
+
+      await tester.tap(find.byKey(const Key('media-card-close-preview')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('media-card-close-preview')), findsNothing);
+      expect(find.byKey(const Key('preview-stub')), findsOneWidget);
+    },
+  );
 }

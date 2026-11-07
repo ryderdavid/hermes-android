@@ -2954,6 +2954,18 @@ abstract class AppLocalizations {
   /// **'Open in browser'**
   String get media_card_open_externally;
 
+  /// No description provided for @media_card_maximize.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximize preview'**
+  String get media_card_maximize;
+
+  /// No description provided for @media_card_close_preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Close preview'**
+  String get media_card_close_preview;
+
   /// No description provided for @still_loading_your_projects.
   ///
   /// In en, this message translates to:

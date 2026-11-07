@@ -248,7 +248,11 @@ class _MediaArtifactCardState extends State<MediaArtifactCard> {
         byteLength: _bytes?.length,
       );
 
-  Widget _buildPreview(BuildContext context, Uint8List bytes) {
+  Widget _buildPreview(
+    BuildContext context,
+    Uint8List bytes, {
+    bool fullscreen = false,
+  }) {
     final builder = widget.previewBuilder;
     if (builder != null) return builder(bytes);
     return HtmlArtifactPreview(
@@ -259,6 +263,44 @@ class _MediaArtifactCardState extends State<MediaArtifactCard> {
       ),
       bytes: bytes,
       backgroundColor: Theme.of(context).colorScheme.surface,
+      // Fullscreen is the canvas viewport: pinch-zoom/pan enabled there.
+      enableZoom: fullscreen,
+    );
+  }
+
+  /// Fullscreen sandboxed preview — the "infinite canvas" viewport for
+  /// canvas-style artifacts. Same sandbox as the in-bubble pane; only the
+  /// zoom setting differs. Dismissed by the close button or system back.
+  Future<void> _showFullscreenPreview() async {
+    final bytes = await _ensureBytes();
+    if (bytes == null || !mounted) return;
+    final l10n = context.l10n;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => Dialog.fullscreen(
+        // A fullscreen preview stays black in every theme, like Photos.
+        backgroundColor: Colors.black, // allow-hardcoded-color
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: _buildPreview(dialogContext, bytes, fullscreen: true),
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                key: const Key('media-card-close-preview'),
+                tooltip: l10n.media_card_close_preview,
+                icon: const Icon(
+                  Icons.close,
+                  color: Colors.white, // allow-hardcoded-color
+                ),
+                onPressed: () => Navigator.of(dialogContext).pop(),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -396,6 +438,12 @@ class _MediaArtifactCardState extends State<MediaArtifactCard> {
                           ),
                         ),
                         IconButton(
+                          key: const Key('media-card-maximize'),
+                          tooltip: l10n.media_card_maximize,
+                          icon: const Icon(Icons.fullscreen_outlined),
+                          onPressed: () => unawaited(_showFullscreenPreview()),
+                        ),
+                        IconButton(
                           key: const Key('media-card-open-external'),
                           tooltip: l10n.media_card_open_externally,
                           icon: const Icon(Icons.open_in_browser_outlined),
@@ -405,9 +453,14 @@ class _MediaArtifactCardState extends State<MediaArtifactCard> {
                     ),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: AspectRatio(
-                        aspectRatio: 16 / 10,
-                        child: _buildPreview(context, _bytes!),
+                      child: ConstrainedBox(
+                        // Taller floor so narrow bubbles stay readable;
+                        // wide bubbles still scale with the aspect ratio.
+                        constraints: const BoxConstraints(minHeight: 240),
+                        child: AspectRatio(
+                          aspectRatio: 16 / 11,
+                          child: _buildPreview(context, _bytes!),
+                        ),
                       ),
                     ),
                   ],

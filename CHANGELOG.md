@@ -23,6 +23,9 @@ shows only the three latest releases.
   render as a live sandboxed preview inside the chat card (final messages, up
   to 5 MiB) — JavaScript on, file access off, no host JS bridge, all top-level
   navigation blocked, strict injected CSP. Download/share stays on the card.
+- Fullscreen artifact canvas: the preview header's maximize button opens the
+  artifact in a fullscreen sandboxed viewport with pinch-zoom/pan enabled, and
+  the in-bubble pane is taller (min 240dp) so boards are readable inline.
 
 ### Thanks
 
