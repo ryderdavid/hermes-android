@@ -26,6 +26,9 @@ shows only the three latest releases.
 - Fullscreen artifact canvas: the preview header's maximize button opens the
   artifact in a fullscreen sandboxed viewport with pinch-zoom/pan enabled, and
   the in-bubble pane is taller (min 240dp) so boards are readable inline.
+- Tool activity cards show what Hermes is doing, not just which tool: each row
+  reads "Tool name: summary" (e.g. "Read file: lib/main.dart", "Terminal:
+  flutter analyze"), phrased client-side from the tool call's own arguments.
 
 ### Thanks
 

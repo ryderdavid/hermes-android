@@ -2041,6 +2041,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           timestamp: msg['timestamp'],
           observedStart: observedByToolId[toolCallId]?.startedAt,
           observedLastActivity: observedByToolId[toolCallId]?.lastActivityAt,
+          args: msg['args'] is Map
+              ? (msg['args'] as Map).cast<String, dynamic>()
+              : null,
+          contextPreview: msg['context'] is String
+              ? msg['context'] as String
+              : null,
         ),
       );
     }
@@ -4629,8 +4635,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _gatewayTurnStatus = GatewayTurnStatus(
         kind: 'tool',
         text: update.isTerminal
-            ? '${update.displayName}: ${update.statusLabel.toLowerCase()}'
-            : context.l10n.using(update.displayName),
+            ? '${update.displayTitle}: ${update.statusLabel.toLowerCase()}'
+            : context.l10n.using(update.displayTitle),
       );
     });
 

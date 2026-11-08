@@ -1,3 +1,5 @@
+import '../utils/tool_activity_summary.dart';
+
 enum GatewayToolActivityPhase {
   running,
   generating,
@@ -28,6 +30,7 @@ GatewayToolActivity? latestKnownToolActivity(
 class GatewayToolActivity {
   static const _maxNameLength = 120;
   static const _maxDetailLength = 500;
+  static const _maxSummaryLength = 120;
   static int _nextLocalIdentity = 0;
 
   final String? toolId;
@@ -39,6 +42,11 @@ class GatewayToolActivity {
   final String name;
   final GatewayToolActivityPhase phase;
   final String? detail;
+
+  /// Semantic "what the call is acting on", phrased client-side from the tool
+  /// args (e.g. "lib/core/theme/hermes_theme.dart"). Rendered next to the tool
+  /// name: "Read file: lib/core/theme/hermes_theme.dart".
+  final String? summary;
   final double? durationSeconds;
   final String? emoji;
 
@@ -54,6 +62,7 @@ class GatewayToolActivity {
     this.toolId,
     String? identity,
     this.detail,
+    this.summary,
     this.durationSeconds,
     this.emoji,
     this.startedAt,
@@ -76,6 +85,11 @@ class GatewayToolActivity {
     if (words.isEmpty) return 'Tool';
     return words[0].toUpperCase() + words.substring(1);
   }
+
+  /// The row's title line: the tool name plus its semantic summary, e.g.
+  /// "Read file: lib/core/theme/hermes_theme.dart".
+  String get displayTitle =>
+      summary == null ? displayName : '$displayName: $summary';
 
   String get statusLabel {
     switch (phase) {
@@ -138,11 +152,31 @@ class GatewayToolActivity {
       ),
     };
 
+    // The summary is phrased from the raw args when the gateway ships them
+    // (WS tool.start/tool.complete and stored rows). On the REST streaming
+    // path only a redacted `label` preview arrives — use it, unless it is just
+    // the tool name again. `context` is deliberately not a fallback here: on
+    // the WS path it is already the row's [detail] line.
+    final args = data['args'] is Map
+        ? (data['args'] as Map).cast<String, dynamic>()
+        : null;
+    final labelPreview = _normalizeText(
+      _firstText(data, const ['label']),
+      _maxSummaryLength,
+    );
+    final summary =
+        toolActivitySummary(name, args) ??
+        (labelPreview != null &&
+                labelPreview.toLowerCase() != name.toLowerCase()
+            ? labelPreview
+            : null);
+
     return GatewayToolActivity(
       toolId: toolId,
       name: name,
       phase: phase,
       detail: detail,
+      summary: summary,
       durationSeconds: durationSeconds,
       emoji: _normalizeText(_firstText(data, const ['emoji']), 8),
       startedAt:
@@ -178,12 +212,17 @@ class GatewayToolActivity {
     required dynamic timestamp,
     DateTime? observedStart,
     DateTime? observedLastActivity,
+    Map<String, dynamic>? args,
+    String? contextPreview,
   }) {
     final resultTime = storedResultTime(timestamp);
     return GatewayToolActivity(
       name: name,
       toolId: toolId,
       phase: GatewayToolActivityPhase.completed,
+      summary:
+          toolActivitySummary(name, args) ??
+          _normalizeText(contextPreview, _maxSummaryLength),
       startedAt: observedStart,
       lastActivityAt: resultTime ?? observedLastActivity,
       lastActivityTimeSource: resultTime != null
@@ -201,6 +240,7 @@ class GatewayToolActivity {
       name: update.name == 'tool' && name != 'tool' ? name : update.name,
       phase: update.phase,
       detail: update.detail ?? detail,
+      summary: update.summary ?? summary,
       durationSeconds: update.durationSeconds ?? durationSeconds,
       emoji: update.emoji ?? emoji,
       startedAt: startedAt ?? update.startedAt,

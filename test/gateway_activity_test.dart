@@ -20,6 +20,66 @@ void main() {
       expect(activity.displayName, 'Search files');
       expect(activity.phase, GatewayToolActivityPhase.running);
       expect(activity.detail, 'Hermes Android workspace');
+      // `context` is the detail line, not the title summary — no duplication.
+      expect(activity.summary, isNull);
+      expect(activity.displayTitle, 'Search files');
+    });
+
+    test('phrases a semantic summary from the shipped tool args', () {
+      final activity = GatewayToolActivity.fromGatewayEvent('tool.start', {
+        'tool_id': 'tool-9',
+        'name': 'read_file',
+        'args': {'path': '/Users/ryder/Code/hermes-android/lib/main.dart'},
+      });
+
+      expect(
+        activity!.summary,
+        '/Users/ryder/Code/hermes-android/lib/main.dart',
+      );
+      expect(
+        activity.displayTitle,
+        'Read file: /Users/ryder/Code/hermes-android/lib/main.dart',
+      );
+    });
+
+    test('uses the redacted REST label preview when no args are shipped', () {
+      final running = GatewayToolActivity.fromGatewayEvent('tool.start', {
+        'tool': 'terminal',
+        'toolCallId': 'call-1',
+        'label': 'flutter analyze',
+        'status': 'running',
+      });
+      expect(running!.name, 'terminal');
+      expect(running.summary, 'flutter analyze');
+      expect(running.displayTitle, 'Terminal: flutter analyze');
+
+      // A label that is just the tool name adds nothing.
+      final bare = GatewayToolActivity.fromGatewayEvent('tool.start', {
+        'tool': 'terminal',
+        'toolCallId': 'call-2',
+        'label': 'terminal',
+        'status': 'running',
+      });
+      expect(bare!.summary, isNull);
+      expect(bare.displayTitle, 'Terminal');
+    });
+
+    test('merge keeps the start summary when progress carries no args', () {
+      final start = GatewayToolActivity.fromGatewayEvent('tool.start', {
+        'tool_id': 'tool-1',
+        'name': 'terminal',
+        'args': {'command': 'flutter test'},
+      })!;
+      final progress = GatewayToolActivity.fromGatewayEvent('tool.progress', {
+        'tool_id': 'tool-1',
+        'name': 'terminal',
+        'preview': '42 tests passed',
+      })!;
+
+      final merged = start.merge(progress);
+      expect(merged.summary, 'flutter test');
+      expect(merged.displayTitle, 'Terminal: flutter test');
+      expect(merged.detail, '42 tests passed');
     });
 
     test('parses progress without inventing an id', () {
@@ -177,6 +237,29 @@ void main() {
         expect(unknown.lastActivityTimeSource, isNull);
       }
     });
+    test(
+      'stored result phrases its summary from args or the context preview',
+      () {
+        final withArgs = GatewayToolActivity.fromStoredResult(
+          name: 'read_file',
+          timestamp: 1792544523,
+          args: {'path': 'lib/core/models/gateway_activity.dart'},
+        );
+        expect(withArgs.summary, 'lib/core/models/gateway_activity.dart');
+        expect(
+          withArgs.displayTitle,
+          'Read file: lib/core/models/gateway_activity.dart',
+        );
+
+        final withContext = GatewayToolActivity.fromStoredResult(
+          name: 'terminal',
+          timestamp: 1792544523,
+          contextPreview: 'flutter analyze',
+        );
+        expect(withContext.summary, 'flutter analyze');
+        expect(withContext.displayTitle, 'Terminal: flutter analyze');
+      },
+    );
   });
 
   group('GatewayTurnStatus', () {
@@ -284,6 +367,61 @@ void main() {
       expect(find.text('Completed in 1.3 s'), findsOneWidget);
       final detailWidget = tester.widget<Text>(find.text(detail));
       expect(detailWidget.maxLines, isNull);
+    });
+
+    testWidgets('tool row shows the semantic summary next to the tool name', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: GatewayActivityCard(
+              activities: [
+                GatewayToolActivity(
+                  toolId: 'tool-summary',
+                  name: 'read_file',
+                  phase: GatewayToolActivityPhase.running,
+                  summary: 'lib/core/theme/hermes_theme.dart',
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(
+        find.textContaining('Read file: lib/core/theme/hermes_theme.dart'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('tool row without a summary keeps the bare tool name', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: GatewayActivityCard(
+              activities: [
+                GatewayToolActivity(
+                  toolId: 'tool-plain',
+                  name: 'skills_list',
+                  phase: GatewayToolActivityPhase.running,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.textContaining('Skills list'), findsOneWidget);
+      expect(find.textContaining('Skills list:'), findsNothing);
     });
   });
 }

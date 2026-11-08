@@ -258,7 +258,7 @@ class _GatewayActivityRow extends StatelessWidget {
     return Semantics(
       label: [
         context.l10n.activity_name_status(
-          activity.displayName,
+          activity.displayTitle,
           activity.statusLabel,
         ),
         ?startLabel,
@@ -295,12 +295,31 @@ class _GatewayActivityRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '${activity.emoji ?? _emojiFor(activity.name)} '
-                    '${activity.displayName}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                  Text.rich(
+                    TextSpan(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      children: [
+                        TextSpan(
+                          text:
+                              '${activity.emoji ?? _emojiFor(activity.name)} '
+                              '${activity.displayName}',
+                        ),
+                        if (activity.summary != null)
+                          TextSpan(
+                            text: ': ${activity.summary}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                      ],
                     ),
+                    maxLines: expanded ? null : 3,
+                    overflow: expanded ? null : TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(

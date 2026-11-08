@@ -98,6 +98,9 @@ sanitized implementation and validation record.
   sandboxed inline WebView (no file access, no leaving the page), with
   download/share still one tap away. Maximize it for a fullscreen canvas with
   pinch-zoom.
+- Tool activity cards now say what Hermes is doing: each row shows the tool
+  name plus a short summary of the call, like "Read file: lib/main.dart" or
+  "Terminal: flutter analyze".
 
 ## What's new in v2.1.30
 
