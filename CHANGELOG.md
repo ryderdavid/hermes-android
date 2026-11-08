@@ -29,6 +29,9 @@ shows only the three latest releases.
 - Tool activity cards show what Hermes is doing, not just which tool: each row
   reads "Tool name: summary" (e.g. "Read file: lib/main.dart", "Terminal:
   flutter analyze"), phrased client-side from the tool call's own arguments.
+- Tool card summaries are plain language, not raw commands: "Terminal: running
+  the test suite" instead of "flutter test …", and file tools name the file
+  ("Patch: …/gateway_activity_card.dart").
 
 ### Thanks
 

@@ -101,6 +101,8 @@ sanitized implementation and validation record.
 - Tool activity cards now say what Hermes is doing: each row shows the tool
   name plus a short summary of the call, like "Read file: lib/main.dart" or
   "Terminal: flutter analyze".
+- Summaries are plain language, not raw commands: "Terminal: running the test
+  suite" instead of "flutter test …", and "Patch: …/gateway_activity_card.dart".
 
 ## What's new in v2.1.30
 

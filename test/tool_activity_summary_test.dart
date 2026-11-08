@@ -9,6 +9,10 @@ void main() {
         'lib/main.dart',
       );
       expect(
+        toolActivitySummary('patch', {'path': 'lib/core/widgets/card.dart'}),
+        'lib/core/widgets/card.dart',
+      );
+      expect(
         toolActivitySummary('search_files', {'pattern': 'gateway_activity'}),
         'gateway_activity',
       );
@@ -16,9 +20,69 @@ void main() {
         toolActivitySummary('web_search', {'query': 'flutter webview csp'}),
         'flutter webview csp',
       );
+    });
+
+    test('terminal becomes a plain-language sentence, not the command', () {
       expect(
         toolActivitySummary('terminal', {'command': 'flutter analyze'}),
-        'flutter analyze',
+        'checking the code for issues',
+      );
+      expect(
+        toolActivitySummary('terminal', {
+          'command': 'flutter test test/gateway_activity_test.dart',
+        }),
+        'running the test suite',
+      );
+      expect(
+        toolActivitySummary('terminal', {'command': 'git commit -m "fix"'}),
+        'committing changes',
+      );
+      expect(
+        toolActivitySummary('terminal', {'command': 'git push origin main'}),
+        'pushing to the remote',
+      );
+      expect(
+        toolActivitySummary('terminal', {'command': 'bd close hmy-siw'}),
+        'updating the issue tracker',
+      );
+      expect(
+        toolActivitySummary('terminal', {
+          'command': '/usr/bin/env gh auth status',
+        }),
+        'working with GitHub',
+      );
+      // Multiline commands summarize from the first meaningful line.
+      expect(
+        toolActivitySummary('terminal', {
+          'command': '\nflutter test\n  --reporter expanded',
+        }),
+        'running the test suite',
+      );
+      // Unrecognized commands still get a sentence, not raw arcana.
+      expect(
+        toolActivitySummary('terminal', {
+          'command': 'someweirdtool --do-thing now',
+        }),
+        'running a shell command',
+      );
+    });
+
+    test('execute_code uses the leading comment as the step label', () {
+      expect(
+        toolActivitySummary('execute_code', {
+          'code': '# Summarize the log file\nimport sys\n...',
+        }),
+        'Summarize the log file',
+      );
+      expect(
+        toolActivitySummary('execute_code', {'code': 'print(1 + 1)'}),
+        'running code',
+      );
+      expect(
+        toolActivitySummary('browser_exec', {
+          'code': '# Click the login button\nawait page.click(...)',
+        }),
+        'Click the login button',
       );
     });
 
@@ -31,8 +95,8 @@ void main() {
         isNull, // neither key is summarizable
       );
       expect(
-        toolActivitySummary('some_custom_tool', {'command': 'make build'}),
-        'make build',
+        toolActivitySummary('some_custom_tool', {'path': 'lib/x.dart'}),
+        'lib/x.dart',
       );
       expect(
         toolActivitySummary('some_custom_tool', {'query': 'what?'}),
@@ -40,20 +104,10 @@ void main() {
       );
     });
 
-    test('collapses multiline values to one line', () {
-      expect(
-        toolActivitySummary('terminal', {
-          'command': 'flutter test\n  --reporter expanded',
-        }),
-        'flutter test --reporter expanded',
-      );
-    });
-
-    test('head-truncates long commands and queries', () {
-      final command = 'flutter test ${'x' * 200}';
-      final summary = toolActivitySummary('terminal', {'command': command})!;
+    test('head-truncates long queries', () {
+      final query = 'x' * 200;
+      final summary = toolActivitySummary('web_search', {'query': query})!;
       expect(summary.length, kToolSummaryMaxLength);
-      expect(summary.startsWith('flutter test '), isTrue);
       expect(summary.endsWith('…'), isTrue);
     });
 
@@ -135,6 +189,41 @@ void main() {
       expect(toolActivitySummary('skills_list', {}), isNull);
       expect(toolActivitySummary('skills_list', {'category': null}), isNull);
       expect(toolActivitySummary('read_file', {'path': '   '}), isNull);
+      expect(toolActivitySummary('terminal', {'command': '  '}), isNull);
+    });
+  });
+
+  group('previewSummary', () {
+    test('maps terminal previews to sentences too', () {
+      expect(
+        previewSummary('terminal', 'flutter test foo'),
+        'running the test suite',
+      );
+      expect(previewSummary('terminal', 'weirdcmd'), 'weirdcmd');
+      expect(previewSummary('read_file', 'lib/main.dart'), 'lib/main.dart');
+      expect(previewSummary('terminal', '   '), isNull);
+      expect(previewSummary('terminal', null), isNull);
+    });
+  });
+
+  group('commandSentence', () {
+    test('covers common dev commands', () {
+      expect(
+        commandSentence('flutter build apk --release'),
+        'building the app',
+      );
+      expect(
+        commandSentence('flutter pub get'),
+        'updating package dependencies',
+      );
+      expect(commandSentence('dart format lib'), 'formatting the code');
+      expect(commandSentence('git status'), 'reviewing the repo');
+      expect(commandSentence('git tag v1'), 'tagging a release');
+      expect(commandSentence('gh release create v1'), 'working with GitHub');
+      expect(commandSentence('tailscale status'), 'managing the Tailnet');
+      expect(commandSentence('ls -la'), 'inspecting files');
+      expect(commandSentence('python3 script.py'), 'running a Python script');
+      expect(commandSentence('unknownbinary --x'), isNull);
     });
   });
 }

@@ -50,8 +50,8 @@ void main() {
         'status': 'running',
       });
       expect(running!.name, 'terminal');
-      expect(running.summary, 'flutter analyze');
-      expect(running.displayTitle, 'Terminal: flutter analyze');
+      expect(running.summary, 'checking the code for issues');
+      expect(running.displayTitle, 'Terminal: checking the code for issues');
 
       // A label that is just the tool name adds nothing.
       final bare = GatewayToolActivity.fromGatewayEvent('tool.start', {
@@ -77,8 +77,8 @@ void main() {
       })!;
 
       final merged = start.merge(progress);
-      expect(merged.summary, 'flutter test');
-      expect(merged.displayTitle, 'Terminal: flutter test');
+      expect(merged.summary, 'running the test suite');
+      expect(merged.displayTitle, 'Terminal: running the test suite');
       expect(merged.detail, '42 tests passed');
     });
 
@@ -256,8 +256,11 @@ void main() {
           timestamp: 1792544523,
           contextPreview: 'flutter analyze',
         );
-        expect(withContext.summary, 'flutter analyze');
-        expect(withContext.displayTitle, 'Terminal: flutter analyze');
+        expect(withContext.summary, 'checking the code for issues');
+        expect(
+          withContext.displayTitle,
+          'Terminal: checking the code for issues',
+        );
       },
     );
   });

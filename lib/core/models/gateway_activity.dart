@@ -164,12 +164,11 @@ class GatewayToolActivity {
       _firstText(data, const ['label']),
       _maxSummaryLength,
     );
-    final summary =
-        toolActivitySummary(name, args) ??
-        (labelPreview != null &&
-                labelPreview.toLowerCase() != name.toLowerCase()
-            ? labelPreview
-            : null);
+    final labelSummary =
+        labelPreview != null && labelPreview.toLowerCase() != name.toLowerCase()
+        ? previewSummary(name, labelPreview)
+        : null;
+    final summary = toolActivitySummary(name, args) ?? labelSummary;
 
     return GatewayToolActivity(
       toolId: toolId,
@@ -222,7 +221,10 @@ class GatewayToolActivity {
       phase: GatewayToolActivityPhase.completed,
       summary:
           toolActivitySummary(name, args) ??
-          _normalizeText(contextPreview, _maxSummaryLength),
+          previewSummary(
+            name,
+            _normalizeText(contextPreview, _maxSummaryLength),
+          ),
       startedAt: observedStart,
       lastActivityAt: resultTime ?? observedLastActivity,
       lastActivityTimeSource: resultTime != null
