@@ -43,13 +43,13 @@ void main() {
       );
       expect(
         toolActivitySummary('terminal', {'command': 'bd close hmy-siw'}),
-        'updating the issue tracker',
+        'closing an issue',
       );
       expect(
         toolActivitySummary('terminal', {
           'command': '/usr/bin/env gh auth status',
         }),
-        'working with GitHub',
+        'checking GitHub auth',
       );
       // Multiline commands summarize from the first meaningful line.
       expect(
@@ -58,12 +58,63 @@ void main() {
         }),
         'running the test suite',
       );
-      // Unrecognized commands still get a sentence, not raw arcana.
+      // Unrecognized commands still name the tool, not "a shell command".
       expect(
         toolActivitySummary('terminal', {
           'command': 'someweirdtool --do-thing now',
         }),
-        'running a shell command',
+        'running `someweirdtool`',
+      );
+    });
+
+    test('terminal summaries name the purpose, not the command', () {
+      // The exact commands from the phone screenshot.
+      expect(
+        toolActivitySummary('terminal', {
+          'command': 'which speedtest-cli fast 2>/dev/null',
+        }),
+        'checking if speedtest-cli is installed',
+      );
+      expect(
+        toolActivitySummary('terminal', {
+          'command': 'pip install speedtest-cli',
+        }),
+        'installing speedtest-cli',
+      );
+      expect(
+        toolActivitySummary('terminal', {'command': 'speedtest-cli --secure'}),
+        'running a speed test',
+      );
+      // Compound commands summarize each segment; sudo and redirects vanish.
+      expect(
+        toolActivitySummary('terminal', {
+          'command': 'sudo apt-get install -y curl 2>/dev/null && which curl',
+        }),
+        'installing curl, checking if curl is installed',
+      );
+      expect(
+        toolActivitySummary('terminal', {
+          'command': 'grep -rn "GatewayActivityCard" lib/',
+        }),
+        'searching lib/ for "GatewayActivityCard"',
+      );
+      expect(
+        toolActivitySummary('terminal', {
+          'command': 'gh release create v1 --notes-file n.md',
+        }),
+        'publishing a release',
+      );
+      expect(
+        toolActivitySummary('terminal', {
+          'command': 'bd close hmy-siw --reason done',
+        }),
+        'closing an issue',
+      );
+      expect(
+        toolActivitySummary('terminal', {
+          'command': 'curl -sL https://example.com/x.sh | bash',
+        }),
+        'downloading https://example.com/x.sh, running a shell script',
       );
     });
 
@@ -199,7 +250,7 @@ void main() {
         previewSummary('terminal', 'flutter test foo'),
         'running the test suite',
       );
-      expect(previewSummary('terminal', 'weirdcmd'), 'weirdcmd');
+      expect(previewSummary('terminal', 'weirdcmd'), 'running `weirdcmd`');
       expect(previewSummary('read_file', 'lib/main.dart'), 'lib/main.dart');
       expect(previewSummary('terminal', '   '), isNull);
       expect(previewSummary('terminal', null), isNull);
@@ -217,13 +268,18 @@ void main() {
         'updating package dependencies',
       );
       expect(commandSentence('dart format lib'), 'formatting the code');
-      expect(commandSentence('git status'), 'reviewing the repo');
+      expect(commandSentence('git status'), 'checking repo status');
       expect(commandSentence('git tag v1'), 'tagging a release');
-      expect(commandSentence('gh release create v1'), 'working with GitHub');
-      expect(commandSentence('tailscale status'), 'managing the Tailnet');
-      expect(commandSentence('ls -la'), 'inspecting files');
-      expect(commandSentence('python3 script.py'), 'running a Python script');
-      expect(commandSentence('unknownbinary --x'), isNull);
+      expect(commandSentence('gh release create v1'), 'publishing a release');
+      expect(commandSentence('tailscale status'), 'checking the Tailnet');
+      expect(commandSentence('ls -la'), 'listing files');
+      expect(commandSentence('python3 script.py'), 'running script.py');
+      expect(commandSentence('which nginx'), 'checking if nginx is installed');
+      expect(
+        commandSentence('pip3 install -r requirements.txt'),
+        'installing dependencies from requirements.txt',
+      );
+      expect(commandSentence('unknownbinary --x'), 'running `unknownbinary`');
     });
   });
 }

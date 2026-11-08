@@ -103,6 +103,9 @@ sanitized implementation and validation record.
   "Terminal: flutter analyze".
 - Summaries are plain language, not raw commands: "Terminal: running the test
   suite" instead of "flutter test …", and "Patch: …/gateway_activity_card.dart".
+- Terminal rows now say what the command is *for*: "installing speedtest-cli",
+  "checking if X is installed", "running a speed test" — not "running a shell
+  command".
 
 ## What's new in v2.1.30
 

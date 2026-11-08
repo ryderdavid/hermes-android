@@ -131,13 +131,98 @@ String? previewSummary(String name, String? preview) {
   return preview;
 }
 
-/// Maps a shell command's first line to a plain-language sentence. Returns null
-/// for unrecognized commands (the caller falls back to a generic phrase).
+/// Maps a shell command's first line to a plain-language sentence about its
+/// *purpose* — "installing speedtest-cli", "checking if X is installed",
+/// "running a speed test" — never the raw command. Compound commands
+/// (`a && b`) are split and each segment is summarized. Returns null only when
+/// nothing parseable remains (the caller falls back to a generic phrase).
 String? commandSentence(String command) {
   final firstLine = command
       .split('\n')
       .firstWhere((line) => line.trim().isNotEmpty, orElse: () => '');
-  var parts = firstLine.trim().split(RegExp(r'\s+'));
+  final cleaned = _stripShellNoise(firstLine);
+  final segments = _splitCompound(cleaned);
+  final phrases = <String>[
+    for (final segment in segments) ?_segmentSentence(segment),
+  ];
+  if (phrases.isEmpty) return null;
+  return _clip(phrases.join(', '), keepTail: false);
+}
+
+/// Drops redirects, trailing background `&`, and `sudo` so the real command
+/// shows through.
+String _stripShellNoise(String line) {
+  var cleaned = line;
+  cleaned = cleaned.replaceAll(RegExp(r'\s*2?>&?\d*(/[^\s]+)?'), ' ');
+  cleaned = cleaned.replaceAll(RegExp(r'\s*>\s*/[^\s]+'), ' ');
+  cleaned = cleaned.replaceAll(RegExp(r'\s*>\s*[^\s]+'), ' ');
+  if (cleaned.trim().endsWith('&')) {
+    cleaned = cleaned.trim().substring(0, cleaned.trim().length - 1);
+  }
+  final parts = cleaned.trim().split(RegExp(r'\s+'));
+  if (parts.isNotEmpty && parts[0] == 'sudo' && parts.length > 1) {
+    return parts.sublist(1).join(' ');
+  }
+  return cleaned;
+}
+
+List<String> _splitCompound(String line) {
+  final segments = <String>[];
+  final current = StringBuffer();
+  var i = 0;
+  var quote = '';
+  while (i < line.length) {
+    final ch = line[i];
+    if (quote.isNotEmpty) {
+      current.write(ch);
+      if (ch == quote) quote = '';
+    } else if (ch == '"' || ch == "'") {
+      quote = ch;
+      current.write(ch);
+    } else if (ch == '&' && i + 1 < line.length && line[i + 1] == '&') {
+      segments.add(current.toString());
+      current.clear();
+      i += 2;
+      continue;
+    } else if (ch == '|' && (i + 1 >= line.length || line[i + 1] != '|')) {
+      segments.add(current.toString());
+      current.clear();
+    } else if (ch == ';') {
+      segments.add(current.toString());
+      current.clear();
+    } else {
+      current.write(ch);
+    }
+    i++;
+  }
+  segments.add(current.toString());
+  return [
+    for (final s in segments)
+      if (s.trim().isNotEmpty) s.trim(),
+  ];
+}
+
+/// Well-known binaries whose purpose beats their name.
+const Map<String, String> _knownToolPurposes = {
+  'speedtest-cli': 'running a speed test',
+  'speedtest': 'running a speed test',
+  'fast': 'running a speed test',
+  'pytest': 'running the Python tests',
+  'nmap': 'scanning the network',
+  'htop': 'watching system processes',
+  'top': 'watching system processes',
+  'ffmpeg': 'processing media',
+  'docker': 'managing containers',
+  'kubectl': 'managing Kubernetes',
+  'terraform': 'managing infrastructure',
+  'ansible': 'running automation',
+  'vim': 'editing a file',
+  'nano': 'editing a file',
+  'code': 'opening the editor',
+};
+
+String? _segmentSentence(String segment) {
+  var parts = segment.trim().split(RegExp(r'\s+'));
   if (parts.isEmpty) return null;
   // `env VAR=… <bin> …` — look at the real binary, not `env`.
   if (parts[0].split('/').last == 'env' && parts.length > 1) {
@@ -148,70 +233,280 @@ String? commandSentence(String command) {
   }
   if (parts.isEmpty) return null;
   final bin = parts[0].split('/').last; // strip any path prefix
-  final rest = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+  final args = parts.sublist(1);
+  final positional = [
+    for (final a in args)
+      if (!a.startsWith('-') && !a.contains('=')) a,
+  ];
+  final firstArg = positional.isNotEmpty ? positional.first : '';
+
+  final known = _knownToolPurposes[bin];
+  if (known != null) return known;
+
   switch (bin) {
+    case 'which':
+    case 'command':
+    case 'type':
+      return firstArg.isNotEmpty
+          ? 'checking if $firstArg is installed'
+          : 'looking up a command';
+    case 'pip':
+    case 'pip3':
+      if (args.contains('install') || args.contains('i')) {
+        final r = args.indexOf('-r');
+        if (r != -1 && r + 1 < args.length) {
+          return 'installing dependencies from ${args[r + 1]}';
+        }
+        final pkg = positional
+            .where((a) => a != 'install' && a != 'i')
+            .firstOrNull;
+        return pkg != null ? 'installing $pkg' : 'installing Python packages';
+      }
+      if (args.contains('uninstall')) {
+        return 'uninstalling ${positional.isNotEmpty ? positional.first : 'a package'}';
+      }
+      if (args.contains('list') || args.contains('show')) {
+        return 'listing Python packages';
+      }
+      return 'managing Python packages';
+    case 'apt':
+    case 'apt-get':
+      // Skip the subcommand itself when picking the package name.
+      final aptPositional = [
+        for (final a in args.skip(1))
+          if (!a.startsWith('-') && !a.contains('=')) a,
+      ];
+      if (args.contains('install')) {
+        return 'installing ${aptPositional.isNotEmpty ? aptPositional.first : 'a package'}';
+      }
+      if (args.contains('update')) return 'updating package lists';
+      if (args.contains('upgrade')) return 'upgrading packages';
+      if (args.contains('remove') || args.contains('purge')) {
+        return 'removing ${aptPositional.isNotEmpty ? aptPositional.first : 'a package'}';
+      }
+      return 'managing system packages';
+    case 'brew':
+      final brewPositional = [
+        for (final a in args.skip(1))
+          if (!a.startsWith('-') && !a.contains('=')) a,
+      ];
+      if (args.contains('install')) {
+        return 'installing ${brewPositional.isNotEmpty ? brewPositional.first : 'a package'}';
+      }
+      if (args.contains('uninstall')) return 'uninstalling a package';
+      if (args.contains('list')) return 'listing installed packages';
+      if (args.contains('update') || args.contains('upgrade')) {
+        return 'updating Homebrew packages';
+      }
+      return 'managing Homebrew packages';
+    case 'npm':
+      if (args.contains('install') ||
+          args.contains('i') ||
+          args.contains('add')) {
+        final pkg = positional
+            .where(
+              (a) => !{'install', 'i', 'add', '-g', '--global'}.contains(a),
+            )
+            .firstOrNull;
+        return pkg != null ? 'installing $pkg' : 'installing npm dependencies';
+      }
+      if (args.contains('run')) {
+        return 'running npm script ${positional.isNotEmpty ? positional.first : ''}'
+            .trim();
+      }
+      if (args.contains('test')) return 'running npm tests';
+      if (args.contains('uninstall') || args.contains('remove')) {
+        return 'removing an npm package';
+      }
+      return 'managing npm packages';
+    case 'npx':
+      return firstArg.isNotEmpty ? 'running $firstArg' : 'running a package';
     case 'flutter':
-      if (rest.startsWith('test')) return 'running the test suite';
-      if (rest.startsWith('analyze')) return 'checking the code for issues';
-      if (rest.startsWith('build')) return 'building the app';
-      if (rest.startsWith('pub')) return 'updating package dependencies';
-      if (rest.startsWith('run')) return 'launching the app';
-      if (rest.startsWith('doctor')) return 'checking the Flutter setup';
+      if (args.firstOrNull == 'test') return 'running the test suite';
+      if (args.firstOrNull == 'analyze') return 'checking the code for issues';
+      if (args.firstOrNull == 'build') return 'building the app';
+      if (args.firstOrNull == 'pub') return 'updating package dependencies';
+      if (args.firstOrNull == 'run') return 'launching the app';
+      if (args.firstOrNull == 'doctor') return 'checking the Flutter setup';
+      if (args.firstOrNull == 'clean') return 'cleaning build artifacts';
       return 'working with Flutter';
     case 'dart':
-      if (rest.startsWith('format')) return 'formatting the code';
+      if (args.firstOrNull == 'format') return 'formatting the code';
+      if (args.firstOrNull == 'test') return 'running the test suite';
       return 'running Dart code';
     case 'git':
-      if (rest.startsWith('commit')) return 'committing changes';
-      if (rest.startsWith('push')) return 'pushing to the remote';
-      if (RegExp(r'^(pull|rebase|merge|fetch)').hasMatch(rest)) {
-        return 'syncing with the remote';
+      final sub = args.firstOrNull ?? '';
+      if (sub == 'commit') return 'committing changes';
+      if (sub == 'push') return 'pushing to the remote';
+      if (sub == 'pull' || sub == 'fetch') return 'fetching from the remote';
+      if (sub == 'rebase' || sub == 'merge') return 'merging changes';
+      if (sub == 'add' || sub == 'stage') return 'staging changes';
+      if (sub == 'status') return 'checking repo status';
+      if (sub == 'diff') return 'reviewing changes';
+      if (sub == 'log') return 'reviewing commit history';
+      if (sub == 'show') return 'inspecting a commit';
+      if (sub == 'branch') return 'managing branches';
+      if (sub == 'checkout' || sub == 'switch') return 'switching branches';
+      if (sub == 'tag') return 'tagging a release';
+      if (sub == 'clone') {
+        return 'cloning ${firstArg.isNotEmpty ? firstArg : 'a repo'}';
       }
-      if (rest.startsWith('add')) return 'staging changes';
-      if (RegExp(r'^(status|diff|log|show|branch)').hasMatch(rest)) {
-        return 'reviewing the repo';
-      }
-      if (rest.startsWith('tag')) return 'tagging a release';
-      if (rest.startsWith('checkout') || rest.startsWith('switch')) {
-        return 'switching branches';
-      }
+      if (sub == 'stash') return 'stashing changes';
       return 'working with git';
     case 'bd':
+      final sub = args.firstOrNull ?? '';
+      if (sub == 'create') return 'filing an issue';
+      if (sub == 'close') return 'closing an issue';
+      if (sub == 'ready') return 'listing ready work';
+      if (sub == 'list') return 'listing issues';
+      if (sub == 'update') return 'updating an issue';
+      if (sub == 'show') return 'reading an issue';
       return 'updating the issue tracker';
     case 'gh':
+      final sub = args.firstOrNull ?? '';
+      if (sub == 'release') {
+        return args.contains('create')
+            ? 'publishing a release'
+            : args.contains('download')
+            ? 'downloading release assets'
+            : 'managing releases';
+      }
+      if (sub == 'pr') return 'working on a pull request';
+      if (sub == 'issue') return 'working on an issue';
+      if (sub == 'auth') return 'checking GitHub auth';
+      if (sub == 'repo') return 'managing the repo';
       return 'working with GitHub';
     case 'tailscale':
+      final sub = args.firstOrNull ?? '';
+      if (sub == 'file') return 'sending a file over Taildrop';
+      if (sub == 'status') return 'checking the Tailnet';
+      if (sub == 'up' || sub == 'down') return 'toggling the VPN';
       return 'managing the Tailnet';
     case 'adb':
+      final sub = args.firstOrNull ?? '';
+      if (sub == 'connect') return 'connecting to the phone over adb';
+      if (sub == 'shell') return 'running a command on the phone';
+      if (sub == 'install') return 'installing an APK on the phone';
+      if (sub == 'logcat') return 'reading phone logs';
+      if (sub == 'devices') return 'listing connected devices';
       return 'talking to the Android device';
     case 'python3':
     case 'python':
+      if (firstArg.endsWith('.py')) return 'running $firstArg';
+      if (args.contains('-m')) {
+        final mod =
+            args[args.indexOf('-m') + 1 < args.length
+                ? args.indexOf('-m') + 1
+                : 0];
+        return 'running Python module $mod';
+      }
       return 'running a Python script';
-    case 'ls':
-    case 'cat':
-    case 'grep':
-    case 'rg':
-    case 'sed':
-    case 'find':
-    case 'head':
-    case 'tail':
-    case 'wc':
-      return 'inspecting files';
-    case 'cp':
-    case 'mv':
-    case 'rm':
-      return 'moving files around';
+    case 'bash':
+    case 'sh':
+    case 'zsh':
+      return firstArg.isNotEmpty
+          ? 'running $firstArg'
+          : 'running a shell script';
     case 'curl':
     case 'wget':
+      final url = args.firstWhere(
+        (a) => a.startsWith('http'),
+        orElse: () => '',
+      );
+      if (url.isNotEmpty) return 'downloading $url';
       return 'making an HTTP request';
     case 'ssh':
+      return firstArg.isNotEmpty
+          ? 'connecting to $firstArg'
+          : 'connecting over SSH';
     case 'scp':
-      return 'connecting over SSH';
-    case 'brew':
-      return 'managing Homebrew packages';
+      return 'copying files over SSH';
+    case 'ls':
+    case 'll':
+      return firstArg.isNotEmpty ? 'listing $firstArg' : 'listing files';
+    case 'cd':
+      return firstArg.isNotEmpty
+          ? 'changing to $firstArg'
+          : 'changing directory';
+    case 'cat':
+      return firstArg.isNotEmpty ? 'reading $firstArg' : 'reading a file';
+    case 'head':
+    case 'tail':
+      return firstArg.isNotEmpty ? 'previewing $firstArg' : 'previewing a file';
+    case 'grep':
+    case 'rg':
+      final pattern =
+          _firstQuoted(args) ??
+          (args.contains('-e')
+              ? args[args.indexOf('-e') + 1 < args.length
+                    ? args.indexOf('-e') + 1
+                    : 0]
+              : '');
+      final target = positional.isNotEmpty ? positional.last : '';
+      if (pattern.isNotEmpty) {
+        return target.isNotEmpty
+            ? 'searching $target for "$pattern"'
+            : 'searching for "$pattern"';
+      }
+      return 'searching files';
+    case 'find':
+      final nameIdx = args.indexOf('-name');
+      if (nameIdx != -1 && nameIdx + 1 < args.length) {
+        return 'finding files matching ${args[nameIdx + 1]}';
+      }
+      return firstArg.isNotEmpty ? 'searching $firstArg' : 'finding files';
+    case 'sed':
+      return 'editing files in place';
+    case 'cp':
+      return positional.length >= 2
+          ? 'copying ${positional[0]} to ${positional[1]}'
+          : 'copying files';
+    case 'mv':
+      return positional.length >= 2
+          ? 'moving ${positional[0]} to ${positional[1]}'
+          : 'moving files';
+    case 'rm':
+      return firstArg.isNotEmpty ? 'deleting $firstArg' : 'deleting files';
+    case 'chmod':
+    case 'chown':
+      return 'changing permissions on ${firstArg.isNotEmpty ? firstArg : 'files'}';
+    case 'mkdir':
+      return 'creating ${firstArg.isNotEmpty ? firstArg : 'a directory'}';
+    case 'df':
+      return 'checking disk space';
+    case 'du':
+      return 'measuring disk usage';
+    case 'free':
+      return 'checking memory usage';
+    case 'ps':
+      return 'listing processes';
+    case 'kill':
+    case 'pkill':
+      return 'stopping ${firstArg.isNotEmpty ? firstArg : 'a process'}';
+    case 'sleep':
+      return 'waiting ${firstArg.isNotEmpty ? firstArg : ''} seconds'.trim();
+    case 'tar':
+      return 'working with an archive';
+    case 'uname':
+      return 'checking system info';
+    case 'open':
+      return 'opening ${firstArg.isNotEmpty ? firstArg : 'something'}';
     default:
-      return null;
+      // Name the tool at least — better than "a shell command".
+      return 'running `$bin`';
   }
+}
+
+String? _firstQuoted(List<String> args) {
+  for (final a in args) {
+    final trimmed = a.trim();
+    if (trimmed.length >= 2 &&
+        ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+            (trimmed.startsWith("'") && trimmed.endsWith("'")))) {
+      return trimmed.substring(1, trimmed.length - 1);
+    }
+  }
+  return null;
 }
 
 /// The leading `# …` comment of a code payload, when the caller wrote one —

@@ -32,6 +32,11 @@ shows only the three latest releases.
 - Tool card summaries are plain language, not raw commands: "Terminal: running
   the test suite" instead of "flutter test …", and file tools name the file
   ("Patch: …/gateway_activity_card.dart").
+- Terminal summaries now state the command's purpose: "installing
+  speedtest-cli" for `pip install speedtest-cli`, "checking if X is installed"
+  for `which X`, "running a speed test" for `speedtest-cli`, compound
+  commands summarize each step, and unknown tools at least get named
+  ("running `mytool`") instead of "running a shell command".
 
 ### Thanks
 

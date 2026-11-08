@@ -22,7 +22,7 @@ void main() {
       GatewayToolActivity.fromGatewayEvent('tool.start', {
         'tool_id': 'call-2',
         'name': 'terminal',
-        'args': {'command': 'flutter test test/gateway_activity_test.dart'},
+        'args': {'command': 'speedtest-cli --secure'},
       })!,
       GatewayToolActivity.fromGatewayEvent('tool.start', {
         'tool_id': 'call-3',
@@ -66,7 +66,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.textContaining('Terminal: running the test suite'),
+      find.textContaining('Terminal: running a speed test'),
       findsOneWidget,
     );
     expect(
