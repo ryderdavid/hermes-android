@@ -1486,12 +1486,6 @@ abstract class AppLocalizations {
   /// **'Hermes profile must be a plain profile name such as \"sol\", not a path.'**
   String get hermes_profile_must_be_a_plain_profile_name_such_as;
 
-  /// No description provided for @hermes_reasoning_details.
-  ///
-  /// In en, this message translates to:
-  /// **'Hermes reasoning details'**
-  String get hermes_reasoning_details;
-
   /// No description provided for @hermes_recovery_is_unavailable.
   ///
   /// In en, this message translates to:
@@ -2816,11 +2810,11 @@ abstract class AppLocalizations {
   /// **'Show passphrase'**
   String get show_passphrase;
 
-  /// No description provided for @show_tool_calls_thinking_and_message_metadata.
+  /// No description provided for @show_message_metadata_description.
   ///
   /// In en, this message translates to:
-  /// **'Show tool calls, thinking, and message metadata'**
-  String get show_tool_calls_thinking_and_message_metadata;
+  /// **'For debugging: shows each message\'s stored fields'**
+  String get show_message_metadata_description;
 
   /// No description provided for @signal_messages.
   ///
@@ -3286,12 +3280,6 @@ abstract class AppLocalizations {
   /// **'Titles, previews, and models'**
   String get titles_previews_and_models;
 
-  /// No description provided for @tool_activity.
-  ///
-  /// In en, this message translates to:
-  /// **'Tool activity'**
-  String get tool_activity;
-
   /// No description provided for @trigger_now.
   ///
   /// In en, this message translates to:
@@ -3450,11 +3438,11 @@ abstract class AppLocalizations {
   /// **'Using {displayName}…'**
   String using(Object displayName);
 
-  /// No description provided for @verbose_mode.
+  /// No description provided for @show_message_metadata.
   ///
   /// In en, this message translates to:
-  /// **'Verbose Mode'**
-  String get verbose_mode;
+  /// **'Show message metadata'**
+  String get show_message_metadata;
 
   /// No description provided for @voice.
   ///
@@ -3563,12 +3551,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{filename} downloaded'**
   String downloaded(Object filename);
-
-  /// No description provided for @activity_name_status.
-  ///
-  /// In en, this message translates to:
-  /// **'{displayName}: {statusLabel}'**
-  String activity_name_status(Object displayName, Object statusLabel);
 
   /// No description provided for @connection_status_label.
   ///
@@ -3710,54 +3692,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{{count} new message} other{{count} new messages}}'**
   String new_messages(num count);
-
-  /// No description provided for @activity_failed_summary.
-  ///
-  /// In en, this message translates to:
-  /// **'{failures} failed • {total} total'**
-  String activity_failed_summary(Object failures, Object total);
-
-  /// No description provided for @activity_completed_summary.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} completed'**
-  String activity_completed_summary(Object count);
-
-  /// No description provided for @tool_start_observed.
-  ///
-  /// In en, this message translates to:
-  /// **'Start observed {time} (local)'**
-  String tool_start_observed(Object time);
-
-  /// No description provided for @tool_last_observed.
-  ///
-  /// In en, this message translates to:
-  /// **'Last observed {time} (local)'**
-  String tool_last_observed(Object time);
-
-  /// No description provided for @tool_result_recorded.
-  ///
-  /// In en, this message translates to:
-  /// **'Result recorded {time} (local)'**
-  String tool_result_recorded(Object time);
-
-  /// No description provided for @tool_time_unavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Time unavailable'**
-  String get tool_time_unavailable;
-
-  /// No description provided for @hermes_is_using_a_tool.
-  ///
-  /// In en, this message translates to:
-  /// **'Hermes is using a tool'**
-  String get hermes_is_using_a_tool;
-
-  /// No description provided for @hermes_is_using_tools.
-  ///
-  /// In en, this message translates to:
-  /// **'Hermes is using {count} tools'**
-  String hermes_is_using_tools(Object count);
 
   /// No description provided for @delegated_tasks_completed.
   ///
@@ -4671,6 +4605,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Biometric check failed ({code}) — re-enter the SUDO password to enable instead.'**
   String agent_sudo_enable_biometric_error(String code);
+
+  /// No description provided for @activity_thinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking'**
+  String get activity_thinking;
+
+  /// No description provided for @activity_failed_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed: {summary}'**
+  String activity_failed_label(String summary);
+
+  /// No description provided for @activity_state_running.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get activity_state_running;
+
+  /// No description provided for @activity_state_completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get activity_state_completed;
+
+  /// No description provided for @activity_state_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get activity_state_failed;
+
+  /// No description provided for @activity_show_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Show details'**
+  String get activity_show_details;
+
+  /// No description provided for @activity_completed_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed in {duration}'**
+  String activity_completed_in(String duration);
+
+  /// No description provided for @activity_failed_after.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed after {duration}'**
+  String activity_failed_after(String duration);
+
+  /// No description provided for @turn_fold_worked_for.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked for {duration}'**
+  String turn_fold_worked_for(String duration);
+
+  /// No description provided for @turn_fold_steps.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Worked through {count} step} other{Worked through {count} steps}}'**
+  String turn_fold_steps(num count);
+
+  /// No description provided for @turn_fold_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} failed} other{{count} failed}}'**
+  String turn_fold_failed(num count);
+
+  /// No description provided for @turn_fold_show_steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Show steps'**
+  String get turn_fold_show_steps;
+
+  /// No description provided for @turn_fold_hide_steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide steps'**
+  String get turn_fold_hide_steps;
+
+  /// No description provided for @duration_hours_minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h {minutes}m'**
+  String duration_hours_minutes(int hours, int minutes);
+
+  /// No description provided for @duration_minutes_seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m {seconds}s'**
+  String duration_minutes_seconds(int minutes, int seconds);
+
+  /// No description provided for @duration_seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds}s'**
+  String duration_seconds(int seconds);
+
+  /// No description provided for @activity_group_commands.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Ran {count} command} other{Ran {count} commands}}'**
+  String activity_group_commands(num count);
+
+  /// No description provided for @activity_group_files_read.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Read {count} file} other{Read {count} files}}'**
+  String activity_group_files_read(num count);
+
+  /// No description provided for @activity_group_files_edited.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Edited {count} file} other{Edited {count} files}}'**
+  String activity_group_files_edited(num count);
+
+  /// No description provided for @activity_group_searches.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Ran {count} search} other{Ran {count} searches}}'**
+  String activity_group_searches(num count);
+
+  /// No description provided for @activity_group_generic.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Used {tool} {count} time} other{Used {tool} {count} times}}'**
+  String activity_group_generic(String tool, int count);
+
+  /// No description provided for @activity_sheet_command_executions.
+  ///
+  /// In en, this message translates to:
+  /// **'Command executions'**
+  String get activity_sheet_command_executions;
+
+  /// No description provided for @activity_sheet_arguments.
+  ///
+  /// In en, this message translates to:
+  /// **'Arguments'**
+  String get activity_sheet_arguments;
+
+  /// No description provided for @activity_sheet_output.
+  ///
+  /// In en, this message translates to:
+  /// **'Output'**
+  String get activity_sheet_output;
+
+  /// No description provided for @activity_sheet_output_truncated.
+  ///
+  /// In en, this message translates to:
+  /// **'Output truncated'**
+  String get activity_sheet_output_truncated;
+
+  /// No description provided for @activity_sheet_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get activity_sheet_details;
 }
 
 class _AppLocalizationsDelegate

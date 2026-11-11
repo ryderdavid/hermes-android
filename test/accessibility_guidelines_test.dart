@@ -3,12 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/models/gateway_activity.dart';
 import 'package:hermes_android/core/screens/chat_screen.dart';
 import 'package:hermes_android/core/screens/cron_screen.dart';
 import 'package:hermes_android/core/screens/workspace_screen.dart';
 import 'package:hermes_android/core/screens/settings_screen.dart';
 import 'package:hermes_android/core/services/connection_manager.dart';
 import 'package:hermes_android/core/theme/hermes_theme.dart';
+import 'package:hermes_android/core/widgets/activity_row.dart';
+import 'package:hermes_android/core/widgets/turn_fold.dart';
 import 'package:hermes_android/l10n/app_localizations.dart';
 import 'package:hermes_android/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -91,6 +94,65 @@ void main() {
     testWidgets('error state meets Android guidelines ($name)', (tester) async {
       final handle = tester.ensureSemantics();
       await _pump(tester, theme, CronScreen(connection: _offline));
+      await _expectGuidelines(tester);
+      handle.dispose();
+    });
+  }
+
+  for (final MapEntry(key: name, value: theme) in _schemes.entries) {
+    testWidgets('activity rows meet Android guidelines ($name)', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      GatewayToolActivity tool(GatewayToolActivityPhase phase) =>
+          GatewayToolActivity(
+            name: 'terminal',
+            phase: phase,
+            summary: 'checking the current window state',
+          );
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: theme,
+          home: Scaffold(
+            body: ListView(
+              children: [
+                TurnFoldLine(
+                  duration: const Duration(minutes: 2, seconds: 24),
+                  stepCount: 5,
+                  failureCount: 1,
+                  unfolded: true,
+                  onTap: () {},
+                ),
+                ActivityRow.group(
+                  first: tool(GatewayToolActivityPhase.completed),
+                  count: 2,
+                  onTap: () {},
+                ),
+                ActivityRow.reasoning(
+                  headline: 'Checking the service binding',
+                  onTap: () {},
+                ),
+                ActivityRow.tool(
+                  activity: tool(GatewayToolActivityPhase.completed),
+                  onTap: () {},
+                ),
+                ActivityRow.tool(
+                  activity: tool(GatewayToolActivityPhase.failed),
+                  onTap: () {},
+                ),
+                ActivityRow.tool(
+                  activity: tool(GatewayToolActivityPhase.running),
+                  onTap: () {},
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      // The running row spins, so the tree never settles.
+      await tester.pump(const Duration(milliseconds: 300));
       await _expectGuidelines(tester);
       handle.dispose();
     });

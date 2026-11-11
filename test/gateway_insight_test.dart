@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hermes_android/core/models/gateway_insight.dart';
+import 'package:hermes_android/core/utils/chat_display_items.dart';
+import 'package:hermes_android/core/widgets/activity_detail_sheet.dart';
+import 'package:hermes_android/core/widgets/activity_row.dart';
 import 'package:hermes_android/core/widgets/gateway_insight_card.dart';
 import 'package:hermes_android/l10n/app_localizations.dart';
 
@@ -137,36 +140,60 @@ void main() {
   ) async {
     await tester.pumpWidget(
       MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: ListView(
-            children: const [
-              GatewayReasoningCard(
-                text: 'Verified the complete gateway contract.',
-                initiallyExpanded: true,
-              ),
-              GatewayNoticeCard(
-                notice: GatewayNotice(
-                  kind: GatewayNoticeKind.background,
-                  taskId: 'bg-7',
-                  text: 'Indexed the selected files.',
+          body: Builder(
+            builder: (context) => ListView(
+              children: [
+                ActivityRow.reasoning(
+                  headline: reasoningHeadlineOf(
+                    'Verified the complete gateway contract.\nThen the rest.',
+                  ),
+                  onTap: () => showActivityDetailSheet(
+                    context,
+                    step: const ChatActivityStep.reasoning(
+                      id: 'reasoning:1',
+                      reasoning:
+                          'Verified the complete gateway contract.\nThen the rest.',
+                    ),
+                    messages: const [],
+                  ),
                 ),
-              ),
-            ],
+                const GatewayNoticeCard(
+                  notice: GatewayNotice(
+                    kind: GatewayNoticeKind.background,
+                    taskId: 'bg-7',
+                    text: 'Indexed the selected files.',
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
     await tester.pump(const Duration(milliseconds: 300));
 
+    // The row shows the first line only; the notice is selectable in place.
+    expect(find.text('Verified the complete gateway contract.'), findsOneWidget);
+    expect(find.text('Background task bg-7 completed'), findsOneWidget);
+    expect(find.byType(SelectionArea), findsOneWidget);
+
+    await tester.tap(find.byType(ActivityRow));
+    await tester.pumpAndSettle();
     expect(find.text('Reasoning'), findsOneWidget);
     expect(
-      find.text('Verified the complete gateway contract.'),
+      find.text('Verified the complete gateway contract.\nThen the rest.'),
       findsOneWidget,
     );
-    expect(find.text('Background task bg-7 completed'), findsOneWidget);
-    expect(find.byType(SelectionArea), findsNWidgets(2));
+    expect(
+      find.descendant(
+        of: find.byType(ActivityDetailSheet),
+        matching: find.byType(SelectionArea),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('subagent card exposes delegated progress', (tester) async {

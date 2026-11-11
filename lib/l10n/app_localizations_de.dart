@@ -842,9 +842,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das Hermes-Profil muss ein einfacher Profilname wie „sol“ sein, kein Pfad.';
 
   @override
-  String get hermes_reasoning_details => 'Hermes-Reasoning-Details';
-
-  @override
   String hermes_recovery_is_unavailable(Object error) {
     return 'Hermes-Wiederherstellung ist nicht verfügbar: $error';
   }
@@ -1615,8 +1612,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get show_passphrase => 'Passphrase anzeigen';
 
   @override
-  String get show_tool_calls_thinking_and_message_metadata =>
-      'Tool-Aufrufe, Reasoning und Nachrichten-Metadaten anzeigen';
+  String get show_message_metadata_description =>
+      'Zur Fehlersuche: zeigt die gespeicherten Felder jeder Nachricht';
 
   @override
   String get signal_messages => 'Signal-Nachrichten';
@@ -1897,9 +1894,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get titles_previews_and_models => 'Titel, Vorschauen und Modelle';
 
   @override
-  String get tool_activity => 'Tool-Aktivität';
-
-  @override
   String get trigger_now => 'Jetzt auslösen';
 
   @override
@@ -1996,7 +1990,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get verbose_mode => 'Ausführlicher Modus';
+  String get show_message_metadata => 'Nachrichten-Metadaten anzeigen';
 
   @override
   String get voice => 'Sprache';
@@ -2057,11 +2051,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String downloaded(Object filename) {
     return '$filename heruntergeladen';
-  }
-
-  @override
-  String activity_name_status(Object displayName, Object statusLabel) {
-    return '$displayName: $statusLabel';
   }
 
   @override
@@ -2192,42 +2181,6 @@ class AppLocalizationsDe extends AppLocalizations {
       one: '$count neue Nachricht',
     );
     return '$_temp0';
-  }
-
-  @override
-  String activity_failed_summary(Object failures, Object total) {
-    return '$failures fehlgeschlagen • $total gesamt';
-  }
-
-  @override
-  String activity_completed_summary(Object count) {
-    return '$count abgeschlossen';
-  }
-
-  @override
-  String tool_start_observed(Object time) {
-    return 'Start beobachtet um $time (Ortszeit)';
-  }
-
-  @override
-  String tool_last_observed(Object time) {
-    return 'Zuletzt beobachtet um $time (Ortszeit)';
-  }
-
-  @override
-  String tool_result_recorded(Object time) {
-    return 'Ergebnis erfasst um $time (Ortszeit)';
-  }
-
-  @override
-  String get tool_time_unavailable => 'Uhrzeit nicht verfügbar';
-
-  @override
-  String get hermes_is_using_a_tool => 'Hermes verwendet ein Tool';
-
-  @override
-  String hermes_is_using_tools(Object count) {
-    return 'Hermes verwendet $count Tools';
   }
 
   @override
@@ -2758,4 +2711,152 @@ class AppLocalizationsDe extends AppLocalizations {
   String agent_sudo_enable_biometric_error(String code) {
     return 'Biometric check failed ($code) — re-enter the SUDO password to enable instead.';
   }
+
+  @override
+  String get activity_thinking => 'Denkt nach';
+
+  @override
+  String activity_failed_label(String summary) {
+    return 'Fehlgeschlagen: $summary';
+  }
+
+  @override
+  String get activity_state_running => 'Läuft';
+
+  @override
+  String get activity_state_completed => 'Abgeschlossen';
+
+  @override
+  String get activity_state_failed => 'Fehlgeschlagen';
+
+  @override
+  String get activity_show_details => 'Details anzeigen';
+
+  @override
+  String activity_completed_in(String duration) {
+    return 'Abgeschlossen in $duration';
+  }
+
+  @override
+  String activity_failed_after(String duration) {
+    return 'Fehlgeschlagen nach $duration';
+  }
+
+  @override
+  String turn_fold_worked_for(String duration) {
+    return '$duration gearbeitet';
+  }
+
+  @override
+  String turn_fold_steps(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Schritte ausgeführt',
+      one: '$count Schritt ausgeführt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String turn_fold_failed(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fehlgeschlagen',
+      one: '$count fehlgeschlagen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get turn_fold_show_steps => 'Schritte anzeigen';
+
+  @override
+  String get turn_fold_hide_steps => 'Schritte ausblenden';
+
+  @override
+  String duration_hours_minutes(int hours, int minutes) {
+    return '$hours Std. $minutes Min.';
+  }
+
+  @override
+  String duration_minutes_seconds(int minutes, int seconds) {
+    return '$minutes Min. $seconds Sek.';
+  }
+
+  @override
+  String duration_seconds(int seconds) {
+    return '$seconds Sek.';
+  }
+
+  @override
+  String activity_group_commands(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Befehle ausgeführt',
+      one: '$count Befehl ausgeführt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_read(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Dateien gelesen',
+      one: '$count Datei gelesen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_edited(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Dateien bearbeitet',
+      one: '$count Datei bearbeitet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_searches(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Suchen ausgeführt',
+      one: '$count Suche ausgeführt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_generic(String tool, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$tool $count-mal verwendet',
+      one: '$tool $count-mal verwendet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activity_sheet_command_executions => 'Befehlsausführungen';
+
+  @override
+  String get activity_sheet_arguments => 'Argumente';
+
+  @override
+  String get activity_sheet_output => 'Ausgabe';
+
+  @override
+  String get activity_sheet_output_truncated => 'Ausgabe gekürzt';
+
+  @override
+  String get activity_sheet_details => 'Details';
 }

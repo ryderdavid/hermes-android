@@ -8,6 +8,7 @@ import 'package:hermes_android/core/screens/chat_screen.dart';
 import 'package:hermes_android/core/services/connection_manager.dart';
 import 'package:hermes_android/core/services/desktop_gateway_client.dart';
 import 'package:hermes_android/core/services/ws_client.dart';
+import 'package:hermes_android/core/widgets/turn_fold.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -103,6 +104,22 @@ Widget _chat(
   ),
 );
 
+/// A turn that never got a final answer keeps one row per tool call, so the
+/// bubbles above a long run of calls are off screen until the list is at its
+/// start.
+Future<void> _scrollToStart(WidgetTester tester) async {
+  tester.widget<ListView>(find.byType(ListView).first).controller!.jumpTo(0);
+  await tester.pump();
+  await tester.pump();
+}
+
+/// A finished turn folds its interim messages away with its tool calls.
+Future<void> _unfoldTurn(WidgetTester tester) async {
+  await tester.tap(find.byType(TurnFoldLine));
+  await tester.pump();
+  await tester.pump();
+}
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({'verbose_mode': false}));
 
@@ -112,6 +129,7 @@ void main() {
     await tester.pumpWidget(_chat(client, key: const ValueKey('first-open')));
     await tester.pumpAndSettle();
     expect(client.offsets, [0, 50, 100]);
+    await _scrollToStart(tester);
     expect(find.text('Earlier question'), findsOneWidget);
     expect(find.text('Earlier answer'), findsOneWidget);
 
@@ -119,6 +137,7 @@ void main() {
     await tester.pumpWidget(_chat(client, key: const ValueKey('reopen')));
     await tester.pumpAndSettle();
     expect(client.offsets, [0, 50, 100, 0, 50, 100]);
+    await _scrollToStart(tester);
     expect(find.text('Earlier question'), findsOneWidget);
 
     client.rows = [
@@ -138,9 +157,13 @@ void main() {
     await tester.tap(find.text('Refresh'));
     await tester.pumpAndSettle();
     expect(client.offsets.last, 0);
+    // The turn now has a final answer, so its 182 tool calls and the interim
+    // message fold to one line.
     expect(find.text('Earlier question'), findsOneWidget);
-    expect(find.text('Earlier answer'), findsOneWidget);
     expect(find.text('Completed answer'), findsOneWidget);
+    expect(find.text('Earlier answer'), findsNothing);
+    await _unfoldTurn(tester);
+    expect(find.text('Earlier answer'), findsOneWidget);
   });
 
   testWidgets('refresh keeps dialogue visible while loading and on failure', (
@@ -183,14 +206,11 @@ void main() {
     expect(find.text('Earlier question'), findsNothing);
 
     final olderButton = find.byKey(const Key('chat-load-older'));
-    await tester.scrollUntilVisible(
-      olderButton,
-      -250,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await _scrollToStart(tester);
     await tester.tap(olderButton);
     await tester.pumpAndSettle();
     expect(client.offsets.last, 600);
+    await _scrollToStart(tester);
     expect(find.text('Earlier question'), findsOneWidget);
     expect(find.text('Earlier answer'), findsOneWidget);
   });
@@ -222,6 +242,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await _scrollToStart(tester);
     expect(find.text('Earlier question'), findsOneWidget);
     expect(ensures, 0);
 
@@ -279,7 +300,8 @@ void main() {
       isTrue,
     );
     expect(find.text('Earlier question'), findsOneWidget);
-    expect(find.text('Earlier answer'), findsOneWidget);
     expect(find.text('Detached final reply'), findsOneWidget);
+    await _unfoldTurn(tester);
+    expect(find.text('Earlier answer'), findsOneWidget);
   });
 }

@@ -193,7 +193,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: HermesSpacing.xl),
           _buildPreferencesGroup(),
-          SettingsGroup(title: context.l10n.about, children: [_AboutCard()]),
+          _buildAboutGroup(),
         ],
       );
     }
@@ -206,7 +206,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         const SizedBox(height: HermesSpacing.xl),
         AgentCredentialCard(connection: widget.connection),
         const SizedBox(height: HermesSpacing.xl),
-        _buildPreferencesGroup(verbose: true),
+        _buildPreferencesGroup(),
 
         // ---- Section: Model ----
         SettingsGroup(
@@ -263,7 +263,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
 
         // ---- Section: About ----
-        SettingsGroup(title: context.l10n.about, children: [_AboutCard()]),
+        _buildAboutGroup(),
       ],
     );
   }
@@ -442,10 +442,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// About the app, and the message-metadata debugging toggle. Both are
+  /// device-local, so they stay available when the dashboard cannot be
+  /// reached.
+  Widget _buildAboutGroup() {
+    return SettingsGroup(
+      title: context.l10n.about,
+      children: [_AboutCard(), _MessageMetadataToggle()],
+    );
+  }
+
   /// Device-local preferences, so they stay available when the dashboard
-  /// cannot be reached: the Appearance page, and (with [verbose]) the
-  /// chat-metadata toggle.
-  Widget _buildPreferencesGroup({bool verbose = false}) {
+  /// cannot be reached: the Appearance page.
+  Widget _buildPreferencesGroup() {
     return SettingsGroup(
       children: [
         ListTile(
@@ -464,7 +473,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ),
-        if (verbose) _VerboseToggle(),
       ],
     );
   }
@@ -662,12 +670,15 @@ class _RepositoryLink extends StatelessWidget {
 }
 
 /// Toggle for verbose mode — shows tool calls, thinking, and message metadata in chat.
-class _VerboseToggle extends StatefulWidget {
+/// Shows each message's stored metadata under it, for debugging. The stored
+/// key keeps its original name, `verbose_mode`, so a value saved or backed up
+/// before the setting was renamed still applies.
+class _MessageMetadataToggle extends StatefulWidget {
   @override
-  State<_VerboseToggle> createState() => _VerboseToggleState();
+  State<_MessageMetadataToggle> createState() => _MessageMetadataToggleState();
 }
 
-class _VerboseToggleState extends State<_VerboseToggle> {
+class _MessageMetadataToggleState extends State<_MessageMetadataToggle> {
   bool _verbose = false;
 
   @override
@@ -678,6 +689,7 @@ class _VerboseToggleState extends State<_VerboseToggle> {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() => _verbose = prefs.getBool('verbose_mode') ?? false);
   }
 
@@ -691,12 +703,11 @@ class _VerboseToggleState extends State<_VerboseToggle> {
   Widget build(BuildContext context) {
     return Card(
       child: SwitchListTile(
-        title: Text(context.l10n.verbose_mode),
-        subtitle: Text(
-          context.l10n.show_tool_calls_thinking_and_message_metadata,
-        ),
+        key: const Key('settings-message-metadata'),
+        title: Text(context.l10n.show_message_metadata),
+        subtitle: Text(context.l10n.show_message_metadata_description),
         secondary: TonalIcon(
-          Icons.terminal,
+          Icons.bug_report_outlined,
           tone: (
             Theme.of(context).colorScheme.secondaryContainer,
             Theme.of(context).colorScheme.onSecondaryContainer,

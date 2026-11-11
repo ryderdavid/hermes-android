@@ -12,7 +12,9 @@ import 'package:hermes_android/core/services/connection_manager.dart';
 import 'package:hermes_android/core/services/ws_client.dart';
 import 'package:hermes_android/core/utils/chat_history_scroll.dart';
 import 'package:hermes_android/core/widgets/chat_end_affordance.dart';
-import 'package:hermes_android/core/widgets/gateway_insight_card.dart';
+import 'package:hermes_android/core/widgets/activity_detail_sheet.dart';
+import 'package:hermes_android/core/widgets/activity_row.dart';
+import 'package:hermes_android/core/widgets/turn_fold.dart';
 import 'package:hermes_android/l10n/app_localizations.dart';
 
 void main() {
@@ -624,7 +626,7 @@ void main() {
 
     for (final event in ['reasoning.delta', 'reasoning.available']) {
       testWidgets(
-        'Remote completed preview preserves late $event and verbose display',
+        'Remote completed preview preserves late $event in its reasoning row',
         (tester) async {
           tester.view.devicePixelRatio = 1;
           tester.view.physicalSize = const Size(800, 1200);
@@ -643,24 +645,17 @@ void main() {
           await tester.pump();
           await remote.started.future;
           remote.emit('message.delta', {'text': 'Answer for $event'});
-          final lateVerbose = event == 'reasoning.delta';
-          remote.emit('reasoning.delta', {
-            'text': 'Partial reasoning. ',
-            'verbose': !lateVerbose,
-          });
+          remote.emit('reasoning.delta', {'text': 'Partial reasoning. '});
           remote.emit('message.interim', {
             'text': 'Answer for $event',
             'already_streamed': true,
           });
-          remote.emit(event, {
-            'text': 'Reasoning for $event',
-            'verbose': lateVerbose,
-          });
+          remote.emit(event, {'text': 'Reasoning for $event'});
           await tester.pump(const Duration(milliseconds: 300));
-          expect(
-            find.text('Reasoning for $event'),
-            lateVerbose ? findsOneWidget : findsNothing,
-          );
+          // While the turn runs, each reasoning block is its own row.
+          expect(find.text('Partial reasoning.'), findsOneWidget);
+          expect(find.text('Reasoning for $event'), findsOneWidget);
+
           remote.emit('message.complete', {
             'text': 'Answer for $event',
             'response_previewed': true,
@@ -670,17 +665,23 @@ void main() {
           final completedReasoning = event == 'reasoning.available'
               ? 'Reasoning for $event'
               : 'Partial reasoning. Reasoning for $event';
-          expect(
-            tester
-                .widget<GatewayReasoningCard>(find.byType(GatewayReasoningCard))
-                .initiallyExpanded,
-            lateVerbose,
-          );
-          if (!lateVerbose) {
-            await tester.tap(find.text('Reasoning'));
-            await tester.pumpAndSettle();
-          }
+
+          // The finished turn folds its reasoning above the answer.
+          expect(find.byType(ActivityRow), findsNothing);
+          await tester.tap(find.byType(TurnFoldLine));
+          await tester.pumpAndSettle();
+          expect(find.byType(ActivityRow), findsOneWidget);
           expect(find.text(completedReasoning), findsOneWidget);
+
+          await tester.tap(find.byType(ActivityRow));
+          await tester.pumpAndSettle();
+          expect(
+            find.descendant(
+              of: find.byType(ActivityDetailSheet),
+              matching: find.text(completedReasoning),
+            ),
+            findsOneWidget,
+          );
           expect(find.text('Partial reasoning. '), findsNothing);
           expect(
             find.text('Answer for $event', findRichText: true),
@@ -689,6 +690,72 @@ void main() {
         },
       );
     }
+
+    testWidgets(
+      'five more tool calls do not move what the user scrolled up to read',
+      (tester) async {
+        final remote = _ControlledRemotePrompt();
+        await _pumpChat(
+          tester,
+          client: _ControlledChatHttpClient(_longHistory()),
+          connectionId: 'no-jump',
+          sessionId: 'no-jump',
+          remoteSubmit: remote.submit,
+        );
+        await tester.enterText(find.byType(TextField), 'run a long turn');
+        await tester.tap(find.byTooltip('Send'));
+        await tester.pump();
+        await remote.started.future;
+        Map<String, dynamic> call(int index) => {
+          'tool_id': 'call-$index',
+          'name': 'terminal',
+          'args': {'command': 'flutter test'},
+        };
+        remote.emit('message.delta', {'text': 'Starting the work'});
+        remote.emit('tool.start', call(0));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        // Scroll up to read earlier text, as a user dragging the list would.
+        final controller = _chatListController(tester);
+        await tester.drag(find.byType(ListView).first, const Offset(0, 600));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(
+          controller.position.pixels,
+          lessThan(controller.position.maxScrollExtent - 200),
+        );
+        final reading = find.textContaining('message 1', findRichText: true);
+        final firstVisible = reading.first;
+        final before = tester.getTopLeft(firstVisible);
+        final offset = controller.position.pixels;
+        for (var index = 1; index <= 5; index++) {
+          remote.emit('tool.complete', call(index - 1));
+          remote.emit('tool.start', call(index));
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+
+        expect(controller.position.pixels, closeTo(offset, 0.01));
+        expect(tester.getTopLeft(firstVisible), before);
+        // The jump-to-latest control is there for the new activity.
+        expect(find.bySemanticsLabel('Go to end'), findsOneWidget);
+
+        // Each call added exactly one row at the end. The list lays rows out
+        // lazily, so reaching its real end takes a few jumps.
+        for (var attempt = 0; attempt < 6; attempt++) {
+          controller.jumpTo(controller.position.maxScrollExtent);
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+        expect(find.byType(ActivityRow), findsNWidgets(6));
+
+        remote.emit('tool.complete', call(5));
+        remote.emit('message.complete', {'text': 'Finished'});
+        remote.finish();
+        await tester.pumpAndSettle();
+      },
+    );
 
     testWidgets(
       'end action stays above compact composer, IME, and attachment panel',

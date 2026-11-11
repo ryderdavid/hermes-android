@@ -227,7 +227,6 @@
   "hermes_needs_your_input": "Hermes needs your input",
   "hermes_profile_optional": "Hermes profile (optional)",
   "hermes_profile_must_be_a_plain_profile_name_such_as": "Hermes profile must be a plain profile name such as \"sol\", not a path.",
-  "hermes_reasoning_details": "Hermes reasoning details",
   "hermes_recovery_is_unavailable": "Hermes recovery is unavailable: {error}",
   "hermes_stopped_recovery_safely_no_prompt_was_resent": "Hermes stopped recovery safely. No prompt was resent.",
   "hide_passphrase": "Hide passphrase",
@@ -448,7 +447,7 @@
   "settings": "Settings",
   "share_to_hermes": "Share to Hermes",
   "show_passphrase": "Show passphrase",
-  "show_tool_calls_thinking_and_message_metadata": "Show tool calls, thinking, and message metadata",
+  "show_message_metadata_description": "For debugging: shows each message's stored fields",
   "signal_messages": "Signal messages",
   "skills": "Skills",
   "skills_2": "Skills ({count})",
@@ -526,7 +525,6 @@
   "this_server_doesn_t_offer_background_recovery_chats_run_live": "This server doesn't offer background recovery — chats run live",
   "this_week": "This week",
   "titles_previews_and_models": "Titles, previews, and models",
-  "tool_activity": "Tool activity",
   "trigger_now": "Trigger now",
   "turn_completed": "Turn completed",
   "turn_failed": "Turn failed",
@@ -553,7 +551,7 @@
   "used_for_hosted_path_prefixes_and_for_the_settings_memory": "Used for hosted path prefixes and for the Settings, Memory, Skills and Cron tabs. Leave username/password blank for an open dashboard, or enable proxied mode when your reverse proxy injects dashboard auth.",
   "username_optional": "Username (optional)",
   "using": "Using {displayName}…",
-  "verbose_mode": "Verbose Mode",
+  "show_message_metadata": "Show message metadata",
   "voice": "Voice",
   "voice_setup_failed": "Voice setup failed: {error}",
   "waiting_for_your_input": "Waiting for your input",
@@ -572,7 +570,6 @@
   "e_g_0_9_or_every_2h": "e.g., 0 9 * * * or every 2h",
   "e_g_daily_backup": "e.g., Daily backup",
   "downloaded": "{filename} downloaded",
-  "activity_name_status": "{displayName}: {statusLabel}",
   "connection_status_label": "{connectionLabel} {label}",
   "example_host_hint": "192.168.1.50, 100.x.y.z, or hermes-machine.tailnet.ts.net",
   "example_profile_prefix_hint_full": "e.g. /profile/peter (proxy path before /api/ and /v1/)",
@@ -596,14 +593,6 @@
   "latest_label": "Latest",
   "new_count_indicator": "{count} new",
   "new_messages": "{count, plural, one{{count} new message} other{{count} new messages}}",
-  "activity_failed_summary": "{failures} failed • {total} total",
-  "activity_completed_summary": "{count} completed",
-  "tool_start_observed": "Start observed {time} (local)",
-  "tool_last_observed": "Last observed {time} (local)",
-  "tool_result_recorded": "Result recorded {time} (local)",
-  "tool_time_unavailable": "Time unavailable",
-  "hermes_is_using_a_tool": "Hermes is using a tool",
-  "hermes_is_using_tools": "Hermes is using {count} tools",
   "delegated_tasks_completed": "{count} delegated task(s) completed",
   "delegated_tasks_active": "{count} delegated task(s) active",
   "branch_main": "{label} · main",
@@ -786,5 +775,96 @@
         "type": "String"
       }
     }
-  }
+  },
+  "activity_thinking": "Thinking",
+  "activity_failed_label": "Failed: {summary}",
+  "@activity_failed_label": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "activity_state_running": "Running",
+  "activity_state_completed": "Completed",
+  "activity_state_failed": "Failed",
+  "activity_show_details": "Show details",
+  "activity_completed_in": "Completed in {duration}",
+  "@activity_completed_in": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "activity_failed_after": "Failed after {duration}",
+  "@activity_failed_after": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "turn_fold_worked_for": "Worked for {duration}",
+  "@turn_fold_worked_for": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "turn_fold_steps": "{count, plural, one{Worked through {count} step} other{Worked through {count} steps}}",
+  "turn_fold_failed": "{count, plural, one{{count} failed} other{{count} failed}}",
+  "turn_fold_show_steps": "Show steps",
+  "turn_fold_hide_steps": "Hide steps",
+  "duration_hours_minutes": "{hours}h {minutes}m",
+  "@duration_hours_minutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "duration_minutes_seconds": "{minutes}m {seconds}s",
+  "@duration_minutes_seconds": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "duration_seconds": "{seconds}s",
+  "@duration_seconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "activity_group_commands": "{count, plural, one{Ran {count} command} other{Ran {count} commands}}",
+  "activity_group_files_read": "{count, plural, one{Read {count} file} other{Read {count} files}}",
+  "activity_group_files_edited": "{count, plural, one{Edited {count} file} other{Edited {count} files}}",
+  "activity_group_searches": "{count, plural, one{Ran {count} search} other{Ran {count} searches}}",
+  "activity_group_generic": "{count, plural, one{Used {tool} {count} time} other{Used {tool} {count} times}}",
+  "@activity_group_generic": {
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activity_sheet_command_executions": "Command executions",
+  "activity_sheet_arguments": "Arguments",
+  "activity_sheet_output": "Output",
+  "activity_sheet_output_truncated": "Output truncated",
+  "activity_sheet_details": "Details"
 }

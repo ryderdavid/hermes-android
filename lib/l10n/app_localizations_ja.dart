@@ -812,9 +812,6 @@ class AppLocalizationsJa extends AppLocalizations {
       'Hermesプロファイルは「sol」のような単純な名前で入力してください。パスは使えません。';
 
   @override
-  String get hermes_reasoning_details => 'Hermesの推論の詳細';
-
-  @override
   String hermes_recovery_is_unavailable(Object error) {
     return 'Hermesの復旧は利用できません: $error';
   }
@@ -1569,8 +1566,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get show_passphrase => 'パスフレーズを表示';
 
   @override
-  String get show_tool_calls_thinking_and_message_metadata =>
-      'ツール呼び出し・思考・メッセージのメタデータを表示';
+  String get show_message_metadata_description =>
+      'デバッグ用: 各メッセージに保存されたフィールドを表示します';
 
   @override
   String get signal_messages => 'Signalのメッセージ';
@@ -1838,9 +1835,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get titles_previews_and_models => 'タイトル・プレビュー・モデル';
 
   @override
-  String get tool_activity => 'ツールのアクティビティ';
-
-  @override
   String get trigger_now => '今すぐ実行';
 
   @override
@@ -1934,7 +1928,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get verbose_mode => '詳細モード';
+  String get show_message_metadata => 'メッセージのメタデータを表示';
 
   @override
   String get voice => '音声';
@@ -1995,11 +1989,6 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String downloaded(Object filename) {
     return '$filenameをダウンロードしました';
-  }
-
-  @override
-  String activity_name_status(Object displayName, Object statusLabel) {
-    return '$displayName: $statusLabel';
   }
 
   @override
@@ -2126,42 +2115,6 @@ class AppLocalizationsJa extends AppLocalizations {
       other: '新着メッセージ$count件',
     );
     return '$_temp0';
-  }
-
-  @override
-  String activity_failed_summary(Object failures, Object total) {
-    return '$failures件失敗 • 全$total件';
-  }
-
-  @override
-  String activity_completed_summary(Object count) {
-    return '$count件完了';
-  }
-
-  @override
-  String tool_start_observed(Object time) {
-    return '開始を観測 $time（現地時刻）';
-  }
-
-  @override
-  String tool_last_observed(Object time) {
-    return '最終観測 $time（現地時刻）';
-  }
-
-  @override
-  String tool_result_recorded(Object time) {
-    return '結果を記録 $time（現地時刻）';
-  }
-
-  @override
-  String get tool_time_unavailable => '時刻は不明';
-
-  @override
-  String get hermes_is_using_a_tool => 'Hermesがツールを使用中';
-
-  @override
-  String hermes_is_using_tools(Object count) {
-    return 'Hermesが$count個のツールを使用中';
   }
 
   @override
@@ -2683,4 +2636,145 @@ class AppLocalizationsJa extends AppLocalizations {
   String agent_sudo_enable_biometric_error(String code) {
     return 'Biometric check failed ($code) — re-enter the SUDO password to enable instead.';
   }
+
+  @override
+  String get activity_thinking => '思考中';
+
+  @override
+  String activity_failed_label(String summary) {
+    return '失敗: $summary';
+  }
+
+  @override
+  String get activity_state_running => '実行中';
+
+  @override
+  String get activity_state_completed => '完了';
+
+  @override
+  String get activity_state_failed => '失敗';
+
+  @override
+  String get activity_show_details => '詳細を表示';
+
+  @override
+  String activity_completed_in(String duration) {
+    return '$durationで完了';
+  }
+
+  @override
+  String activity_failed_after(String duration) {
+    return '$duration後に失敗';
+  }
+
+  @override
+  String turn_fold_worked_for(String duration) {
+    return '$duration作業しました';
+  }
+
+  @override
+  String turn_fold_steps(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countステップを実行',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String turn_fold_failed(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件失敗',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get turn_fold_show_steps => 'ステップを表示';
+
+  @override
+  String get turn_fold_hide_steps => 'ステップを非表示';
+
+  @override
+  String duration_hours_minutes(int hours, int minutes) {
+    return '$hours時間$minutes分';
+  }
+
+  @override
+  String duration_minutes_seconds(int minutes, int seconds) {
+    return '$minutes分$seconds秒';
+  }
+
+  @override
+  String duration_seconds(int seconds) {
+    return '$seconds秒';
+  }
+
+  @override
+  String activity_group_commands(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'コマンドを$count件実行',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_read(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ファイルを$count件読み取り',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_edited(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ファイルを$count件編集',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_searches(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '検索を$count件実行',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_generic(String tool, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$toolを$count回使用',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activity_sheet_command_executions => 'コマンドの実行';
+
+  @override
+  String get activity_sheet_arguments => '引数';
+
+  @override
+  String get activity_sheet_output => '出力';
+
+  @override
+  String get activity_sheet_output_truncated => '出力を一部省略';
+
+  @override
+  String get activity_sheet_details => '詳細';
 }

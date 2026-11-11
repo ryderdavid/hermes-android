@@ -831,9 +831,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Профиль Hermes должен быть простым именем профиля, например «sol», а не путём.';
 
   @override
-  String get hermes_reasoning_details => 'Детали рассуждений Hermes';
-
-  @override
   String hermes_recovery_is_unavailable(Object error) {
     return 'Восстановление Hermes недоступно: $error';
   }
@@ -1605,8 +1602,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get show_passphrase => 'Показать парольную фразу';
 
   @override
-  String get show_tool_calls_thinking_and_message_metadata =>
-      'Показывать вызовы инструментов, рассуждения и метаданные сообщений';
+  String get show_message_metadata_description =>
+      'Для отладки: показывает сохранённые поля каждого сообщения';
 
   @override
   String get signal_messages => 'Сообщения Signal';
@@ -1886,9 +1883,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get titles_previews_and_models => 'Заголовки, предпросмотры и модели';
 
   @override
-  String get tool_activity => 'Активность инструментов';
-
-  @override
   String get trigger_now => 'Запустить сейчас';
 
   @override
@@ -1984,7 +1978,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get verbose_mode => 'Подробный режим';
+  String get show_message_metadata => 'Показывать метаданные сообщений';
 
   @override
   String get voice => 'Голос';
@@ -2045,11 +2039,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String downloaded(Object filename) {
     return '$filename скачан';
-  }
-
-  @override
-  String activity_name_status(Object displayName, Object statusLabel) {
-    return '$displayName: $statusLabel';
   }
 
   @override
@@ -2188,42 +2177,6 @@ class AppLocalizationsRu extends AppLocalizations {
       one: '$count новое сообщение',
     );
     return '$_temp0';
-  }
-
-  @override
-  String activity_failed_summary(Object failures, Object total) {
-    return '$failures с ошибкой • всего $total';
-  }
-
-  @override
-  String activity_completed_summary(Object count) {
-    return '$count завершено';
-  }
-
-  @override
-  String tool_start_observed(Object time) {
-    return 'Начало замечено в $time (местное время)';
-  }
-
-  @override
-  String tool_last_observed(Object time) {
-    return 'Последнее наблюдение в $time (местное время)';
-  }
-
-  @override
-  String tool_result_recorded(Object time) {
-    return 'Результат записан в $time (местное время)';
-  }
-
-  @override
-  String get tool_time_unavailable => 'Время неизвестно';
-
-  @override
-  String get hermes_is_using_a_tool => 'Hermes использует инструмент';
-
-  @override
-  String hermes_is_using_tools(Object count) {
-    return 'Hermes использует $count инструментов';
   }
 
   @override
@@ -2756,4 +2709,166 @@ class AppLocalizationsRu extends AppLocalizations {
   String agent_sudo_enable_biometric_error(String code) {
     return 'Biometric check failed ($code) — re-enter the SUDO password to enable instead.';
   }
+
+  @override
+  String get activity_thinking => 'Размышление';
+
+  @override
+  String activity_failed_label(String summary) {
+    return 'Ошибка: $summary';
+  }
+
+  @override
+  String get activity_state_running => 'Выполняется';
+
+  @override
+  String get activity_state_completed => 'Завершено';
+
+  @override
+  String get activity_state_failed => 'Ошибка';
+
+  @override
+  String get activity_show_details => 'Показать подробности';
+
+  @override
+  String activity_completed_in(String duration) {
+    return 'Завершено за $duration';
+  }
+
+  @override
+  String activity_failed_after(String duration) {
+    return 'Ошибка через $duration';
+  }
+
+  @override
+  String turn_fold_worked_for(String duration) {
+    return 'Работа заняла $duration';
+  }
+
+  @override
+  String turn_fold_steps(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выполнено $count шага',
+      many: 'Выполнено $count шагов',
+      few: 'Выполнено $count шага',
+      one: 'Выполнен $count шаг',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String turn_fold_failed(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ошибки',
+      many: '$count ошибок',
+      few: '$count ошибки',
+      one: '$count ошибка',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get turn_fold_show_steps => 'Показать шаги';
+
+  @override
+  String get turn_fold_hide_steps => 'Скрыть шаги';
+
+  @override
+  String duration_hours_minutes(int hours, int minutes) {
+    return '$hours ч $minutes мин';
+  }
+
+  @override
+  String duration_minutes_seconds(int minutes, int seconds) {
+    return '$minutes мин $seconds с';
+  }
+
+  @override
+  String duration_seconds(int seconds) {
+    return '$seconds с';
+  }
+
+  @override
+  String activity_group_commands(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выполнено $count команды',
+      many: 'Выполнено $count команд',
+      few: 'Выполнено $count команды',
+      one: 'Выполнена $count команда',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_read(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Прочитано $count файла',
+      many: 'Прочитано $count файлов',
+      few: 'Прочитано $count файла',
+      one: 'Прочитан $count файл',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_edited(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Изменено $count файла',
+      many: 'Изменено $count файлов',
+      few: 'Изменено $count файла',
+      one: 'Изменён $count файл',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_searches(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выполнено $count поиска',
+      many: 'Выполнено $count поисков',
+      few: 'Выполнено $count поиска',
+      one: 'Выполнен $count поиск',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_generic(String tool, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$tool: $count вызова',
+      many: '$tool: $count вызовов',
+      few: '$tool: $count вызова',
+      one: '$tool: $count вызов',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activity_sheet_command_executions => 'Выполнение команд';
+
+  @override
+  String get activity_sheet_arguments => 'Аргументы';
+
+  @override
+  String get activity_sheet_output => 'Вывод';
+
+  @override
+  String get activity_sheet_output_truncated => 'Вывод сокращён';
+
+  @override
+  String get activity_sheet_details => 'Подробности';
 }

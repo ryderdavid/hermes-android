@@ -70,6 +70,9 @@ const List<String> _sensitiveSubstrings = [
   'access_key',
 ];
 
+/// Whether an argument named [key] may hold a secret and must not be shown.
+bool isSensitiveToolArgKey(String key) => _isSensitiveKey(key);
+
 bool _isSensitiveKey(String key) {
   final normalized = key.toLowerCase();
   return _sensitiveSubstrings.any(normalized.contains);

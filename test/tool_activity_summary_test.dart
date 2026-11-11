@@ -94,9 +94,9 @@ void main() {
       );
       expect(
         toolActivitySummary('terminal', {
-          'command': 'grep -rn "GatewayActivityCard" lib/',
+          'command': 'grep -rn "ActivityRow" lib/',
         }),
-        'searching lib/ for "GatewayActivityCard"',
+        'searching lib/ for "ActivityRow"',
       );
       expect(
         toolActivitySummary('terminal', {

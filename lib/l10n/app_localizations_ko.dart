@@ -809,9 +809,6 @@ class AppLocalizationsKo extends AppLocalizations {
       'Hermes 프로필은 경로가 아닌 \"sol\"과 같은 일반적인 프로필 이름이어야 합니다.';
 
   @override
-  String get hermes_reasoning_details => 'Hermes 추론 세부 정보';
-
-  @override
   String hermes_recovery_is_unavailable(Object error) {
     return 'Hermes 복구를 사용할 수 없습니다: $error';
   }
@@ -1567,8 +1564,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get show_passphrase => '패스프레이즈 표시';
 
   @override
-  String get show_tool_calls_thinking_and_message_metadata =>
-      '도구 호출, 추론 및 메시지 메타데이터 표시';
+  String get show_message_metadata_description => '디버깅용: 각 메시지에 저장된 필드를 표시합니다';
 
   @override
   String get signal_messages => 'Signal 메시지';
@@ -1839,9 +1835,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get titles_previews_and_models => '제목, 미리보기 및 모델';
 
   @override
-  String get tool_activity => '도구 활동';
-
-  @override
   String get trigger_now => '지금 트리거';
 
   @override
@@ -1935,7 +1928,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get verbose_mode => '상세 모드';
+  String get show_message_metadata => '메시지 메타데이터 표시';
 
   @override
   String get voice => '음성';
@@ -1996,11 +1989,6 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String downloaded(Object filename) {
     return '$filename 다운로드 완료';
-  }
-
-  @override
-  String activity_name_status(Object displayName, Object statusLabel) {
-    return '$displayName: $statusLabel';
   }
 
   @override
@@ -2127,42 +2115,6 @@ class AppLocalizationsKo extends AppLocalizations {
       other: '새 메시지 $count개',
     );
     return '$_temp0';
-  }
-
-  @override
-  String activity_failed_summary(Object failures, Object total) {
-    return '$failures개 실패 • 총 $total개';
-  }
-
-  @override
-  String activity_completed_summary(Object count) {
-    return '$count개 완료';
-  }
-
-  @override
-  String tool_start_observed(Object time) {
-    return '시작 관측 $time (현지 시간)';
-  }
-
-  @override
-  String tool_last_observed(Object time) {
-    return '마지막 관측 $time (현지 시간)';
-  }
-
-  @override
-  String tool_result_recorded(Object time) {
-    return '결과 기록 $time (현지 시간)';
-  }
-
-  @override
-  String get tool_time_unavailable => '시간 정보 없음';
-
-  @override
-  String get hermes_is_using_a_tool => 'Hermes가 도구를 사용 중입니다';
-
-  @override
-  String hermes_is_using_tools(Object count) {
-    return 'Hermes가 $count개의 도구를 사용 중입니다';
   }
 
   @override
@@ -2684,4 +2636,145 @@ class AppLocalizationsKo extends AppLocalizations {
   String agent_sudo_enable_biometric_error(String code) {
     return 'Biometric check failed ($code) — re-enter the SUDO password to enable instead.';
   }
+
+  @override
+  String get activity_thinking => '생각 중';
+
+  @override
+  String activity_failed_label(String summary) {
+    return '실패: $summary';
+  }
+
+  @override
+  String get activity_state_running => '실행 중';
+
+  @override
+  String get activity_state_completed => '완료';
+
+  @override
+  String get activity_state_failed => '실패';
+
+  @override
+  String get activity_show_details => '세부정보 보기';
+
+  @override
+  String activity_completed_in(String duration) {
+    return '$duration 만에 완료';
+  }
+
+  @override
+  String activity_failed_after(String duration) {
+    return '$duration 후 실패';
+  }
+
+  @override
+  String turn_fold_worked_for(String duration) {
+    return '$duration 동안 작업함';
+  }
+
+  @override
+  String turn_fold_steps(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count단계 수행',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String turn_fold_failed(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count건 실패',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get turn_fold_show_steps => '단계 표시';
+
+  @override
+  String get turn_fold_hide_steps => '단계 숨기기';
+
+  @override
+  String duration_hours_minutes(int hours, int minutes) {
+    return '$hours시간 $minutes분';
+  }
+
+  @override
+  String duration_minutes_seconds(int minutes, int seconds) {
+    return '$minutes분 $seconds초';
+  }
+
+  @override
+  String duration_seconds(int seconds) {
+    return '$seconds초';
+  }
+
+  @override
+  String activity_group_commands(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '명령 $count개 실행',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_read(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '파일 $count개 읽음',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_edited(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '파일 $count개 수정',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_searches(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '검색 $count회 실행',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_generic(String tool, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$tool $count회 사용',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activity_sheet_command_executions => '명령 실행';
+
+  @override
+  String get activity_sheet_arguments => '인수';
+
+  @override
+  String get activity_sheet_output => '출력';
+
+  @override
+  String get activity_sheet_output_truncated => '출력이 잘림';
+
+  @override
+  String get activity_sheet_details => '세부정보';
 }

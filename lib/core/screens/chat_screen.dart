@@ -44,14 +44,15 @@ import '../models/gateway_insight.dart';
 import '../models/gateway_sensitive_prompt.dart';
 import '../models/gateway_turn_contract.dart';
 import '../models/projects_tree_overview.dart';
-import '../services/tool_activity_group_pins.dart';
+import '../services/turn_fold_pins.dart';
 import '../utils/chat_display_items.dart';
 import '../utils/chat_history_scroll.dart';
 import '../utils/message_content.dart';
 import '../utils/responsive.dart';
 import '../utils/turn_recovery_fallback.dart';
 import 'files_screen.dart';
-import '../widgets/gateway_activity_card.dart';
+import '../widgets/activity_detail_sheet.dart';
+import '../widgets/activity_row.dart';
 import '../widgets/chat_context_header.dart';
 import '../widgets/markdown_code_block.dart';
 import '../widgets/chat_composer.dart';
@@ -61,6 +62,7 @@ import '../widgets/gateway_clarify_dialog.dart';
 import '../widgets/gateway_insight_card.dart';
 import '../widgets/gateway_sensitive_prompt_dialog.dart';
 import '../widgets/media_artifact_card.dart';
+import '../widgets/turn_fold.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
 import '../chat_icons/chat_icon_store.dart';
@@ -376,9 +378,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   bool _loadingOlder = false;
   final List<GatewayToolActivity> _toolActivities = [];
 
-  /// Expansion choices for tool-activity cards, keyed by group id so they
-  /// survive the list reordering and row eviction that a streaming turn causes.
-  final ToolActivityGroupPins _toolActivityPins = ToolActivityGroupPins();
+  /// Which finished turns the user unfolded or re-folded, keyed by turn id so
+  /// the choice survives row eviction and a history refresh.
+  final TurnFoldPins _turnFoldPins = TurnFoldPins();
   final List<GatewaySubagentActivity> _subagentActivities = [];
   final Map<String, GatewayNotification> _gatewayNotifications = {};
   final Map<String, Timer> _notificationTimers = {};
@@ -2965,7 +2967,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         final hadContent =
             _messages.isNotEmpty &&
             _messages.last['role'] == 'assistant' &&
-            (_messages.last['content']?.toString().isNotEmpty ?? false);
+            ((_messages.last['content']?.toString().isNotEmpty ?? false) ||
+                // Earlier text was sealed above a tool row (D2).
+                _messages.last['_gateway_interim_boundary'] == true);
         // Remove the placeholder assistant message
         setState(() {
           if (_messages.isNotEmpty && _messages.last['role'] == 'assistant') {
@@ -3373,6 +3377,95 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
+  /// Notes when a turn starts and ends on this device, so a turn that
+  /// finished in this session can state how long it worked before the server
+  /// history (which carries its own timestamps) replaces the local messages.
+  @override
+  void setState(VoidCallback fn) {
+    final wasStreaming = _streaming;
+    super.setState(fn);
+    if (wasStreaming != _streaming) _stampObservedTurnTime(started: _streaming);
+  }
+
+  void _stampObservedTurnTime({required bool started}) {
+    for (var index = _messages.length - 1; index >= 0; index--) {
+      final message = _messages[index];
+      final isUser = message['role'] == 'user';
+      if (started) {
+        if (!isUser) continue;
+        if (message['timestamp'] == null) {
+          message['_turn_started_at'] ??= DateTime.now();
+        }
+        return;
+      }
+      if (isUser) return;
+      if (message['role'] != 'assistant' ||
+          (message['content']?.toString() ?? '').isEmpty) {
+        continue;
+      }
+      if (message['timestamp'] == null) {
+        message['_turn_ended_at'] = DateTime.now();
+      }
+      return;
+    }
+  }
+
+  /// Where a tool call that is starting now sits in the chat: after the last
+  /// message that renders something (a user message, a stored tool result, or
+  /// an assistant message with text or reasoning).
+  ///
+  /// With [seal], an assistant message that is still streaming is closed
+  /// through the interim-boundary path first, exactly as `message.interim`
+  /// does, so text that arrives after the tool starts a new message below
+  /// the tool's row instead of growing the one above it.
+  int? _anchorForToolActivity({required bool seal}) {
+    for (var index = _messages.length - 1; index >= 0; index--) {
+      final message = _messages[index];
+      final role = message['role'];
+      if (role == 'user' || isToolResultMessage(message)) return index;
+      if (role != 'assistant' && role != 'agent') continue;
+      final hasText = (message['content']?.toString() ?? '').trim().isNotEmpty;
+      final hasReasoning = (message['_gateway_reasoning']?.toString() ?? '')
+          .trim()
+          .isNotEmpty;
+      if (!hasText && !hasReasoning) continue;
+      if (seal &&
+          _streaming &&
+          index == _messages.length - 1 &&
+          message['_gateway_pending_response'] == true &&
+          // A recovery-projected message is rewritten whole from the turn
+          // state; it has no deltas to split.
+          message['_gateway_client_turn_id'] == null) {
+        message['_gateway_interim'] = true;
+        message['_gateway_tool_sealed'] = true;
+        message['_gateway_pending_response'] = false;
+        _messages.add({
+          'role': 'assistant',
+          'content': '',
+          '_gateway_pending_response': true,
+          '_gateway_interim_boundary': true,
+        });
+      }
+      return index;
+    }
+    return null;
+  }
+
+  /// The message a tool start sealed just before [placeholder], if
+  /// [placeholder] is the still-empty message that followed it.
+  Map<String, dynamic>? _toolSealedMessageBefore(
+    Map<String, dynamic> placeholder,
+  ) {
+    if ((placeholder['content']?.toString() ?? '').isNotEmpty ||
+        (placeholder['_gateway_reasoning']?.toString() ?? '').isNotEmpty) {
+      return null;
+    }
+    final index = _messages.lastIndexOf(placeholder);
+    if (index < 1) return null;
+    final previous = _messages[index - 1];
+    return previous['_gateway_tool_sealed'] == true ? previous : null;
+  }
+
   void _handleDesktopGatewayEvent(StreamEvent event, int responseGeneration) {
     if (!mounted || responseGeneration != _responseGeneration) return;
     final reasoning = GatewayReasoningUpdate.fromGatewayEvent(
@@ -3382,8 +3475,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (reasoning != null) {
       setState(() {
         _gatewayTurnStatus = null;
-        final assistant = _lastAssistantMessage();
+        var assistant = _lastAssistantMessage();
         if (assistant == null) return;
+        // The full text of a thought whose deltas a tool start already
+        // sealed replaces that thought, not the empty message after it.
+        if (reasoning.mode == GatewayReasoningEventMode.replace) {
+          final sealed = _toolSealedMessageBefore(assistant);
+          final sealedText =
+              sealed?['_gateway_reasoning']?.toString().trim() ?? '';
+          final fullText = reasoning.text.trim();
+          if (sealedText.isNotEmpty &&
+              (fullText.startsWith(sealedText) ||
+                  sealedText.startsWith(fullText))) {
+            assistant = sealed!;
+          }
+        }
         final current = assistant['_gateway_reasoning']?.toString() ?? '';
         assistant['_gateway_reasoning'] = reasoning.applyTo(current);
         assistant['_gateway_reasoning_verbose'] = reasoning.verbose;
@@ -3458,6 +3564,22 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         final assistant = _lastAssistantMessage();
         if (assistant == null) return;
         final current = assistant['content']?.toString() ?? '';
+        // A tool start may already have sealed this same text (D2). Sealing
+        // it again would repeat it in the message below the tool's row.
+        final sealed = _toolSealedMessageBefore(assistant);
+        if (sealed != null) {
+          final sealedText = sealed['content']?.toString() ?? '';
+          final safeInterim = interim.replaceAll('\u0000', '');
+          if (sealedText.isNotEmpty && safeInterim.isNotEmpty) {
+            if (sealedText == safeInterim || sealedText.endsWith(safeInterim)) {
+              return;
+            }
+            if (safeInterim.startsWith(sealedText)) {
+              sealed['content'] = safeInterim;
+              return;
+            }
+          }
+        }
         final transition = GatewayInterimTransition.resolve(
           currentText: current,
           interimText: interim,
@@ -4623,14 +4745,29 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               activity.name.toLowerCase() == update.name.toLowerCase(),
         );
       }
+      // The row sits after whatever the chat shows when the call is first
+      // seen (D2). The call starting is what closes a message that is still
+      // streaming, and moves the row below text that arrived meanwhile.
+      final starts =
+          eventType == 'tool.start' &&
+          update.phase == GatewayToolActivityPhase.running &&
+          (idx < 0 ||
+              _toolActivities[idx].phase ==
+                  GatewayToolActivityPhase.generating);
+      final anchor = _anchorForToolActivity(seal: starts);
       if (idx >= 0) {
         final previous = _toolActivities[idx];
-        _toolActivities[idx] = previous.merge(update);
+        final merged = previous.merge(update);
+        final earlier = merged.anchorMessageIndex;
+        _toolActivities[idx] =
+            starts && anchor != null && (earlier == null || anchor > earlier)
+            ? merged.anchoredAt(anchor)
+            : merged;
         if (previous.toolId == null && update.toolId != null) {
-          _toolActivityPins.alias(previous.identity, 'tool:${update.toolId}');
+          _turnFoldPins.alias(previous.identity, 'tool:${update.toolId}');
         }
       } else {
-        _toolActivities.add(update);
+        _toolActivities.add(update.anchoredAt(anchor));
       }
       _gatewayTurnStatus = GatewayTurnStatus(
         kind: 'tool',
@@ -5034,17 +5171,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       toolActivities: _toolActivities,
       subagentActivities: _subagentActivities,
       notices: _gatewayNotices,
-      verbose: _verboseMode,
+      turnActive: _streaming,
+      foldChoice: (turnId) => _turnFoldPins[turnId],
     );
 
-    // The stored row is the durable anchor once available. Carry a pin made
-    // while this group was still streaming across the tool-id → row-id handoff.
-    for (final group in displayMessages.whereType<ChatToolActivityGroup>()) {
-      final toolId = group.activities.first.toolId;
-      if (group.id.startsWith('message:') &&
-          toolId != null &&
-          toolId.isNotEmpty) {
-        _toolActivityPins.alias('tool:$toolId', group.id);
+    // The stored user message is the turn's durable id once available. Carry
+    // a choice made while the turn was only known by its first tool call
+    // across that handoff.
+    for (final fold in displayMessages.whereType<ChatTurnFold>()) {
+      for (final alias in fold.aliases) {
+        _turnFoldPins.alias(alias, fold.id);
       }
     }
 
@@ -5076,29 +5212,51 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             final item =
                 displayMessages[index - (_historyWindow.hasOlder ? 1 : 0)];
 
-            if (item is ChatToolActivityGroup) {
-              return GatewayActivityCard(
-                key: ValueKey<String>('tool-activity-${item.id}'),
-                activities: item.activities,
-                verbose: _verboseMode,
-                pinnedExpansion: _toolActivityPins[item.id],
-                onPinChanged: (expanded) {
-                  _toolActivityPins.pin(item.id, expanded);
-                  final toolId = item.activities.first.toolId;
-                  if (toolId != null && toolId.isNotEmpty) {
-                    _toolActivityPins.alias(item.id, 'tool:$toolId');
-                  }
-                },
+            if (item is ChatTurnFold) {
+              return TurnFoldLine(
+                key: ValueKey<String>('turn-fold-${item.id}'),
+                duration: item.duration,
+                stepCount: item.stepCount,
+                failureCount: item.failureCount,
+                unfolded: item.unfolded,
+                onTap: () =>
+                    setState(() => _turnFoldPins.pin(item.id, !item.unfolded)),
+              );
+            }
+            if (item is ChatActivityStep) {
+              void open() => showActivityDetailSheet(
+                context,
+                step: item,
+                messages: _messages,
+              );
+              final key = ValueKey<String>('activity-${item.id}');
+              return item.isReasoning
+                  ? ActivityRow.reasoning(
+                      key: key,
+                      headline: item.reasoningHeadline,
+                      running: item.isRunning,
+                      onTap: open,
+                    )
+                  : ActivityRow.tool(
+                      key: key,
+                      activity: item.activity!,
+                      onTap: open,
+                    );
+            }
+            if (item is ChatActivityGroupItem) {
+              return ActivityRow.group(
+                key: ValueKey<String>('activity-${item.id}'),
+                first: item.steps.first.activity!,
+                count: item.steps.length,
+                onTap: () => showActivityDetailSheet(
+                  context,
+                  group: item,
+                  messages: _messages,
+                ),
               );
             }
             if (item is List<GatewaySubagentActivity>) {
               return GatewaySubagentCard(activities: item);
-            }
-            if (item is ChatReasoningItem) {
-              return GatewayReasoningCard(
-                text: item.text,
-                initiallyExpanded: item.initiallyExpanded,
-              );
             }
             if (item is GatewayNotice) {
               return GatewayNoticeCard(notice: item);

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hermes_android/core/models/gateway_activity.dart';
-import 'package:hermes_android/core/widgets/gateway_activity_card.dart';
+import 'package:hermes_android/core/widgets/activity_row.dart';
 import 'package:hermes_android/l10n/app_localizations.dart';
 
-/// Demo run: three running tool calls in one activity card, rendered exactly
-/// as the chat shows them — run with
+/// Demo run: three running tool calls as activity rows, rendered exactly as
+/// the chat shows them — run with
 /// `flutter test test/tool_card_summary_demo_test.dart`.
 void main() {
   testWidgets('demo: three tool rows with semantic summaries', (tester) async {
@@ -27,7 +27,7 @@ void main() {
       GatewayToolActivity.fromGatewayEvent('tool.start', {
         'tool_id': 'call-3',
         'name': 'search_files',
-        'args': {'pattern': 'GatewayActivityCard'},
+        'args': {'pattern': 'ActivityRow'},
       })!,
     ];
 
@@ -39,7 +39,13 @@ void main() {
           body: Center(
             child: SizedBox(
               width: 390, // phone-width surface
-              child: GatewayActivityCard(activities: activities),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final activity in activities)
+                    ActivityRow.tool(activity: activity),
+                ],
+              ),
             ),
           ),
         ),
@@ -54,9 +60,9 @@ void main() {
         .toList();
     // ignore: avoid_print — this test exists to show the rendered rows.
     print(
-      '=== RENDERED CARD (390dp wide, 3 running tools, auto-expanded) ===\n'
+      '=== RENDERED ROWS (390dp wide, 3 running tools) ===\n'
       '${rendered.map((line) => '  | $line').join('\n')}\n'
-      '==================================================================',
+      '===================================================',
     );
 
     expect(
@@ -65,12 +71,10 @@ void main() {
       ),
       findsOneWidget,
     );
+    // A sentence summary stands on its own; the icon says it is a command.
+    expect(find.text('Running a speed test'), findsOneWidget);
     expect(
-      find.textContaining('Terminal: running a speed test'),
-      findsOneWidget,
-    );
-    expect(
-      find.textContaining('Search files: GatewayActivityCard'),
+      find.textContaining('Search files: ActivityRow'),
       findsOneWidget,
     );
   });

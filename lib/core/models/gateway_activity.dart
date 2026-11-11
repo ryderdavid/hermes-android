@@ -56,6 +56,14 @@ class GatewayToolActivity {
   final DateTime? lastActivityAt;
   final GatewayToolTimeSource? lastActivityTimeSource;
 
+  /// Where a live call sits among the chat's messages: the index of the last
+  /// message that renders something (a user message, a stored tool result,
+  /// or an assistant message with text or reasoning) when the call started.
+  /// The chat places the call's row after that message until the server has
+  /// stored the result, after which the stored order applies. `null` for
+  /// stored calls and for calls with no known position.
+  final int? anchorMessageIndex;
+
   GatewayToolActivity({
     required this.name,
     required this.phase,
@@ -68,6 +76,7 @@ class GatewayToolActivity {
     this.startedAt,
     this.lastActivityAt,
     this.lastActivityTimeSource,
+    this.anchorMessageIndex,
   }) : identity =
            identity ??
            (toolId != null && toolId.trim().isNotEmpty
@@ -80,7 +89,10 @@ class GatewayToolActivity {
 
   bool get isFailed => phase == GatewayToolActivityPhase.failed;
 
-  String get displayName {
+  String get displayName => displayNameOf(name);
+
+  /// A tool's raw name as words: `read_file` becomes "Read file".
+  static String displayNameOf(String name) {
     final words = name.replaceAll(RegExp(r'[_-]+'), ' ').trim();
     if (words.isEmpty) return 'Tool';
     return words[0].toUpperCase() + words.substring(1);
@@ -249,8 +261,25 @@ class GatewayToolActivity {
       lastActivityAt: update.lastActivityAt ?? lastActivityAt,
       lastActivityTimeSource:
           update.lastActivityTimeSource ?? lastActivityTimeSource,
+      anchorMessageIndex: anchorMessageIndex ?? update.anchorMessageIndex,
     );
   }
+
+  /// This activity placed after message [index] of the chat.
+  GatewayToolActivity anchoredAt(int? index) => GatewayToolActivity(
+    toolId: toolId,
+    identity: identity,
+    name: name,
+    phase: phase,
+    detail: detail,
+    summary: summary,
+    durationSeconds: durationSeconds,
+    emoji: emoji,
+    startedAt: startedAt,
+    lastActivityAt: lastActivityAt,
+    lastActivityTimeSource: lastActivityTimeSource,
+    anchorMessageIndex: index,
+  );
 
   static GatewayToolActivityPhase _phaseFor(
     String eventType,

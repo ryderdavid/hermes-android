@@ -806,9 +806,6 @@ class AppLocalizationsZh extends AppLocalizations {
       'Hermes 配置档案必须是纯粹的档案名称（例如 “sol”），而不能是路径。';
 
   @override
-  String get hermes_reasoning_details => 'Hermes 推理详情';
-
-  @override
   String hermes_recovery_is_unavailable(Object error) {
     return 'Hermes 恢复不可用：$error';
   }
@@ -1555,8 +1552,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get show_passphrase => '显示密码短语';
 
   @override
-  String get show_tool_calls_thinking_and_message_metadata =>
-      '显示工具调用、思考过程和消息元数据';
+  String get show_message_metadata_description => '用于调试：显示每条消息存储的字段';
 
   @override
   String get signal_messages => 'Signal 消息';
@@ -1823,9 +1819,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get titles_previews_and_models => '标题、预览与模型';
 
   @override
-  String get tool_activity => '工具活动';
-
-  @override
   String get trigger_now => '立即触发';
 
   @override
@@ -1917,7 +1910,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get verbose_mode => '详细模式';
+  String get show_message_metadata => '显示消息元数据';
 
   @override
   String get voice => '语音';
@@ -1978,11 +1971,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String downloaded(Object filename) {
     return '已下载 $filename';
-  }
-
-  @override
-  String activity_name_status(Object displayName, Object statusLabel) {
-    return '$displayName：$statusLabel';
   }
 
   @override
@@ -2109,42 +2097,6 @@ class AppLocalizationsZh extends AppLocalizations {
       other: '$count 条新消息',
     );
     return '$_temp0';
-  }
-
-  @override
-  String activity_failed_summary(Object failures, Object total) {
-    return '$failures 个失败 • 共 $total 个';
-  }
-
-  @override
-  String activity_completed_summary(Object count) {
-    return '已完成 $count 个';
-  }
-
-  @override
-  String tool_start_observed(Object time) {
-    return '观察到开始 $time（本地时间）';
-  }
-
-  @override
-  String tool_last_observed(Object time) {
-    return '最后观察时间 $time（本地时间）';
-  }
-
-  @override
-  String tool_result_recorded(Object time) {
-    return '结果记录时间 $time（本地时间）';
-  }
-
-  @override
-  String get tool_time_unavailable => '时间不可用';
-
-  @override
-  String get hermes_is_using_a_tool => 'Hermes 正在使用工具';
-
-  @override
-  String hermes_is_using_tools(Object count) {
-    return 'Hermes 正在使用 $count 个工具';
   }
 
   @override
@@ -2662,6 +2614,147 @@ class AppLocalizationsZh extends AppLocalizations {
   String agent_sudo_enable_biometric_error(String code) {
     return 'Biometric check failed ($code) — re-enter the SUDO password to enable instead.';
   }
+
+  @override
+  String get activity_thinking => '思考中';
+
+  @override
+  String activity_failed_label(String summary) {
+    return '失败：$summary';
+  }
+
+  @override
+  String get activity_state_running => '运行中';
+
+  @override
+  String get activity_state_completed => '已完成';
+
+  @override
+  String get activity_state_failed => '失败';
+
+  @override
+  String get activity_show_details => '显示详情';
+
+  @override
+  String activity_completed_in(String duration) {
+    return '用时 $duration 完成';
+  }
+
+  @override
+  String activity_failed_after(String duration) {
+    return '$duration 后失败';
+  }
+
+  @override
+  String turn_fold_worked_for(String duration) {
+    return '已工作 $duration';
+  }
+
+  @override
+  String turn_fold_steps(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已执行 $count 个步骤',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String turn_fold_failed(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个失败',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get turn_fold_show_steps => '显示步骤';
+
+  @override
+  String get turn_fold_hide_steps => '隐藏步骤';
+
+  @override
+  String duration_hours_minutes(int hours, int minutes) {
+    return '$hours小时$minutes分';
+  }
+
+  @override
+  String duration_minutes_seconds(int minutes, int seconds) {
+    return '$minutes分$seconds秒';
+  }
+
+  @override
+  String duration_seconds(int seconds) {
+    return '$seconds秒';
+  }
+
+  @override
+  String activity_group_commands(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已运行 $count 条命令',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_read(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已读取 $count 个文件',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_edited(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已编辑 $count 个文件',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_searches(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已执行 $count 次搜索',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_generic(String tool, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已使用 $tool $count 次',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activity_sheet_command_executions => '命令执行';
+
+  @override
+  String get activity_sheet_arguments => '参数';
+
+  @override
+  String get activity_sheet_output => '输出';
+
+  @override
+  String get activity_sheet_output_truncated => '输出已截断';
+
+  @override
+  String get activity_sheet_details => '详情';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3466,9 +3559,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
       'Hermes 配置档案必须是纯粹的档案名称（例如 “sol”），而不能是路径。';
 
   @override
-  String get hermes_reasoning_details => 'Hermes 推理详情';
-
-  @override
   String hermes_recovery_is_unavailable(Object error) {
     return 'Hermes 恢复不可用：$error';
   }
@@ -4215,8 +4305,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get show_passphrase => '显示密码短语';
 
   @override
-  String get show_tool_calls_thinking_and_message_metadata =>
-      '显示工具调用、思考过程和消息元数据';
+  String get show_message_metadata_description => '用于调试：显示每条消息存储的字段';
 
   @override
   String get signal_messages => 'Signal 消息';
@@ -4465,9 +4554,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get titles_previews_and_models => '标题、预览与模型';
 
   @override
-  String get tool_activity => '工具活动';
-
-  @override
   String get trigger_now => '立即触发';
 
   @override
@@ -4559,7 +4645,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get verbose_mode => '详细模式';
+  String get show_message_metadata => '显示消息元数据';
 
   @override
   String get voice => '语音';
@@ -4620,11 +4706,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String downloaded(Object filename) {
     return '已下载 $filename';
-  }
-
-  @override
-  String activity_name_status(Object displayName, Object statusLabel) {
-    return '$displayName：$statusLabel';
   }
 
   @override
@@ -4751,42 +4832,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
       other: '$count 条新消息',
     );
     return '$_temp0';
-  }
-
-  @override
-  String activity_failed_summary(Object failures, Object total) {
-    return '$failures 个失败 • 共 $total 个';
-  }
-
-  @override
-  String activity_completed_summary(Object count) {
-    return '已完成 $count 个';
-  }
-
-  @override
-  String tool_start_observed(Object time) {
-    return '观察到开始 $time（本地时间）';
-  }
-
-  @override
-  String tool_last_observed(Object time) {
-    return '最后观察时间 $time（本地时间）';
-  }
-
-  @override
-  String tool_result_recorded(Object time) {
-    return '结果记录时间 $time（本地时间）';
-  }
-
-  @override
-  String get tool_time_unavailable => '时间不可用';
-
-  @override
-  String get hermes_is_using_a_tool => 'Hermes 正在使用工具';
-
-  @override
-  String hermes_is_using_tools(Object count) {
-    return 'Hermes 正在使用 $count 个工具';
   }
 
   @override
@@ -5213,4 +5258,145 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String chat_icons_privacy(String connection) {
     return '只会把聊天标题分批发送到 $connection 上的一个隐藏聊天，并使用此配置文件的默认模型。';
   }
+
+  @override
+  String get activity_thinking => '思考中';
+
+  @override
+  String activity_failed_label(String summary) {
+    return '失败：$summary';
+  }
+
+  @override
+  String get activity_state_running => '运行中';
+
+  @override
+  String get activity_state_completed => '已完成';
+
+  @override
+  String get activity_state_failed => '失败';
+
+  @override
+  String get activity_show_details => '显示详情';
+
+  @override
+  String activity_completed_in(String duration) {
+    return '用时 $duration 完成';
+  }
+
+  @override
+  String activity_failed_after(String duration) {
+    return '$duration 后失败';
+  }
+
+  @override
+  String turn_fold_worked_for(String duration) {
+    return '已工作 $duration';
+  }
+
+  @override
+  String turn_fold_steps(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已执行 $count 个步骤',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String turn_fold_failed(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个失败',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get turn_fold_show_steps => '显示步骤';
+
+  @override
+  String get turn_fold_hide_steps => '隐藏步骤';
+
+  @override
+  String duration_hours_minutes(int hours, int minutes) {
+    return '$hours小时$minutes分';
+  }
+
+  @override
+  String duration_minutes_seconds(int minutes, int seconds) {
+    return '$minutes分$seconds秒';
+  }
+
+  @override
+  String duration_seconds(int seconds) {
+    return '$seconds秒';
+  }
+
+  @override
+  String activity_group_commands(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已运行 $count 条命令',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_read(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已读取 $count 个文件',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_files_edited(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已编辑 $count 个文件',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_searches(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已执行 $count 次搜索',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activity_group_generic(String tool, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已使用 $tool $count 次',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activity_sheet_command_executions => '命令执行';
+
+  @override
+  String get activity_sheet_arguments => '参数';
+
+  @override
+  String get activity_sheet_output => '输出';
+
+  @override
+  String get activity_sheet_output_truncated => '输出已截断';
+
+  @override
+  String get activity_sheet_details => '详情';
 }
