@@ -1,0 +1,463 @@
+// Design mockups for the tool-activity-rows epic. Not part of the suite:
+//   flutter test --update-goldens test/goldens/zz_tool_rows_mockup_test.dart
+// Today's screen uses the real GatewayActivityCard. The proposal reuses
+// GatewayToolActivity data, MessageBubble, MarkdownCodeBlock and the theme's
+// sheet; the row itself is new but built from theme roles only.
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/models/gateway_activity.dart';
+import 'package:hermes_android/core/screens/chat_screen.dart';
+import 'package:hermes_android/core/theme/hermes_theme.dart';
+import 'package:hermes_android/core/widgets/chat_context_header.dart';
+import 'package:hermes_android/core/widgets/gateway_activity_card.dart';
+import 'package:hermes_android/core/widgets/markdown_code_block.dart';
+
+import '../support/composer_harness.dart';
+import 'golden_harness.dart';
+
+const _variants = ['dark_blue', 'light_gold'];
+final _at = DateTime(2026, 11, 11, 15, 50, 12);
+
+GatewayToolActivity _tool(
+  String name,
+  String summary, {
+  GatewayToolActivityPhase phase = GatewayToolActivityPhase.completed,
+  double? secs,
+  String? detail,
+}) => GatewayToolActivity(
+  name: name,
+  phase: phase,
+  summary: summary,
+  detail: detail,
+  durationSeconds: secs,
+  emoji: '•',
+  lastActivityAt: _at,
+  lastActivityTimeSource: GatewayToolTimeSource.observed,
+);
+
+// ── Chrome ────────────────────────────────────────────────────────────────
+
+PreferredSizeWidget _bar(BuildContext context, {bool streaming = false}) =>
+    AppBar(
+      title: const Text('VoiceBar keyboard warning'),
+      bottom: const PreferredSize(
+        preferredSize: Size.fromHeight(48),
+        child: ChatContextHeader(
+          projectName: 'voicebar',
+          model: 'claude-opus-5-5',
+          reasoningEffort: 'high',
+          connectionLabel: 'Mac Studio',
+          connectionStatus: ChatConnectionStatus.connected,
+        ),
+      ),
+      actions: [
+        if (streaming)
+          const Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: SizedBox.square(
+              dimension: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          )
+        else
+          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+      ],
+    );
+
+Widget _scaffold(
+  BuildContext context,
+  List<Widget> body, {
+  bool streaming = false,
+}) {
+  final host = ComposerHost()..streaming = streaming;
+  return Scaffold(
+    appBar: _bar(context, streaming: streaming),
+    body: Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            children: body,
+          ),
+        ),
+        host.build(),
+      ],
+    ),
+  );
+}
+
+Widget _user(String t) => MessageBubble(content: t, isUser: true);
+Widget _bot(String t) => MessageBubble(content: t, isUser: false);
+
+// ── Proposed primitive: one-line activity row ─────────────────────────────
+
+IconData _iconFor(String name) => switch (name) {
+  'terminal' => Icons.terminal,
+  'read_file' => Icons.description_outlined,
+  'patch' || 'write_file' => Icons.edit_note,
+  'search_files' => Icons.manage_search,
+  'web_search' => Icons.travel_explore,
+  'reasoning' => Icons.psychology_outlined,
+  _ => Icons.build_outlined,
+};
+
+class _ActivityRow extends StatelessWidget {
+  const _ActivityRow({
+    required this.icon,
+    required this.label,
+    this.running = false,
+    this.failed = false,
+    this.count,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool running;
+  final bool failed;
+  final int? count;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final tokens = HermesTokens.of(context);
+    final color = failed
+        ? tokens.danger
+        : running
+        ? theme.colorScheme.onSurface
+        : tokens.muted;
+    return InkWell(
+      onTap: () {},
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(28, 7, 24, 7),
+        child: Row(
+          children: [
+            SizedBox.square(
+              dimension: 20,
+              child: running
+                  ? const Padding(
+                      padding: EdgeInsets.all(3),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(
+                      failed ? Icons.error_outline : icon,
+                      size: 20,
+                      color: color,
+                    ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyLarge?.copyWith(color: color),
+              ),
+            ),
+            if (count != null)
+              Text(
+                '×$count',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: tokens.muted,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget _row(GatewayToolActivity a) => _ActivityRow(
+  icon: _iconFor(a.name),
+  label: a.isFailed ? 'Failed: ${a.summary}' : a.summary ?? a.displayName,
+  running: !a.isTerminal,
+  failed: a.isFailed,
+);
+
+Widget _thought(String headline, {bool running = false}) => _ActivityRow(
+  icon: Icons.psychology_outlined,
+  label: headline,
+  running: running,
+);
+
+class _WorkedFor extends StatelessWidget {
+  const _WorkedFor({required this.label, this.expanded = false});
+  final String label;
+  final bool expanded;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final muted = HermesTokens.of(context).muted;
+    return InkWell(
+      onTap: () {},
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(28, 10, 24, 10),
+        child: Row(
+          children: [
+            Text(
+              label,
+              style: theme.textTheme.labelLarge?.copyWith(color: muted),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              expanded ? Icons.expand_less : Icons.chevron_right,
+              size: 18,
+              color: muted,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Divider(color: theme.colorScheme.outlineVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Shared mock turn ──────────────────────────────────────────────────────
+
+const _ask =
+    'The keyboard showed a warning that the return button stopped working. '
+    'Can you find out why?';
+
+final _cmds = [
+  _tool(
+    'terminal',
+    'Check whether the return-button service is connected',
+    secs: 1.8,
+    detail: 'adb shell dumpsys accessibility | rg -A4 voicebar',
+  ),
+  _tool(
+    'terminal',
+    'Read recent crash logs for VoiceBar',
+    secs: 2.3,
+    detail: 'adb logcat -b crash -d -t 200 | rg -i voicebar',
+  ),
+  _tool(
+    'terminal',
+    'Look for where swipe-to-send presses Send',
+    secs: 0.6,
+    detail:
+        "rg -n 'clickSend|returnTo|onClick' app/src/main/java/com/ryderdavid/voicebar/GboardButtonService.kt",
+  ),
+];
+
+final _read = _tool(
+  'read_file',
+  'Read the accessibility service binding',
+  secs: 0.2,
+);
+final _runningCmd = _tool(
+  'terminal',
+  'Check the current window state',
+  phase: GatewayToolActivityPhase.running,
+);
+
+const _midText =
+    'Android currently shows the return-button service enabled and '
+    'connected, with no crashed accessibility services. The crash log has '
+    'the two test-harness crashes from my profiling work, which may explain '
+    'the warning.';
+
+const _finalText =
+    'The warning came from my profiling run: two test-harness crashes took '
+    'the return-button service down briefly. It reconnected on its own and '
+    'is healthy now. Swipe-to-send uses the same service, so it was affected '
+    'for those few seconds too.';
+
+// ── Screens ───────────────────────────────────────────────────────────────
+
+Widget _current(BuildContext context) => _scaffold(context, streaming: true, [
+  _user(_ask),
+  _bot(_midText),
+  GatewayActivityCard(activities: [..._cmds, _read, _runningCmd]),
+]);
+
+Widget _running(BuildContext context) => _scaffold(context, streaming: true, [
+  _user(_ask),
+  _row(_cmds[0]),
+  _row(_cmds[1]),
+  _bot(_midText),
+  _thought('Checking the service binding'),
+  _row(_read),
+  _row(_cmds[2]),
+  _row(_runningCmd),
+]);
+
+Widget _finished(BuildContext context) => _scaffold(context, [
+  _user(_ask),
+  const _WorkedFor(label: 'Worked for 2m 24s'),
+  _bot(_finalText),
+]);
+
+Widget _expanded(BuildContext context) => _scaffold(context, [
+  _user(_ask),
+  const _WorkedFor(label: 'Worked for 2m 24s', expanded: true),
+  const _ActivityRow(
+    icon: Icons.terminal,
+    label: 'Ran 2 commands',
+  ),
+  _bot(_midText),
+  _thought('Checking the service binding'),
+  _row(_read),
+  _row(_tool('terminal', 'Look for where swipe-to-send presses Send')),
+  _row(
+    _tool(
+      'terminal',
+      'Check the current window state',
+      phase: GatewayToolActivityPhase.failed,
+    ),
+  ),
+  _bot(_finalText),
+]);
+
+Widget _sheetOver(
+  BuildContext context,
+  Widget background,
+  String title,
+  List<Widget> children,
+) {
+  final theme = Theme.of(context);
+  final scheme = theme.colorScheme;
+  return Stack(
+    children: [
+      background,
+      Positioned.fill(
+        child: ColoredBox(color: scheme.scrim.withValues(alpha: 0.32)),
+      ),
+      Align(
+        alignment: Alignment.bottomCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 600),
+          child: Material(
+            color:
+                theme.bottomSheetTheme.modalBackgroundColor ??
+                scheme.surfaceContainerLow,
+            shape:
+                theme.bottomSheetTheme.shape ??
+                const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                ),
+            child: ListView(
+              shrinkWrap: true,
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+              children: [
+                Center(
+                  child: Container(
+                    width: 32,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(title, style: theme.textTheme.titleLarge),
+                const SizedBox(height: 12),
+                ...children,
+              ],
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+Widget _detailEntry(BuildContext context, GatewayToolActivity a) {
+  final theme = Theme.of(context);
+  final tokens = HermesTokens.of(context);
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.check, size: 16, color: tokens.success),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(a.summary!, style: theme.textTheme.bodyMedium),
+            ),
+            Text(
+              '${a.durationSeconds} s',
+              style: theme.textTheme.labelSmall?.copyWith(color: tokens.muted),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        MarkdownCodeBlock(code: a.detail!, language: 'bash'),
+      ],
+    ),
+  );
+}
+
+Widget _singleSheet(BuildContext context) {
+  final theme = Theme.of(context);
+  final tokens = HermesTokens.of(context);
+  final a = _cmds[1];
+  return _sheetOver(context, _running(context), 'Terminal', [
+    Row(
+      children: [
+        Icon(Icons.check_circle_outline, size: 18, color: tokens.success),
+        const SizedBox(width: 6),
+        Text(
+          'Completed in 2.3 s · 15:50:12',
+          style: theme.textTheme.labelMedium?.copyWith(color: tokens.muted),
+        ),
+      ],
+    ),
+    const SizedBox(height: 12),
+    Text(a.summary!, style: theme.textTheme.bodyLarge),
+    const SizedBox(height: 12),
+    Text('Command', style: theme.textTheme.labelLarge),
+    const SizedBox(height: 6),
+    MarkdownCodeBlock(code: a.detail!, language: 'bash'),
+    const SizedBox(height: 12),
+    Text('Output', style: theme.textTheme.labelLarge),
+    const SizedBox(height: 6),
+    const MarkdownCodeBlock(
+      code:
+          '11-11 15:41:07 E AndroidRuntime: FATAL EXCEPTION: instrumentation\n'
+          '11-11 15:41:07 E AndroidRuntime: Process: com.ryderdavid.voicebar\n'
+          '11-11 15:43:52 E AndroidRuntime: FATAL EXCEPTION: instrumentation',
+    ),
+  ]);
+}
+
+Widget _groupSheet(BuildContext context) => _sheetOver(
+  context,
+  _expanded(context),
+  'Command executions',
+  [for (final c in _cmds.take(2)) _detailEntry(context, c)],
+);
+
+void main() {
+  final screens = <String, Widget Function(BuildContext)>{
+    '01_current_running': _current,
+    '02_rows_running': _running,
+    '03_rows_finished': _finished,
+    '04_rows_expanded': _expanded,
+    '05_detail_sheet': _singleSheet,
+    '06_group_sheet': _groupSheet,
+  };
+  for (final variant in goldenMatrix.where((v) => _variants.contains(v.name))) {
+    for (final e in screens.entries) {
+      testWidgets('tool rows ${e.key} ${variant.name}', (tester) async {
+        await pumpGolden(
+          tester,
+          Builder(builder: e.value),
+          variant: variant,
+          settle: false,
+        );
+        await matchGolden(
+          tester,
+          'mockups/tool_rows/${e.key}_${variant.name}.png',
+        );
+      });
+    }
+  }
+}
