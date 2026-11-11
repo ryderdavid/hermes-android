@@ -1,7 +1,7 @@
 # Tool activity as one-line rows: mockups for review
 
-Epic `hmy-h2j`. This is a design pass only. No app code has changed. Once
-the direction is agreed, an OpenSpec change follows.
+Epic `hmy-h2j`. This is a design pass only. No app code has changed. The
+agreed plan is in `openspec/changes/tool-activity-rows/`.
 
 ## The problem
 
@@ -46,8 +46,16 @@ they read as noise.
 - **What stays from Hermes:**
   - **Data and timestamps:** the same `GatewayToolActivity` data and the
     semantic summaries. Times appear in the sheet.
-  - **Behaviour:** tool-id/row-id pinning, recovery and verbose mode.
-    Verbose could start with "Worked for" expanded.
+  - **Behaviour:** tool-id/row-id pinning and recovery.
+
+## Decided after review
+
+- Rows and interim messages stay in time order.
+- Finished turns fold automatically.
+- Verbose mode does not change rows or folding. It keeps only the message
+  metadata lines and is renamed "Show message metadata".
+- Real rows are 48dp tall (the tap-target minimum), a little taller than
+  drawn here.
 
 ## Primitives reused
 
