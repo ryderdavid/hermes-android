@@ -1,0 +1,893 @@
+// Design mockups for openspec/changes/coordinator-threads. Not part of the
+// suite: render with
+//   flutter test --update-goldens test/goldens/zz_coordinator_mockup_test.dart
+// Existing widgets are the real ones; the new pieces use theme roles only.
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/chat_icons/chat_mark.dart';
+import 'package:hermes_android/core/expressive/shapes.dart';
+import 'package:hermes_android/core/models/gateway_activity.dart';
+import 'package:hermes_android/core/models/gateway_approval.dart';
+import 'package:hermes_android/core/models/gateway_insight.dart';
+import 'package:hermes_android/core/screens/chat_screen.dart';
+import 'package:hermes_android/core/theme/hermes_theme.dart';
+import 'package:hermes_android/core/widgets/chat_context_header.dart';
+import 'package:hermes_android/core/widgets/gateway_activity_card.dart';
+import 'package:hermes_android/core/widgets/gateway_approval_dialog.dart';
+import 'package:hermes_android/core/widgets/gateway_insight_card.dart';
+
+import '../support/composer_harness.dart';
+import 'golden_harness.dart';
+
+const _variants = ['dark_blue', 'light_gold'];
+
+// ── Shared chrome (mirrors ChatScreen's AppBar) ────────────────────────────
+
+PreferredSizeWidget _chatBar(
+  BuildContext context, {
+  String title = 'Release 3.2 planning',
+  bool coordinator = false,
+  bool streaming = false,
+}) {
+  final theme = Theme.of(context);
+  return AppBar(
+    centerTitle: false,
+    titleSpacing: 0,
+    title: Row(
+      children: [
+        ChatMark(
+          sessionId: 'mock',
+          title: title,
+          letterStyle: MarkStyle.forKey('hermes-android'),
+          letterLabel: 'hermes-android',
+          size: 40,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title, overflow: TextOverflow.ellipsis),
+              if (coordinator)
+                Row(
+                  children: [
+                    Icon(
+                      Icons.hub_outlined,
+                      size: 14,
+                      color: theme.colorScheme.primary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Coordinator',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ],
+    ),
+    bottom: const PreferredSize(
+      preferredSize: Size.fromHeight(48),
+      child: ChatContextHeader(
+        projectName: 'hermes-android',
+        model: 'claude-opus-5-5',
+        reasoningEffort: 'high',
+        connectionLabel: 'Mac Studio',
+        connectionStatus: ChatConnectionStatus.connected,
+      ),
+    ),
+    actions: [
+      if (streaming)
+        const Padding(
+          padding: EdgeInsets.only(right: 12),
+          child: Row(
+            children: [
+              SizedBox.square(
+                dimension: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              SizedBox(width: 8),
+              Text('Responding', style: TextStyle(fontSize: 13)),
+            ],
+          ),
+        )
+      else
+        IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+    ],
+  );
+}
+
+Widget _user(String text) => MessageBubble(content: text, isUser: true);
+Widget _bot(String text) => MessageBubble(content: text, isUser: false);
+
+Widget _chatScaffold(
+  BuildContext context, {
+  required List<Widget> body,
+  bool coordinator = false,
+  bool streaming = false,
+  Widget? strip,
+  ComposerHost? composer,
+}) {
+  final host = composer ?? ComposerHost();
+  return Scaffold(
+    appBar: _chatBar(context, coordinator: coordinator, streaming: streaming),
+    body: Column(
+      children: [
+        ?strip,
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.only(top: 8, bottom: 8),
+            children: body,
+          ),
+        ),
+        host.build(),
+      ],
+    ),
+  );
+}
+
+// ── New pieces ─────────────────────────────────────────────────────────────
+
+enum _ThreadState { running, waiting, done, failed }
+
+class _Thread {
+  const _Thread(this.goal, this.state, {this.tools = 0, this.age = ''});
+  final String goal;
+  final _ThreadState state;
+  final int tools;
+  final String age;
+}
+
+const _threads = [
+  _Thread(
+    'Audit dependency licences',
+    _ThreadState.waiting,
+    tools: 7,
+    age: '2m',
+  ),
+  _Thread('Draft release notes', _ThreadState.done, tools: 12, age: '4m'),
+  _Thread('Check CI matrix', _ThreadState.running, tools: 3, age: '1m'),
+];
+
+Widget _stateIcon(BuildContext context, _ThreadState state, {double size = 16}) {
+  final tokens = HermesTokens.of(context);
+  return switch (state) {
+    _ThreadState.running => SizedBox.square(
+      dimension: size,
+      child: const CircularProgressIndicator(strokeWidth: 2),
+    ),
+    _ThreadState.waiting => Icon(
+      Icons.help_outline,
+      size: size + 2,
+      color: tokens.warning,
+    ),
+    _ThreadState.done => Icon(
+      Icons.check_circle_outline,
+      size: size + 2,
+      color: tokens.success,
+    ),
+    _ThreadState.failed => Icon(
+      Icons.error_outline,
+      size: size + 2,
+      color: tokens.danger,
+    ),
+  };
+}
+
+String _stateLabel(_ThreadState s) => switch (s) {
+  _ThreadState.running => 'Running',
+  _ThreadState.waiting => 'Needs you',
+  _ThreadState.done => 'Done',
+  _ThreadState.failed => 'Failed',
+};
+
+/// Horizontal roster under the context header.
+class _ThreadsStrip extends StatelessWidget {
+  const _ThreadsStrip();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      height: 52,
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
+      ),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        children: [
+          for (final t in _threads) ...[
+            InputChip(
+              avatar: _stateIcon(context, t.state, size: 14),
+              label: Text(
+                t.goal,
+                style: t.state == _ThreadState.waiting
+                    ? TextStyle(
+                        color: scheme.onTertiaryContainer,
+                        fontWeight: FontWeight.w600,
+                      )
+                    : null,
+              ),
+              backgroundColor: t.state == _ThreadState.waiting
+                  ? scheme.tertiaryContainer
+                  : null,
+              onPressed: () {},
+            ),
+            const SizedBox(width: 8),
+          ],
+          ActionChip(
+            avatar: const Icon(Icons.view_list_outlined, size: 16),
+            label: const Text('All'),
+            onPressed: () {},
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Inline card the coordinator's turn leaves when it starts threads.
+class _ThreadsStartedCard extends StatelessWidget {
+  const _ThreadsStartedCard({required this.threads});
+  final List<_Thread> threads;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.call_split,
+                    size: 18,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Started ${threads.length} threads',
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ],
+              ),
+            ),
+            for (final t in threads)
+              ListTile(
+                dense: true,
+                leading: _stateIcon(context, t.state),
+                title: Text(t.goal),
+                subtitle: Text(
+                  '${_stateLabel(t.state)} · ${t.tools} tools · ${t.age}',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {},
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A thread speaking to the main chat mid-run (Phase 2).
+class _ThreadMessageCard extends StatelessWidget {
+  const _ThreadMessageCard({
+    required this.thread,
+    required this.text,
+    this.question = false,
+  });
+  final String thread;
+  final String text;
+  final bool question;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      color: question ? scheme.tertiaryContainer : null,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  question ? Icons.help_outline : Icons.campaign_outlined,
+                  size: 18,
+                  color: question
+                      ? scheme.onTertiaryContainer
+                      : scheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    question ? '$thread asks' : '$thread · update',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: question ? scheme.onTertiaryContainer : null,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              text,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: question ? scheme.onTertiaryContainer : null,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 8,
+              children: [
+                if (question) ...[
+                  FilledButton.tonal(
+                    onPressed: () {},
+                    child: const Text('Reply'),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text('Let coordinator decide'),
+                  ),
+                ] else
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text('Open thread'),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Completion turn, rendered instead of the raw task-source block.
+class _ThreadReportCard extends StatelessWidget {
+  const _ThreadReportCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final tokens = HermesTokens.of(context);
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.task_alt, size: 18, color: tokens.success),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Draft release notes · finished',
+                    style: theme.textTheme.labelLarge,
+                  ),
+                ),
+                Text(
+                  '12 tools · 4m',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: tokens.muted,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Drafted docs/releases/v3.2.0-you.1.md: 9 user-facing changes '
+              'grouped under Chat, Settings and Notifications. Two items '
+              'need a screenshot before publishing.',
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.open_in_new, size: 18),
+                  label: const Text('Open thread'),
+                ),
+                TextButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.reply, size: 18),
+                  label: const Text('Continue'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Bar at the foot of a thread: steer text + stop.
+class _SteerBar extends StatelessWidget {
+  const _SteerBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: scheme.surfaceContainer,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 8, 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: TextEditingController(
+                    text: 'Skip dev-only dependencies',
+                  ),
+                  decoration: const InputDecoration(
+                    hintText: 'Steer this thread…',
+                    prefixIcon: Icon(Icons.alt_route),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton.filled(
+                onPressed: () {},
+                icon: const Icon(Icons.arrow_upward),
+                tooltip: 'Steer',
+              ),
+              IconButton.filledTonal(
+                onPressed: () {},
+                icon: const Icon(Icons.stop),
+                tooltip: 'Stop thread',
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Screens ────────────────────────────────────────────────────────────────
+
+final _subagents = [
+  const GatewaySubagentActivity(
+    id: 'a',
+    goal: 'Audit dependency licences',
+    phase: GatewaySubagentPhase.tool,
+    model: 'claude-sonnet-5-5',
+    detail: 'terminal: flutter pub deps --json',
+  ),
+  const GatewaySubagentActivity(
+    id: 'b',
+    goal: 'Draft release notes',
+    phase: GatewaySubagentPhase.thinking,
+    model: 'claude-sonnet-5-5',
+  ),
+  const GatewaySubagentActivity(
+    id: 'c',
+    goal: 'Check CI matrix',
+    phase: GatewaySubagentPhase.running,
+    model: 'claude-sonnet-5-5',
+  ),
+];
+
+const _ask =
+    'Plan the 3.2 release: audit our dependency licences, draft the release '
+    'notes, and check the CI matrix.';
+
+Widget _current(BuildContext context) => _chatScaffold(
+  context,
+  streaming: true,
+  composer: ComposerHost()..streaming = true,
+  body: [
+    _user(_ask),
+    GatewaySubagentCard(activities: _subagents),
+  ],
+);
+
+Widget _coordinator(BuildContext context) => _chatScaffold(
+  context,
+  coordinator: true,
+  strip: const _ThreadsStrip(),
+  body: [
+    _user(_ask),
+    _bot(
+      "On it. I've split this into three threads so we can keep talking "
+      'while they work. What date are you aiming to publish?',
+    ),
+    const _ThreadsStartedCard(threads: _threads),
+    _user('Friday, and skip the Office preview work.'),
+    _bot(
+      "Friday it is. I've told the release-notes thread to leave the Office "
+      'previews out.',
+    ),
+  ],
+);
+
+Widget _question(BuildContext context) => _chatScaffold(
+  context,
+  coordinator: true,
+  strip: const _ThreadsStrip(),
+  body: [
+    _bot(
+      "Friday it is. I've told the release-notes thread to leave the Office "
+      'previews out.',
+    ),
+    const _ThreadMessageCard(
+      thread: 'Check CI matrix',
+      text: '2 of 5 jobs fail on Android API 35: golden drift in '
+          'settings_dark_blue. Still checking the other three.',
+    ),
+    const _ThreadMessageCard(
+      thread: 'Audit dependency licences',
+      question: true,
+      text: 'Two transitive packages are AGPL-3.0 (pdfx_core, ffmpeg_lite). '
+          'Should I drop them from the release build or flag them for legal?',
+    ),
+  ],
+);
+
+Widget _report(BuildContext context) => _chatScaffold(
+  context,
+  coordinator: true,
+  strip: const _ThreadsStrip(),
+  body: [
+    _user('Friday, and skip the Office preview work.'),
+    _bot("Friday it is. I've told the release-notes thread."),
+    const _ThreadReportCard(),
+    _bot(
+      'The release notes are drafted. Two entries need screenshots; I can '
+      'capture them from the emulator once the CI thread finishes.',
+    ),
+  ],
+);
+
+Widget _threadView(BuildContext context) {
+  final theme = Theme.of(context);
+  final tokens = HermesTokens.of(context);
+  return Scaffold(
+    appBar: AppBar(
+      leading: const BackButton(),
+      titleSpacing: 0,
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Audit dependency licences'),
+          Text(
+            'Thread of Release 3.2 planning',
+            style: theme.textTheme.labelSmall?.copyWith(color: tokens.muted),
+          ),
+        ],
+      ),
+      actions: [
+        IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+      ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(40),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Row(
+            children: [
+              _stateIcon(context, _ThreadState.running, size: 14),
+              const SizedBox(width: 8),
+              Text(
+                'Running · 7 tools · 2m · claude-sonnet-5-5',
+                style: theme.textTheme.labelMedium,
+              ),
+              const Spacer(),
+              Icon(Icons.fiber_manual_record, size: 10, color: tokens.success),
+              const SizedBox(width: 4),
+              Text('Live', style: theme.textTheme.labelSmall),
+            ],
+          ),
+        ),
+      ),
+    ),
+    body: Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            children: [
+              Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: ListTile(
+                  leading: const Icon(Icons.assignment_outlined),
+                  title: const Text('Task from the coordinator'),
+                  subtitle: const Text(
+                    'List every runtime dependency with its licence. Flag '
+                    'anything copyleft. Exclude dev-only packages.',
+                  ),
+                ),
+              ),
+              GatewayActivityCard(
+                activities: [
+                  GatewayToolActivity(
+                    emoji: '\u2022',
+                    lastActivityAt: DateTime(2026, 11, 11, 14, 32, 5),
+                    lastActivityTimeSource: GatewayToolTimeSource.observed,
+                    name: 'terminal',
+                    phase: GatewayToolActivityPhase.completed,
+                    summary: 'List the resolved dependency graph',
+                    durationSeconds: 3.1,
+                  ),
+                  GatewayToolActivity(
+                    emoji: '\u2022',
+                    lastActivityAt: DateTime(2026, 11, 11, 14, 32, 5),
+                    lastActivityTimeSource: GatewayToolTimeSource.observed,
+                    name: 'read_file',
+                    phase: GatewayToolActivityPhase.completed,
+                    summary: 'Read pubspec.lock',
+                    durationSeconds: 0.2,
+                  ),
+                  GatewayToolActivity(
+                    emoji: '\u2022',
+                    lastActivityAt: DateTime(2026, 11, 11, 14, 32, 5),
+                    lastActivityTimeSource: GatewayToolTimeSource.observed,
+                    name: 'web_search',
+                    phase: GatewayToolActivityPhase.completed,
+                    summary: 'Look up the pdfx_core licence',
+                    durationSeconds: 2.4,
+                  ),
+                  GatewayToolActivity(
+                    emoji: '\u2022',
+                    lastActivityAt: DateTime(2026, 11, 11, 14, 32, 5),
+                    lastActivityTimeSource: GatewayToolTimeSource.observed,
+                    name: 'terminal',
+                    phase: GatewayToolActivityPhase.running,
+                    summary: 'Scan LICENSE files in the pub cache',
+                  ),
+                ],
+              ),
+              _bot(
+                '41 of 48 runtime packages are MIT/BSD/Apache. Two are '
+                'AGPL-3.0; checking whether either ships in the release APK.',
+              ),
+            ],
+          ),
+        ),
+        const _SteerBar(),
+      ],
+    ),
+  );
+}
+
+Widget _sheet(BuildContext context) {
+  final theme = Theme.of(context);
+  final scheme = theme.colorScheme;
+  final tokens = HermesTokens.of(context);
+  return Stack(
+    children: [
+      _coordinator(context),
+      Positioned.fill(child: ColoredBox(color: scheme.scrim.withValues(alpha: 0.32))),
+      Align(
+        alignment: Alignment.bottomCenter,
+        child: Material(
+          color: theme.bottomSheetTheme.modalBackgroundColor ??
+              scheme.surfaceContainerLow,
+          shape: theme.bottomSheetTheme.shape ??
+              const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 8, 0, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 32,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
+                  child: Text('Threads', style: theme.textTheme.titleLarge),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                  child: Text(
+                    '2 active of 3 slots · claude-sonnet-5-5',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: tokens.muted,
+                    ),
+                  ),
+                ),
+                for (final t in _threads)
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                    leading: _stateIcon(context, t.state, size: 20),
+                    title: Text(t.goal),
+                    subtitle: Text(
+                      '${_stateLabel(t.state)} · ${t.tools} tools · ${t.age}',
+                    ),
+                    trailing: t.state == _ThreadState.done
+                        ? const Icon(Icons.chevron_right)
+                        : IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.stop_circle_outlined),
+                            tooltip: 'Stop',
+                          ),
+                  ),
+                const ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 24),
+                  leading: Icon(Icons.history),
+                  title: Text('Earlier threads'),
+                  subtitle: Text('4 finished in this chat'),
+                  trailing: Icon(Icons.chevron_right),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                  child: Row(
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.pause),
+                        label: const Text('Pause new threads'),
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          foregroundColor: tokens.danger,
+                        ),
+                        child: const Text('Stop all'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+class _MenuHost extends StatelessWidget {
+  const _MenuHost();
+
+  @override
+  Widget build(BuildContext context) {
+    final scaffold = _chatScaffold(
+      context,
+      body: [
+        _user(_ask),
+        _bot('Sure. Do you want me to run these one after another here?'),
+      ],
+    );
+    return Stack(
+      children: [
+        scaffold,
+        Positioned(
+          right: 4,
+          top: 4,
+          child: PopupMenuButton<String>(
+            key: const Key('menu'),
+            icon: const Icon(Icons.more_vert),
+            itemBuilder: (_) => const [
+              CheckedPopupMenuItem(
+                value: 'spoken',
+                child: Text('Spoken replies'),
+              ),
+              CheckedPopupMenuItem(
+                value: 'coordinator',
+                checked: true,
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text('Coordinator mode'),
+                  subtitle: Text('Hand long work to threads'),
+                ),
+              ),
+              PopupMenuDivider(),
+              PopupMenuItem(value: 'rename', child: Text('Rename')),
+              PopupMenuItem(value: 'refresh', child: Text('Refresh')),
+              PopupMenuItem(value: 'export', child: Text('Export')),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+void main() {
+  final screens = <String, Widget Function(BuildContext)>{
+    '01_current': _current,
+    '02_coordinator_chat': _coordinator,
+    '03_threads_sheet': _sheet,
+    '04_thread_view': _threadView,
+    '05_thread_messages': _question,
+    '06_thread_report': _report,
+  };
+  for (final variant in goldenMatrix.where((v) => _variants.contains(v.name))) {
+    for (final entry in screens.entries) {
+      testWidgets('mockup ${entry.key} ${variant.name}', (tester) async {
+        await pumpGolden(
+          tester,
+          Builder(builder: entry.value),
+          variant: variant,
+          settle: false,
+        );
+        await matchGolden(
+          tester,
+          'mockups/coordinator/${entry.key}_${variant.name}.png',
+        );
+      });
+    }
+
+    testWidgets('mockup 07_coordinator_toggle ${variant.name}', (tester) async {
+      await pumpGolden(tester, const _MenuHost(), variant: variant);
+      await tester.tap(find.byKey(const Key('menu')));
+      await tester.pumpAndSettle();
+      await matchGolden(
+        tester,
+        'mockups/coordinator/07_coordinator_toggle_${variant.name}.png',
+      );
+    });
+
+    testWidgets('mockup 08_thread_approval ${variant.name}', (tester) async {
+      await pumpGolden(
+        tester,
+        Builder(
+          builder: (context) => Stack(
+            children: [
+              _coordinator(context),
+              Center(
+                child: TextButton(
+                  onPressed: () => GatewayApprovalDialog.show(
+                    context,
+                    request: GatewayApprovalRequest.fromEventData({
+                      'description':
+                          'Thread "Check CI matrix" wants to re-run the '
+                          'failing Android jobs.',
+                      'command': 'gh run rerun 18734 --failed',
+                      'choices': ['once', 'session', 'always', 'deny'],
+                    }),
+                    onRespond: (_) async {},
+                  ),
+                  child: const SizedBox(key: Key('open'), width: 8, height: 8),
+                ),
+              ),
+            ],
+          ),
+        ),
+        variant: variant,
+        settle: false,
+      );
+      await tester.tap(find.byKey(const Key('open')));
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await matchGolden(
+        tester,
+        'mockups/coordinator/08_thread_approval_${variant.name}.png',
+      );
+    });
+  }
+}
