@@ -219,9 +219,11 @@ text is used only for legacy turns, as U06 already does.
   scoped by session and transport (`_subagent_transport_matches`). Steer
   and stop go through the same owner checks. A reply to a question is
   accepted once, and later replies are rejected with a clear error.
-- **The gateway fork drifts from NousResearch upstream** → Gateway changes
-  are additive: one tool, three RPCs, one session flag, an approval mode
-  and capability keys. They are also offered upstream as a PR.
+- **The gateway fork drifts further from NousResearch** → This is an
+  isolated fork, and nothing is sent upstream. Gateway changes are kept
+  additive (one tool, three RPCs, one session flag, an approval mode,
+  capability keys), so pulling NousResearch fixes into the fork stays
+  cheap.
 
 ## Migration Plan
 
@@ -246,5 +248,3 @@ to the Phase 1a probe or to today's read-only list.
 - The default question wait limit (15 min) and update rate (1 per 60 s)
   are starting values. Tune them after device use. Neither changes the
   specs.
-- Whether to offer the gateway changes to NousResearch upstream before or
-  after they've had a few weeks on the fork.
