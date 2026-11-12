@@ -32,6 +32,20 @@ A single primary action SHALL sit outside the container at the trailing edge, at
 - **WHEN** the agent is streaming a response
 - **THEN** the trailing button shows Stop and stopping the turn works as before
 
+### Requirement: Steer-send while a turn runs
+While a turn is running and the draft has text or attachments, an additional compact send button (key `composer-steer-send`) SHALL appear just left of Stop; tapping it sends the draft to the gateway mid-turn, where `busy_input_mode` decides whether it interrupts, queues, or steers. With an empty draft, only Stop SHALL appear.
+
+#### Scenario: Steering a running turn
+- **WHEN** the agent is streaming and the draft is non-empty
+- **THEN** a steer send button appears next to Stop, and tapping it submits the draft without stopping the turn
+
+### Requirement: No turn-status bar above the composer
+While sending or streaming, work-in-progress SHALL be represented by the timeline activity rows and the chat app bar spinner (which carries the gateway's live turn-status text, ellipsized); the composer SHALL NOT grow a status bar above the input row.
+
+#### Scenario: Status lives in the app bar
+- **WHEN** a turn is running
+- **THEN** the composer height is unchanged and the app bar shows the spinner plus live status text
+
 ### Requirement: Secondary controls stay compact
 Model selection and the spoken-reply toggle SHALL be presented as compact chips or an overflow above or within the composer, not as additional 48 dp circular buttons in the input row.
 
@@ -47,7 +61,7 @@ The redesign SHALL preserve existing composer behaviour: Enter-to-send setting, 
 - **THEN** the attachment tray appears above the field with reorder, remove and retry, and sending uploads them in order as before
 
 ### Requirement: Secondary controls outside the input row
-The model choice SHALL be reachable from the chat app bar subtitle and spoken replies from the chat overflow menu; the composer SHALL contain only attach, the text field with dictation, and Send/Stop.
+The model choice SHALL be reachable from the chat app bar subtitle and spoken replies from the chat overflow menu; the composer SHALL contain only attach, the text field with dictation, and Send/Stop — plus the steer-send button while a turn runs with a non-empty draft.
 
 #### Scenario: Changing model
 - **WHEN** the user taps the model subtitle under the chat title
