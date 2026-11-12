@@ -44,7 +44,7 @@ While sending or streaming, work-in-progress SHALL be represented by the timelin
 
 #### Scenario: Status lives in the app bar
 - **WHEN** a turn is running
-- **THEN** the composer height is unchanged and the app bar shows the spinner plus live status text
+- **THEN** the composer height is unchanged and the app bar shows only the spinner (live status text rides its semantics label)
 
 ### Requirement: Secondary controls stay compact
 Model selection and the spoken-reply toggle SHALL be presented as compact chips or an overflow above or within the composer, not as additional 48 dp circular buttons in the input row.

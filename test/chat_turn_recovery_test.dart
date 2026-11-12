@@ -293,7 +293,7 @@ void main() {
 
     expect(session.recoverCount, 1);
     expect(session.submitCount, 0);
-    expect(find.text('Recovering Hermes…'), findsOneWidget);
+    expect(find.bySemanticsLabel('Recovering Hermes…'), findsOneWidget);
 
     for (final state in const <AppLifecycleState>[
       AppLifecycleState.inactive,
@@ -442,7 +442,7 @@ void main() {
     final sendButton = tester.widget<IconButton>(
       find.widgetWithIcon(IconButton, Icons.send),
     );
-    expect(find.text('Recovering Hermes…'), findsOneWidget);
+    expect(find.bySemanticsLabel('Recovering Hermes…'), findsOneWidget);
     expect(sendButton.onPressed, isNull);
     expect(session.submitCount, 0);
     final composer = find.byKey(const Key('chat-message-composer'));

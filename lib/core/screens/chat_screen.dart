@@ -5114,24 +5114,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           if (_streaming || _sending)
             Padding(
               padding: EdgeInsets.only(right: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ExpressiveLoadingIndicator(size: 24, contained: false),
-                  SizedBox(width: 8),
-                  // Live turn status next to the spinner when the gateway
-                  // provides one; the composer bar that used to show it is
-                  // gone. Bounded so compact app bars do not overflow.
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 96),
-                    child: Text(
-                      _gatewayTurnStatus?.text ?? context.l10n.responding,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 13),
-                    ),
-                  ),
-                ],
+              // Spinner only in the app bar; the live turn-status text rides
+              // the semantics label so screen readers still announce it.
+              child: Semantics(
+                label: _gatewayTurnStatus?.text ?? context.l10n.responding,
+                child: ExpressiveLoadingIndicator(size: 24, contained: false),
               ),
             )
           else
