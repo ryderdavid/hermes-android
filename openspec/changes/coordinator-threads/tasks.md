@@ -99,10 +99,10 @@ set on the board (`bd show hmy-6qr`).
 
 ## 6. Thread cards in the parent chat (app, after `hmy-5na.6`)
 
-- [ ] 6.1 Add the "Started N threads" card as a chat display item, driven
+- [x] 6.1 Add the "Started N threads" card as a chat display item, driven
   live by `AgentThreadsController` (mockup 02). Verify with
   display-item-builder tests and a widget test that row states update.
-- [ ] 6.2 Extend U06's `BackgroundReport` classifier to read the
+- [x] 6.2 Extend U06's `BackgroundReport` classifier to read the
   `async_delegation` annotation (subagent id, goal, status, tools,
   duration) and render `ThreadReportCard` (mockup 06). The Continue action
   stays hidden until `threads.continue`. Verify with classifier tests
@@ -155,26 +155,26 @@ set on the board (`bd show hmy-6qr`).
 
 ## 9. Thread messaging, app side (app, after group 8 is deployed)
 
-- [ ] 9.1 Render `async_delegation_message` turns as `ThreadMessageCard`
+- [x] 9.1 Render `async_delegation_message` turns as `ThreadMessageCard`
   (mockup 05). Updates offer Open thread. Questions use the emphasised card
   with Reply and Let coordinator decide, and the thread shows "needs you".
   Verify with widget tests and `thread_message_card_*` goldens.
-- [ ] 9.2 Make Reply send `subagent.reply` (answered_by user). Make "Let
+- [x] 9.2 Make Reply send `subagent.reply` (answered_by user). Make "Let
   coordinator decide" send the coordinator prompt. Have the card record the
   answer, who answered, or expiry. Verify with fake-gateway tests for each
   path, including a rejected duplicate reply.
-- [ ] 9.3 Make Continue on report cards and in the thread view send
+- [x] 9.3 Make Continue on report cards and in the thread view send
   `subagent.continue`, and show the queued state when slots are full.
   Verify with widget tests gated on `threads.continue`.
-- [ ] 9.4 Thread approvals: when an approval payload carries `subagent_id`,
+- [x] 9.4 Thread approvals: when an approval payload carries `subagent_id`,
   name the thread in `GatewayApprovalDialog` (mockup 08) and answer only
   that request. Verify with an approval routing test and
   `approval_sheet_thread_*` goldens.
-- [ ] 9.5 Thread notifications in `turn_notification_service.dart` for
+- [x] 9.5 Thread notifications in `turn_notification_service.dart` for
   finished, failed and question events, honouring the privacy setting and
   deep-linking to the parent chat at the card. Verify with notification
   service tests for content and private modes.
-- [ ] 9.6 Add every new string to all `app_*.arb` catalogues and run
+- [x] 9.6 Add every new string to all `app_*.arb` catalogues and run
   `flutter gen-l10n`. Verify with analyze and the colour lint.
 
 ## 10. End-to-end verification and release

@@ -103,7 +103,11 @@ class FakeThreadGateway {
       final frame = jsonDecode(raw as String) as Map<String, dynamic>;
       final id = frame['id'];
       final method = frame['method'];
-      if (method is! String) return;
+      if (method is! String) {
+        // The client's answer to a request this gateway initiated.
+        if (id is String) serverResponses[id] = frame;
+        return;
+      }
       final params = frame['params'] is Map
           ? Map<String, dynamic>.from(frame['params'] as Map)
           : <String, dynamic>{};
@@ -145,6 +149,26 @@ class FakeThreadGateway {
       }
       socket.add(jsonEncode({'jsonrpc': '2.0', 'id': id, ...reply}));
     });
+  }
+
+  /// Answers the client sent to server-initiated requests, by request id.
+  final Map<String, Map<String, dynamic>> serverResponses = {};
+
+  /// Sends a server-initiated request (an approval, a clarify, ...).
+  void sendServerRequest({
+    required String id,
+    required String method,
+    required Map<String, dynamic> params,
+  }) {
+    final frame = jsonEncode({
+      'jsonrpc': '2.0',
+      'id': id,
+      'method': method,
+      'params': {'session_id': lastRuntimeSessionId, ...params},
+    });
+    for (final socket in _sockets) {
+      socket.add(frame);
+    }
   }
 
   /// Pushes an event to every open socket.

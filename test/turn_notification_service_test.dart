@@ -649,4 +649,198 @@ void main() {
       expect(pendingNotificationApprovals.value, hasLength(2));
     });
   });
+
+  group('thread notifications', () {
+    const text = ThreadNotificationText(
+      finishedTitle: 'Thread finished',
+      failedTitle: 'Thread failed',
+      questionTitle: 'A thread needs you',
+      privateFinished: 'A thread finished.',
+      privateAttention: 'A thread needs your attention.',
+    );
+
+    Future<bool> show(
+      ThreadNotificationEvent event, {
+      String? detail,
+      String threadId = 'sa-0',
+      String? eventId,
+    }) => service.showThreadEvent(
+      event: event,
+      text: text,
+      threadId: threadId,
+      chatTitle: 'Release 3.2 planning',
+      goal: 'Draft release notes',
+      detail: detail,
+      eventId: eventId,
+      sessionId: 'chat-1',
+      connectionId: 'conn-1',
+    );
+
+    setUp(() => service.ensureInitialized());
+
+    test('a finished thread shows its goal and outcome, like a turn', () async {
+      expect(
+        await show(
+          ThreadNotificationEvent.finished,
+          detail: 'Drafted 9 user-facing changes.',
+        ),
+        isTrue,
+      );
+
+      final shown = sink.shown.single;
+      expect(shown.title, 'Thread finished — Release 3.2 planning');
+      expect(shown.body, 'Draft release notes\nDrafted 9 user-facing changes.');
+      // The same channel and toggle as a completed turn.
+      expect(shown.channel.id, TurnNotificationService.turnChannel.id);
+    });
+
+    test('tapping it opens the parent chat', () async {
+      await show(ThreadNotificationEvent.finished);
+
+      expect(jsonDecode(sink.shown.single.payload), {
+        'sessionId': 'chat-1',
+        'connectionId': 'conn-1',
+        'threadId': 'sa-0',
+      });
+      final route = NotificationRoute.fromResponse(
+        NotificationResponse(
+          notificationResponseType:
+              NotificationResponseType.selectedNotification,
+          payload: sink.shown.single.payload,
+        ),
+      );
+      expect(route.sessionId, 'chat-1');
+      expect(route.connectionId, 'conn-1');
+    });
+
+    test('a failed thread posts as a failed turn', () async {
+      await show(ThreadNotificationEvent.failed, detail: 'gh not installed');
+
+      final shown = sink.shown.single;
+      expect(shown.title, 'Thread failed — Release 3.2 planning');
+      expect(shown.body, 'Draft release notes\ngh not installed');
+      expect(shown.channel.id, TurnNotificationService.turnChannel.id);
+    });
+
+    test(
+      'a question posts on the attention channel with the question',
+      () async {
+        await show(
+          ThreadNotificationEvent.question,
+          detail: 'Include the Office preview work?',
+          eventId: 'q1',
+        );
+
+        final shown = sink.shown.single;
+        expect(shown.title, 'A thread needs you — Release 3.2 planning');
+        expect(
+          shown.body,
+          'Draft release notes\nInclude the Office preview work?',
+        );
+        expect(shown.channel.id, TurnNotificationService.attentionChannel.id);
+        expect(shown.importance, TurnNotificationImportance.high);
+      },
+    );
+
+    test('a long summary is clipped', () async {
+      await show(ThreadNotificationEvent.finished, detail: 'x' * 400);
+
+      expect(sink.shown.single.body.length, lessThan(200));
+      expect(sink.shown.single.body, endsWith('…'));
+    });
+
+    test('private mode: only that a thread finished, no title, goal or '
+        'summary', () async {
+      notificationPrefs.value = notificationPrefs.value.copyWith(
+        hideContent: true,
+      );
+
+      await show(
+        ThreadNotificationEvent.finished,
+        detail: 'Drafted 9 user-facing changes.',
+      );
+      await show(
+        ThreadNotificationEvent.failed,
+        detail: 'gh not installed',
+        threadId: 'sa-1',
+      );
+
+      for (final shown in sink.shown) {
+        expect(shown.body, 'A thread finished.');
+        expect(shown.title, isNot(contains('Release 3.2 planning')));
+        expect('${shown.title} ${shown.body}', isNot(contains('Draft')));
+        expect('${shown.title} ${shown.body}', isNot(contains('gh')));
+      }
+      expect(sink.shown.map((n) => n.title), [
+        'Thread finished',
+        'Thread failed',
+      ]);
+      // The tap still routes to the chat.
+      expect(jsonDecode(sink.shown.first.payload)['sessionId'], 'chat-1');
+    });
+
+    test(
+      'private mode: a question says only that a thread needs attention',
+      () async {
+        notificationPrefs.value = notificationPrefs.value.copyWith(
+          hideContent: true,
+        );
+
+        await show(
+          ThreadNotificationEvent.question,
+          detail: 'Include the Office preview work?',
+        );
+
+        expect(sink.shown.single.title, 'A thread needs you');
+        expect(sink.shown.single.body, 'A thread needs your attention.');
+      },
+    );
+
+    test('follows the turn notification toggles', () async {
+      notificationPrefs.value = notificationPrefs.value.copyWith(
+        kind: HermesNotificationKind.turnDone,
+        kindValue: false,
+      );
+      expect(await show(ThreadNotificationEvent.finished), isFalse);
+      // Failures and questions have their own toggles.
+      expect(await show(ThreadNotificationEvent.failed), isTrue);
+      expect(await show(ThreadNotificationEvent.question), isTrue);
+
+      notificationPrefs.value = notificationPrefs.value.copyWith(
+        enabled: false,
+      );
+      expect(
+        await show(ThreadNotificationEvent.failed, threadId: 'sa-9'),
+        isFalse,
+      );
+      expect(sink.shown, hasLength(2));
+    });
+
+    test(
+      'a replayed event does not alert twice; another thread does',
+      () async {
+        await show(ThreadNotificationEvent.finished);
+        await show(ThreadNotificationEvent.finished);
+        await show(ThreadNotificationEvent.finished, threadId: 'sa-1');
+
+        expect(sink.shown, hasLength(2));
+        expect(sink.shown.first.id, isNot(sink.shown.last.id));
+      },
+    );
+
+    test('the privacy setting survives a save and load', () {
+      final prefs = NotificationPrefs.defaults.copyWith(hideContent: true);
+
+      final restored = NotificationPrefs.fromJson(
+        jsonDecode(jsonEncode(prefs.toJson())) as Map<String, dynamic>,
+      );
+
+      expect(restored.hideContent, isTrue);
+      // Preferences saved before the setting existed read as off.
+      expect(
+        NotificationPrefs.fromJson({'enabled': true, 'kinds': {}}).hideContent,
+        isFalse,
+      );
+    });
+  });
 }

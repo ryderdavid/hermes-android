@@ -154,8 +154,11 @@ class _ReportEntry extends StatelessWidget {
         ),
     ].join(' · ');
     final summary = entry.summary?.trim() ?? '';
-    final open = onOpen;
-    final continueThread = onContinue;
+    // Both actions address a thread; an entry whose thread is not known
+    // (a legacy turn, nothing in the roster to match) offers neither.
+    final known = entry.subagentId != null;
+    final open = known ? onOpen : null;
+    final continueThread = known ? onContinue : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
