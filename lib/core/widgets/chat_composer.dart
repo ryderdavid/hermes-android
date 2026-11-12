@@ -232,8 +232,34 @@ class ChatComposer extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
+        if (streaming)
+          ListenableBuilder(
+            listenable: textController,
+            builder: (context, _) {
+              final hasContent =
+                  textController.text.trim().isNotEmpty ||
+                  attachments.isNotEmpty;
+              if (!hasContent) return const SizedBox.shrink();
+              return _buildSteerButton(context);
+            },
+          ),
         _buildSendButton(context),
       ],
+    );
+  }
+
+  /// While a turn runs, an extra send button steers it: the gateway's
+  /// busy_input_mode decides whether the text interrupts, queues, or lands
+  /// mid-turn as guidance.
+  Widget _buildSteerButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: IconButton.filledTonal(
+        key: const Key('composer-steer-send'),
+        icon: const Icon(Icons.send),
+        onPressed: onSend,
+        tooltip: context.l10n.send_message,
+      ),
     );
   }
 

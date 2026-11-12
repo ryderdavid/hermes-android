@@ -2875,7 +2875,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final text = _textController.text.trim();
     final attachments = List<AttachmentDraft>.from(_attachmentDrafts);
     if (text.isEmpty && attachments.isEmpty) return;
-    if (_sending || _streaming || _pendingReattachResync) return;
+    if (_pendingReattachResync) return;
+    // A send while streaming is allowed: the gateway's busy_input_mode
+    // (interrupt/queue/steer) decides what the text does to the running turn.
+    if (_sending && !_streaming) return;
     if (_transcriptLoadBlocksComposer) return;
     if (_loading || _error != null) {
       // Remote transports own their session history server-side. Let a prompt

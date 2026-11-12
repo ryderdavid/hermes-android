@@ -253,4 +253,23 @@ void main() {
     expect(host.stops, 1);
     semantics.dispose();
   });
+
+  testWidgets('steer-send appears while streaming with text and submits', (
+    tester,
+  ) async {
+    final host = ComposerHost()..streaming = true;
+    await _pump(tester, host);
+
+    // No draft text: only Stop, no steer button.
+    expect(find.byKey(const Key('composer-steer-send')), findsNothing);
+
+    await tester.enterText(find.byType(TextField), 'prefer sqlite');
+    await tester.pump();
+    expect(find.byKey(const Key('composer-steer-send')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('composer-steer-send')));
+    await tester.pump();
+    expect(host.sends, 1);
+    expect(host.stops, 0);
+  });
 }
