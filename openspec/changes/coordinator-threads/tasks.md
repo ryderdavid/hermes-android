@@ -1,8 +1,9 @@
 # Tasks
 
-Phases follow design.md, Migration Plan: 1a (groups 1–4) has no dependency
-on U06. 1b (groups 5–6) needs bead `hmy-5na.6`. Phase 2 (groups 7–10) needs
-the gateway fork. Gateway tasks run in `~/Code/hermes-agent`, using that
+Phases follow design.md, Migration Plan: 1a (groups 1–4) and 1b (groups
+5–6) are app-only and run against a stock gateway. Neither depends on
+upstream group U06, which is not in this fork (design.md D1). Phase 2
+(groups 7–10) needs the gateway fork. Gateway tasks run in `~/Code/hermes-agent`, using that
 repo's own checks.
 
 Beads: epic `hmy-6qr`; group N is `hmy-6qr.N` (CT1–CT10). Dependencies are
@@ -10,7 +11,8 @@ set on the board (`bd show hmy-6qr`).
 
 ## 1. Thread transport and capabilities (app)
 
-- [x] 1.1 Add `WsClient` wrappers for `subagent.roster`, `subagent.tail`,
+- [x] 1.1 Add `WsClient` wrappers for `subagent.list` (the per-chat
+  roster), `subagent.roster`, `subagent.tail`,
   `subagent.steer`, `subagent.interrupt`, `delegation.status` and
   `delegation.pause`. Each wrapper parses gateway errors through
   `JsonRpcError`. Verify with unit tests against a fake socket that cover
@@ -18,7 +20,7 @@ set on the board (`bd show hmy-6qr`).
 - [x] 1.2 Extend `CapabilityRegistry` with the D9 keys (`threads.roster`,
   `threads.steer`, `threads.messages`, `threads.continue`,
   `threads.approvals`, `coordinator_mode`), read from `session.info`. On
-  stock gateways, probe `subagent.roster` once per connection. Verify with
+  stock gateways, probe `subagent.list` once per connection. Verify with
   tests: advertised, probe success, probe failure, reconnect re-probe.
 - [x] 1.3 Route the async event types needed by threads through
   `DesktopGatewayClient` without changing the existing `subagent.*`
@@ -29,7 +31,7 @@ set on the board (`bd show hmy-6qr`).
 ## 2. Threads controller, roster strip and sheet (app)
 
 - [x] 2.1 Add `AgentThread` and `AgentThreadsController` (one per chat).
-  The controller seeds from `subagent.roster` on open and reconnect,
+  The controller seeds from `subagent.list` on open and reconnect,
   applies `subagent.*` events, derives running/needs-you/done/failed, and
   sorts waiting threads first. Replace `_subagentActivities` in
   `ChatScreen` with it. Verify with controller unit tests: seed, event
@@ -78,33 +80,37 @@ set on the board (`bd show hmy-6qr`).
   then build, tag and publish per `docs/FORK.md`. Verify the in-app update
   check offers it on the phone.
 
-## 5. Thread view on the U06 route (app, after `hmy-5na.6`)
+## 5. Thread view (app)
 
-- [x] 5.1 Extend U06's `DelegatedTaskController` with a live source:
-  `subagent.tail` polled every 2 s while the view is visible and the thread
-  is running, plus the controller's `subagent.*` events. Hand over to
-  stored-history reads on completion. Verify with controller tests: polling
-  starts and stops with visibility, hand-off on completion, partial history
-  labelled.
-- [x] 5.2 Give the U06 timeline route the full-screen thread chrome
-  (mockup 04): title, "Thread of <chat>", state, tools, elapsed time, model,
-  live indicator, and a task card. Tool activity uses `GatewayActivityCard`.
-  Verify with widget tests and `thread_view_*` goldens, and with a test
-  that the parent draft and scroll offset survive opening and closing the
-  view.
+- [x] 5.1 Add `ThreadViewController` with a live source: `subagent.tail`
+  polled every 2 s while the view is visible and the thread is running,
+  plus the threads controller's `subagent.*` events. Hand over to the
+  child session's stored transcript (the session-messages API, by the
+  `child_session_id` the roster provides) on completion. Verify with
+  controller tests: polling starts and stops with visibility, hand-off on
+  completion, partial history labelled.
+- [x] 5.2 Build `ThreadScreen`, a page route over the chat, with the
+  full-screen thread chrome (mockup 04): title, "Thread of <chat>", state,
+  tools, elapsed time, model, live indicator, and a task card. The
+  transcript goes through the chat's display projection and is drawn with
+  the activity rows, fold line and detail sheet; it is read-only, with no
+  composer. Verify with widget tests and `thread_view_*` goldens, and with
+  a test that the parent draft and scroll offset survive opening and
+  closing the view.
 - [x] 5.3 Build `ThreadSteerBar` (D4). Steer sends `subagent.steer` and
   shows acknowledged / did-not-land, keeping the text when it does not land.
   Stop sends `subagent.interrupt`. The bar is disabled when the thread is
   not accepting steering. Verify with widget tests for each outcome.
 
-## 6. Thread cards in the parent chat (app, after `hmy-5na.6`)
+## 6. Thread cards in the parent chat (app)
 
 - [x] 6.1 Add the "Started N threads" card as a chat display item, driven
   live by `AgentThreadsController` (mockup 02). Verify with
   display-item-builder tests and a widget test that row states update.
-- [x] 6.2 Extend U06's `BackgroundReport` classifier to read the
-  `async_delegation` annotation (subagent id, goal, status, tools,
-  duration) and render `ThreadReportCard` (mockup 06). The Continue action
+- [x] 6.2 Add a report classifier (`ThreadReportAnnotation`) that reads
+  the `async_delegation_complete` annotation (subagent id, goal, status,
+  tools, duration), falls back to the gateway's header for a turn without
+  one, and render `ThreadReportCard` (mockup 06). The Continue action
   stays hidden until `threads.continue`. Verify with classifier tests
   (annotated, legacy, mixed human text left alone) and
   `thread_report_card_*` goldens.
@@ -153,7 +159,7 @@ set on the board (`bd show hmy-6qr`).
   docs, and open a PR on `ryderdavid/hermes-agent`. Verify the gateway
   repo's own lint and test suite pass.
 
-## 9. Thread messaging, app side (app, after group 8 is deployed)
+## 9. Thread messaging, app side (app; live only once group 8 is deployed)
 
 - [x] 9.1 Render `async_delegation_message` turns as `ThreadMessageCard`
   (mockup 05). Updates offer Open thread. Questions use the emphasised card

@@ -23,8 +23,8 @@ it.
 - **Thread view.** A full screen for one thread: the task the coordinator
   gave it, a live tail of its tool activity and text (`subagent.tail` while
   running, the stored transcript once finished), and a steer bar that sends
-  `subagent.steer`, with Stop (`subagent.interrupt`). Mockup 04. It builds on
-  upstream's read-only delegated-task overlay (fork group U06).
+  `subagent.steer`, with Stop (`subagent.interrupt`). Mockup 04. It is
+  drawn with the chat's own projection and activity rows.
 - **Thread cards in the main chat.** The coordinator's turn leaves a
   "Started N threads" card. Each completion is drawn as a report card with
   Open thread and Continue, instead of the raw task-source text. Mockups 02
@@ -86,9 +86,8 @@ bar is a separate control, not a composer mode.
   - `turn_notification_service.dart`
   - per-chat settings storage
   - all `lib/l10n/app_*.arb`
-- **Dependency**: fork group U06 (bead `hmy-5na.6`, upstream's delegated
-  inspection and background report cards) must land first. The thread view
-  and report cards extend it.
+- **Dependency**: none on upstream group U06, which is not in this fork.
+  The thread view and report cards are built here (design.md D1).
 - **Gateway** (`~/Code/hermes-agent`):
   - `tools/async_delegation.py`, `tools/delegate_tool*.py`
   - `tui_gateway/methods_subagents.py` and `methods_session.py`

@@ -108,9 +108,11 @@ class ChatThreadsBinding extends ChangeNotifier {
     // A toggle made before the read finished is the newer choice.
     if (!_restored) _coordinatorOn = resolved;
     _restored = true;
-    if (explicit == null && resolved) {
+    if (_coordinatorOn && (explicit == null || _storedSessionId != null)) {
       // The default is taken once, when the chat is new. From here on the
       // chat has its own value and a later change of the default leaves it.
+      // A session that bound before this read finished also gets its copy
+      // under the stored id.
       await _save(store);
     }
     _notify();
