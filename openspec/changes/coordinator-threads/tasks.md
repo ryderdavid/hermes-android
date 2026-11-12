@@ -80,19 +80,19 @@ set on the board (`bd show hmy-6qr`).
 
 ## 5. Thread view on the U06 route (app, after `hmy-5na.6`)
 
-- [ ] 5.1 Extend U06's `DelegatedTaskController` with a live source:
+- [x] 5.1 Extend U06's `DelegatedTaskController` with a live source:
   `subagent.tail` polled every 2 s while the view is visible and the thread
   is running, plus the controller's `subagent.*` events. Hand over to
   stored-history reads on completion. Verify with controller tests: polling
   starts and stops with visibility, hand-off on completion, partial history
   labelled.
-- [ ] 5.2 Give the U06 timeline route the full-screen thread chrome
+- [x] 5.2 Give the U06 timeline route the full-screen thread chrome
   (mockup 04): title, "Thread of <chat>", state, tools, elapsed time, model,
   live indicator, and a task card. Tool activity uses `GatewayActivityCard`.
   Verify with widget tests and `thread_view_*` goldens, and with a test
   that the parent draft and scroll offset survive opening and closing the
   view.
-- [ ] 5.3 Build `ThreadSteerBar` (D4). Steer sends `subagent.steer` and
+- [x] 5.3 Build `ThreadSteerBar` (D4). Steer sends `subagent.steer` and
   shows acknowledged / did-not-land, keeping the text when it does not land.
   Stop sends `subagent.interrupt`. The bar is disabled when the thread is
   not accepting steering. Verify with widget tests for each outcome.
