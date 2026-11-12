@@ -27,6 +27,7 @@ import 'core/widgets/config_backup_card.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
+import 'package:hermes_android/l10n/app_localizations_en.dart';
 import 'core/expressive/expressive.dart';
 import 'core/chat_icons/chat_icon_settings.dart';
 
@@ -271,6 +272,11 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
   /// MaterialApp this state builds.
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
+  /// Lets the root surface pending approvals on any screen, not only on the
+  /// owning chat (permission dialogs otherwise appear only after a back tap).
+  final GlobalKey<ScaffoldMessengerState> _messengerKey =
+      GlobalKey<ScaffoldMessengerState>();
+
   @override
   void initState() {
     super.initState();
@@ -278,6 +284,7 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
     AppearancePreferences(widget.connManager.prefs).read();
     ChatIconPreferences(widget.connManager.prefs).read();
     _turnApplicationController = GatewayTurnApplicationController();
+    pendingNotificationApprovals.addListener(_onPendingApprovalsChanged);
     // The keep-alive follows the work: a turn settling (or starting) while
     // backgrounded must end (or earn) the foreground service immediately,
     // not wait for the next resume.
@@ -386,6 +393,39 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
         .firstOrNull;
   }
 
+  String? _lastPendingApprovalNoticeKey;
+
+  /// A pending approval is otherwise only noticed when the user returns to
+  /// the owning chat. Surface it app-wide on any screen, with a Review action
+  /// that opens that session (the chat still presents and answers the prompt).
+  void _onPendingApprovalsChanged() {
+    final pending = pendingNotificationApprovals.value;
+    if (!mounted || pending.isEmpty) return;
+    final first = pending.first;
+    final key =
+        '${first.connectionId}|${first.sessionId}|${first.requestId}|${first.choice}';
+    if (key == _lastPendingApprovalNoticeKey) return;
+    _lastPendingApprovalNoticeKey = key;
+    final messenger = _messengerKey.currentState;
+    if (messenger == null) return;
+    messenger.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 20),
+        content: Text(AppLocalizationsEn().approval_needed),
+        action: SnackBarAction(
+          label: 'Review',
+          onPressed: () {
+            final connection = _connectionById(first.connectionId);
+            if (connection != null) {
+              unawaited(_openNotificationSession(connection, first.sessionId));
+            }
+          },
+        ),
+      ),
+    );
+  }
+
   /// Opens the chat a notification was about; falls back to the workspace when
   /// the session cannot be fetched (deleted, or outside the recent list).
   Future<void> _openNotificationSession(
@@ -465,6 +505,7 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
     final seed = appearance.colorSource.seed;
     return MaterialApp(
       navigatorKey: _navigatorKey,
+      scaffoldMessengerKey: _messengerKey,
       onGenerateTitle: (context) => context.l10n.hermes_agent,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: preferredSupportedLocales(),
@@ -517,6 +558,7 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    pendingNotificationApprovals.removeListener(_onPendingApprovalsChanged);
     WidgetsBinding.instance.removeObserver(this);
     final token = _keepAliveTurnActivityToken;
     if (token != null) {
