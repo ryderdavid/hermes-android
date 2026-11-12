@@ -171,6 +171,35 @@ class _GatewayApprovalDialogState extends State<GatewayApprovalDialog> {
                     ),
                   ],
                 ),
+                if (request.thread case final thread?) ...[
+                  const SizedBox(height: 16),
+                  // Names the thread that asked, so the answer is understood
+                  // to go to that thread's request and nothing else.
+                  Row(
+                    key: const Key('approval-thread'),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.call_split,
+                        size: 20,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          context.l10n.approval_from_thread(
+                            (thread.goal?.isNotEmpty ?? false)
+                                ? thread.goal!
+                                : context.l10n.thread_untitled,
+                          ),
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 if (request.description.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Text(request.description, style: theme.textTheme.bodyLarge),

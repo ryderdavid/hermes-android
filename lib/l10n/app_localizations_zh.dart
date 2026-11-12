@@ -2755,6 +2755,343 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get activity_sheet_details => '详情';
+
+  @override
+  String get thread_state_running => '运行中';
+
+  @override
+  String get thread_state_needs_you => '需要你处理';
+
+  @override
+  String get thread_state_done => '已完成';
+
+  @override
+  String get thread_state_failed => '失败';
+
+  @override
+  String get thread_state_stopped => '已停止';
+
+  @override
+  String get thread_state_queued => '排队中';
+
+  @override
+  String thread_tools_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个工具',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get thread_untitled => '线程';
+
+  @override
+  String get threads_all => '全部';
+
+  @override
+  String get threads_paused_chip => '已暂停';
+
+  @override
+  String get threads_title => '线程';
+
+  @override
+  String threads_slots_in_use(int used, int limit) {
+    return '已使用 $used/$limit 个槽位';
+  }
+
+  @override
+  String threads_active_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个活动线程',
+      zero: '没有运行中的线程',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_earlier => '较早的线程';
+
+  @override
+  String threads_earlier_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '此对话中已完成 $count 个',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_stop_tooltip => '停止线程';
+
+  @override
+  String get threads_stop_all => '全部停止';
+
+  @override
+  String get threads_stop_all_title => '停止所有线程？';
+
+  @override
+  String threads_stop_all_body(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '这会中断此对话中正在运行的 $count 个线程。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_pause_new => '暂停新线程';
+
+  @override
+  String get threads_resume_new => '恢复新线程';
+
+  @override
+  String get threads_pause_gateway_wide => '暂停此网关上所有对话的新线程。正在运行的线程会继续。';
+
+  @override
+  String get threads_paused_gateway_wide => '此网关上所有对话的新线程均已暂停。';
+
+  @override
+  String threads_action_failed(String error) {
+    return '无法连接网关：$error';
+  }
+
+  @override
+  String get threads_already_finished => '该线程已经结束。';
+
+  @override
+  String thread_of_chat(String chat) {
+    return '$chat 的线程';
+  }
+
+  @override
+  String get thread_live => '实时';
+
+  @override
+  String get thread_task_title => '协调者交给的任务';
+
+  @override
+  String get thread_history_unavailable => '无法加载已保存的记录。';
+
+  @override
+  String get thread_history_partial => '更早的步骤不可用。';
+
+  @override
+  String get thread_live_tail_truncated => '正在显示最近的活动。更早的步骤会在线程结束后显示。';
+
+  @override
+  String get thread_no_activity_yet => '此线程暂无内容。';
+
+  @override
+  String get thread_queued_waiting => '正在等待空闲槽位';
+
+  @override
+  String thread_queue_position(int position) {
+    return '排在第 $position 位';
+  }
+
+  @override
+  String get thread_steer_hint => '引导此线程…';
+
+  @override
+  String get thread_steer_send => '引导';
+
+  @override
+  String get thread_steer_sent => '引导已排队，将在线程的下一步生效。';
+
+  @override
+  String get thread_steer_acknowledged => '线程已收到你的引导。';
+
+  @override
+  String get thread_steer_did_not_land => '线程在引导送达前已结束。文字已保留，你可以把它作为后续请求发送。';
+
+  @override
+  String get thread_steer_unsupported => '此线程不接受引导。';
+
+  @override
+  String get thread_steer_unavailable_gateway => '此网关无法引导线程。';
+
+  @override
+  String thread_steer_failed(String error) {
+    return '无法发送引导：$error';
+  }
+
+  @override
+  String get thread_follow_up_hint => '发送后续请求…';
+
+  @override
+  String get thread_follow_up_send => '继续线程';
+
+  @override
+  String get thread_continue_queued => '后续请求已排队，有空闲槽位时开始。';
+
+  @override
+  String get thread_continue_started => '线程已重新运行。';
+
+  @override
+  String thread_continue_rejected(String reason) {
+    return '网关拒绝了后续请求：$reason';
+  }
+
+  @override
+  String thread_continue_failed(String error) {
+    return '无法发送后续请求：$error';
+  }
+
+  @override
+  String threads_started(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已启动 $count 个线程',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String thread_report_finished(String goal) {
+    return '$goal · 已完成';
+  }
+
+  @override
+  String thread_report_failed(String goal) {
+    return '$goal · 失败';
+  }
+
+  @override
+  String thread_report_stopped(String goal) {
+    return '$goal · 已停止';
+  }
+
+  @override
+  String get thread_report_no_summary => '线程没有返回摘要。';
+
+  @override
+  String get thread_open => '打开线程';
+
+  @override
+  String thread_continue_dialog_title(String goal) {
+    return '继续 $goal';
+  }
+
+  @override
+  String get thread_continue_dialog_hint => '接下来要它做什么？';
+
+  @override
+  String thread_update_title(String goal) {
+    return '$goal · 进展';
+  }
+
+  @override
+  String thread_question_title(String goal) {
+    return '$goal 提问';
+  }
+
+  @override
+  String thread_updates_merged(int count) {
+    return '已合并 $count 条进展';
+  }
+
+  @override
+  String get thread_reply => '回复';
+
+  @override
+  String get thread_let_coordinator_decide => '交给协调者决定';
+
+  @override
+  String thread_reply_dialog_title(String goal) {
+    return '回复 $goal';
+  }
+
+  @override
+  String get thread_reply_hint => '你的回答';
+
+  @override
+  String thread_question_answered_by_you(String answer) {
+    return '你的回答：$answer';
+  }
+
+  @override
+  String thread_question_answered_by_coordinator(String answer) {
+    return '协调者的回答：$answer';
+  }
+
+  @override
+  String get thread_question_answered => '已回答。';
+
+  @override
+  String get thread_question_answered_coordinator_plain => '协调者已回答。';
+
+  @override
+  String get thread_question_deciding => '已请协调者决定…';
+
+  @override
+  String get thread_question_expired => '未获回答已过期。线程已继续执行。';
+
+  @override
+  String get thread_question_cancelled => '线程已不再等待。';
+
+  @override
+  String get thread_question_closed => '已不再等待回答。';
+
+  @override
+  String thread_reply_failed(String error) {
+    return '无法发送回复：$error';
+  }
+
+  @override
+  String get coordinator_mode => '协调者模式';
+
+  @override
+  String get coordinator_mode_subtitle => '把耗时的工作交给线程';
+
+  @override
+  String get coordinator_mode_unavailable => '需要更新网关';
+
+  @override
+  String get coordinator_label => '协调者';
+
+  @override
+  String get coordinator_default_new_chats => '新对话使用协调者模式';
+
+  @override
+  String get coordinator_default_new_chats_subtitle => '主对话会把较长的工作交给后台线程。';
+
+  @override
+  String coordinator_mode_failed(String error) {
+    return '无法更改协调者模式：$error';
+  }
+
+  @override
+  String approval_from_thread(String goal) {
+    return '来自线程：$goal';
+  }
+
+  @override
+  String get thread_notification_finished_title => '线程已完成';
+
+  @override
+  String get thread_notification_failed_title => '线程失败';
+
+  @override
+  String get thread_notification_question_title => '有线程需要你处理';
+
+  @override
+  String get thread_notification_private_finished => '有线程已结束。';
+
+  @override
+  String get thread_notification_private_attention => '有线程需要你关注。';
+
+  @override
+  String get notification_hide_content => '隐藏通知内容';
+
+  @override
+  String get notification_hide_content_subtitle => '线程通知只提示线程已结束或需要关注。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -5399,4 +5736,341 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get activity_sheet_details => '详情';
+
+  @override
+  String get thread_state_running => '运行中';
+
+  @override
+  String get thread_state_needs_you => '需要你处理';
+
+  @override
+  String get thread_state_done => '已完成';
+
+  @override
+  String get thread_state_failed => '失败';
+
+  @override
+  String get thread_state_stopped => '已停止';
+
+  @override
+  String get thread_state_queued => '排队中';
+
+  @override
+  String thread_tools_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个工具',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get thread_untitled => '线程';
+
+  @override
+  String get threads_all => '全部';
+
+  @override
+  String get threads_paused_chip => '已暂停';
+
+  @override
+  String get threads_title => '线程';
+
+  @override
+  String threads_slots_in_use(int used, int limit) {
+    return '已使用 $used/$limit 个槽位';
+  }
+
+  @override
+  String threads_active_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个活动线程',
+      zero: '没有运行中的线程',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_earlier => '较早的线程';
+
+  @override
+  String threads_earlier_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '此对话中已完成 $count 个',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_stop_tooltip => '停止线程';
+
+  @override
+  String get threads_stop_all => '全部停止';
+
+  @override
+  String get threads_stop_all_title => '停止所有线程？';
+
+  @override
+  String threads_stop_all_body(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '这会中断此对话中正在运行的 $count 个线程。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_pause_new => '暂停新线程';
+
+  @override
+  String get threads_resume_new => '恢复新线程';
+
+  @override
+  String get threads_pause_gateway_wide => '暂停此网关上所有对话的新线程。正在运行的线程会继续。';
+
+  @override
+  String get threads_paused_gateway_wide => '此网关上所有对话的新线程均已暂停。';
+
+  @override
+  String threads_action_failed(String error) {
+    return '无法连接网关：$error';
+  }
+
+  @override
+  String get threads_already_finished => '该线程已经结束。';
+
+  @override
+  String thread_of_chat(String chat) {
+    return '$chat 的线程';
+  }
+
+  @override
+  String get thread_live => '实时';
+
+  @override
+  String get thread_task_title => '协调者交给的任务';
+
+  @override
+  String get thread_history_unavailable => '无法加载已保存的记录。';
+
+  @override
+  String get thread_history_partial => '更早的步骤不可用。';
+
+  @override
+  String get thread_live_tail_truncated => '正在显示最近的活动。更早的步骤会在线程结束后显示。';
+
+  @override
+  String get thread_no_activity_yet => '此线程暂无内容。';
+
+  @override
+  String get thread_queued_waiting => '正在等待空闲槽位';
+
+  @override
+  String thread_queue_position(int position) {
+    return '排在第 $position 位';
+  }
+
+  @override
+  String get thread_steer_hint => '引导此线程…';
+
+  @override
+  String get thread_steer_send => '引导';
+
+  @override
+  String get thread_steer_sent => '引导已排队，将在线程的下一步生效。';
+
+  @override
+  String get thread_steer_acknowledged => '线程已收到你的引导。';
+
+  @override
+  String get thread_steer_did_not_land => '线程在引导送达前已结束。文字已保留，你可以把它作为后续请求发送。';
+
+  @override
+  String get thread_steer_unsupported => '此线程不接受引导。';
+
+  @override
+  String get thread_steer_unavailable_gateway => '此网关无法引导线程。';
+
+  @override
+  String thread_steer_failed(String error) {
+    return '无法发送引导：$error';
+  }
+
+  @override
+  String get thread_follow_up_hint => '发送后续请求…';
+
+  @override
+  String get thread_follow_up_send => '继续线程';
+
+  @override
+  String get thread_continue_queued => '后续请求已排队，有空闲槽位时开始。';
+
+  @override
+  String get thread_continue_started => '线程已重新运行。';
+
+  @override
+  String thread_continue_rejected(String reason) {
+    return '网关拒绝了后续请求：$reason';
+  }
+
+  @override
+  String thread_continue_failed(String error) {
+    return '无法发送后续请求：$error';
+  }
+
+  @override
+  String threads_started(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已启动 $count 个线程',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String thread_report_finished(String goal) {
+    return '$goal · 已完成';
+  }
+
+  @override
+  String thread_report_failed(String goal) {
+    return '$goal · 失败';
+  }
+
+  @override
+  String thread_report_stopped(String goal) {
+    return '$goal · 已停止';
+  }
+
+  @override
+  String get thread_report_no_summary => '线程没有返回摘要。';
+
+  @override
+  String get thread_open => '打开线程';
+
+  @override
+  String thread_continue_dialog_title(String goal) {
+    return '继续 $goal';
+  }
+
+  @override
+  String get thread_continue_dialog_hint => '接下来要它做什么？';
+
+  @override
+  String thread_update_title(String goal) {
+    return '$goal · 进展';
+  }
+
+  @override
+  String thread_question_title(String goal) {
+    return '$goal 提问';
+  }
+
+  @override
+  String thread_updates_merged(int count) {
+    return '已合并 $count 条进展';
+  }
+
+  @override
+  String get thread_reply => '回复';
+
+  @override
+  String get thread_let_coordinator_decide => '交给协调者决定';
+
+  @override
+  String thread_reply_dialog_title(String goal) {
+    return '回复 $goal';
+  }
+
+  @override
+  String get thread_reply_hint => '你的回答';
+
+  @override
+  String thread_question_answered_by_you(String answer) {
+    return '你的回答：$answer';
+  }
+
+  @override
+  String thread_question_answered_by_coordinator(String answer) {
+    return '协调者的回答：$answer';
+  }
+
+  @override
+  String get thread_question_answered => '已回答。';
+
+  @override
+  String get thread_question_answered_coordinator_plain => '协调者已回答。';
+
+  @override
+  String get thread_question_deciding => '已请协调者决定…';
+
+  @override
+  String get thread_question_expired => '未获回答已过期。线程已继续执行。';
+
+  @override
+  String get thread_question_cancelled => '线程已不再等待。';
+
+  @override
+  String get thread_question_closed => '已不再等待回答。';
+
+  @override
+  String thread_reply_failed(String error) {
+    return '无法发送回复：$error';
+  }
+
+  @override
+  String get coordinator_mode => '协调者模式';
+
+  @override
+  String get coordinator_mode_subtitle => '把耗时的工作交给线程';
+
+  @override
+  String get coordinator_mode_unavailable => '需要更新网关';
+
+  @override
+  String get coordinator_label => '协调者';
+
+  @override
+  String get coordinator_default_new_chats => '新对话使用协调者模式';
+
+  @override
+  String get coordinator_default_new_chats_subtitle => '主对话会把较长的工作交给后台线程。';
+
+  @override
+  String coordinator_mode_failed(String error) {
+    return '无法更改协调者模式：$error';
+  }
+
+  @override
+  String approval_from_thread(String goal) {
+    return '来自线程：$goal';
+  }
+
+  @override
+  String get thread_notification_finished_title => '线程已完成';
+
+  @override
+  String get thread_notification_failed_title => '线程失败';
+
+  @override
+  String get thread_notification_question_title => '有线程需要你处理';
+
+  @override
+  String get thread_notification_private_finished => '有线程已结束。';
+
+  @override
+  String get thread_notification_private_attention => '有线程需要你关注。';
+
+  @override
+  String get notification_hide_content => '隐藏通知内容';
+
+  @override
+  String get notification_hide_content_subtitle => '线程通知只提示线程已结束或需要关注。';
 }

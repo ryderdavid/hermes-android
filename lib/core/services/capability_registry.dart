@@ -166,7 +166,7 @@ class CapabilityRegistry extends ChangeNotifier {
   // These capabilities are advertised as a list of keys in `session.info`
   // rather than in `gateway.ready`. A stock gateway advertises none of them
   // but already serves the roster, tail, steer and interrupt RPCs, so thread
-  // support there is proven by one probe per connection instead.
+  // support there is proven by one `subagent.list` probe per connection.
 
   /// Reads the capability keys of a `session.info` object: the event
   /// payload, or the `info` of a session.create / session.resume result.
@@ -185,7 +185,7 @@ class CapabilityRegistry extends ChangeNotifier {
   bool advertisesSessionCapability(String key) =>
       _sessionCapabilities.contains(key);
 
-  bool get _threadRosterProbed => isSupported(ThreadRpc.roster);
+  bool get _threadRosterProbed => isSupported(ThreadRpc.list);
 
   /// The roster, tail, slot status and pause are available: advertised, or
   /// proven by the probe.
@@ -215,8 +215,8 @@ class CapabilityRegistry extends ChangeNotifier {
   bool get coordinatorMode =>
       advertisesSessionCapability(ThreadCapabilityKey.coordinatorMode);
 
-  /// Probes `subagent.roster` once per connection on a gateway that has not
-  /// advertised thread support. [call] performs the RPC.
+  /// Probes `subagent.list` (the per-chat roster) once per connection on a
+  /// gateway that has not advertised thread support. [call] performs the RPC.
   ///
   /// A result, or a domain error, proves the method exists. An unknown-method
   /// error proves it does not, and the app keeps the read-only task list. A
@@ -234,11 +234,11 @@ class CapabilityRegistry extends ChangeNotifier {
       // An answer from a connection that has since been replaced says
       // nothing about the current one.
       if (epoch != _connectionEpoch) return;
-      recordSuccess(ThreadRpc.roster);
+      recordSuccess(ThreadRpc.list);
     } catch (error) {
       if (epoch != _connectionEpoch) return;
-      recordFailure(ThreadRpc.roster, error);
-      if (supportFor(ThreadRpc.roster) == CapabilitySupport.unknown) {
+      recordFailure(ThreadRpc.list, error);
+      if (supportFor(ThreadRpc.list) == CapabilitySupport.unknown) {
         _threadRosterProbeStarted = false;
       }
     }

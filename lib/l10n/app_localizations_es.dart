@@ -2854,4 +2854,362 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get activity_sheet_details => 'Detalles';
+
+  @override
+  String get thread_state_running => 'En curso';
+
+  @override
+  String get thread_state_needs_you => 'Te necesita';
+
+  @override
+  String get thread_state_done => 'Terminado';
+
+  @override
+  String get thread_state_failed => 'Falló';
+
+  @override
+  String get thread_state_stopped => 'Detenido';
+
+  @override
+  String get thread_state_queued => 'En cola';
+
+  @override
+  String thread_tools_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count herramientas',
+      one: '$count herramienta',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get thread_untitled => 'Hilo';
+
+  @override
+  String get threads_all => 'Todos';
+
+  @override
+  String get threads_paused_chip => 'En pausa';
+
+  @override
+  String get threads_title => 'Hilos';
+
+  @override
+  String threads_slots_in_use(int used, int limit) {
+    return '$used de $limit espacios en uso';
+  }
+
+  @override
+  String threads_active_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hilos activos',
+      one: '$count hilo activo',
+      zero: 'No hay hilos en curso',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_earlier => 'Hilos anteriores';
+
+  @override
+  String threads_earlier_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count terminados en este chat',
+      one: '$count terminado en este chat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_stop_tooltip => 'Detener hilo';
+
+  @override
+  String get threads_stop_all => 'Detener todos';
+
+  @override
+  String get threads_stop_all_title => '¿Detener todos los hilos?';
+
+  @override
+  String threads_stop_all_body(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Esto interrumpe los $count hilos en curso de este chat.',
+      one: 'Esto interrumpe el $count hilo en curso de este chat.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_pause_new => 'Pausar hilos nuevos';
+
+  @override
+  String get threads_resume_new => 'Reanudar hilos nuevos';
+
+  @override
+  String get threads_pause_gateway_wide =>
+      'Pausa los hilos nuevos en todos los chats de esta pasarela. Los hilos en curso continúan.';
+
+  @override
+  String get threads_paused_gateway_wide =>
+      'Los hilos nuevos están en pausa en todos los chats de esta pasarela.';
+
+  @override
+  String threads_action_failed(String error) {
+    return 'No se pudo contactar con la pasarela: $error';
+  }
+
+  @override
+  String get threads_already_finished => 'Ese hilo ya había terminado.';
+
+  @override
+  String thread_of_chat(String chat) {
+    return 'Hilo de $chat';
+  }
+
+  @override
+  String get thread_live => 'En vivo';
+
+  @override
+  String get thread_task_title => 'Tarea del coordinador';
+
+  @override
+  String get thread_history_unavailable =>
+      'No se pudo cargar la transcripción guardada.';
+
+  @override
+  String get thread_history_partial =>
+      'Los pasos anteriores no están disponibles.';
+
+  @override
+  String get thread_live_tail_truncated =>
+      'Se muestra la actividad más reciente. Los pasos anteriores aparecen cuando el hilo termina.';
+
+  @override
+  String get thread_no_activity_yet => 'Aún no hay nada de este hilo.';
+
+  @override
+  String get thread_queued_waiting => 'Esperando un espacio libre';
+
+  @override
+  String thread_queue_position(int position) {
+    return 'Posición $position en la cola';
+  }
+
+  @override
+  String get thread_steer_hint => 'Guiar este hilo…';
+
+  @override
+  String get thread_steer_send => 'Guiar';
+
+  @override
+  String get thread_steer_sent =>
+      'Indicación en cola para el siguiente paso del hilo.';
+
+  @override
+  String get thread_steer_acknowledged => 'El hilo recibió tu indicación.';
+
+  @override
+  String get thread_steer_did_not_land =>
+      'El hilo terminó antes de que llegara tu indicación. El texto se conserva para que puedas enviarlo como seguimiento.';
+
+  @override
+  String get thread_steer_unsupported => 'Este hilo no acepta indicaciones.';
+
+  @override
+  String get thread_steer_unavailable_gateway =>
+      'Esta pasarela no puede guiar hilos.';
+
+  @override
+  String thread_steer_failed(String error) {
+    return 'No se pudo enviar la indicación: $error';
+  }
+
+  @override
+  String get thread_follow_up_hint => 'Enviar un seguimiento…';
+
+  @override
+  String get thread_follow_up_send => 'Continuar hilo';
+
+  @override
+  String get thread_continue_queued =>
+      'Seguimiento en cola. Empieza cuando se libere un espacio.';
+
+  @override
+  String get thread_continue_started => 'El hilo está en curso otra vez.';
+
+  @override
+  String thread_continue_rejected(String reason) {
+    return 'La pasarela rechazó el seguimiento: $reason';
+  }
+
+  @override
+  String thread_continue_failed(String error) {
+    return 'No se pudo enviar el seguimiento: $error';
+  }
+
+  @override
+  String threads_started(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Se iniciaron $count hilos',
+      one: 'Se inició $count hilo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String thread_report_finished(String goal) {
+    return '$goal · terminado';
+  }
+
+  @override
+  String thread_report_failed(String goal) {
+    return '$goal · falló';
+  }
+
+  @override
+  String thread_report_stopped(String goal) {
+    return '$goal · detenido';
+  }
+
+  @override
+  String get thread_report_no_summary => 'El hilo no devolvió ningún resumen.';
+
+  @override
+  String get thread_open => 'Abrir hilo';
+
+  @override
+  String thread_continue_dialog_title(String goal) {
+    return 'Continuar $goal';
+  }
+
+  @override
+  String get thread_continue_dialog_hint => '¿Qué debe hacer ahora?';
+
+  @override
+  String thread_update_title(String goal) {
+    return '$goal · novedad';
+  }
+
+  @override
+  String thread_question_title(String goal) {
+    return '$goal pregunta';
+  }
+
+  @override
+  String thread_updates_merged(int count) {
+    return '$count novedades combinadas';
+  }
+
+  @override
+  String get thread_reply => 'Responder';
+
+  @override
+  String get thread_let_coordinator_decide => 'Que decida el coordinador';
+
+  @override
+  String thread_reply_dialog_title(String goal) {
+    return 'Responder a $goal';
+  }
+
+  @override
+  String get thread_reply_hint => 'Tu respuesta';
+
+  @override
+  String thread_question_answered_by_you(String answer) {
+    return 'Respondiste: $answer';
+  }
+
+  @override
+  String thread_question_answered_by_coordinator(String answer) {
+    return 'El coordinador respondió: $answer';
+  }
+
+  @override
+  String get thread_question_answered => 'Respondida.';
+
+  @override
+  String get thread_question_answered_coordinator_plain =>
+      'El coordinador respondió.';
+
+  @override
+  String get thread_question_deciding => 'Se pidió al coordinador que decida…';
+
+  @override
+  String get thread_question_expired =>
+      'Caducó sin respuesta. El hilo siguió adelante.';
+
+  @override
+  String get thread_question_cancelled => 'El hilo dejó de esperar.';
+
+  @override
+  String get thread_question_closed => 'Ya no espera respuesta.';
+
+  @override
+  String thread_reply_failed(String error) {
+    return 'No se pudo enviar la respuesta: $error';
+  }
+
+  @override
+  String get coordinator_mode => 'Modo coordinador';
+
+  @override
+  String get coordinator_mode_subtitle => 'Delegar el trabajo largo en hilos';
+
+  @override
+  String get coordinator_mode_unavailable => 'Hay que actualizar la pasarela';
+
+  @override
+  String get coordinator_label => 'Coordinador';
+
+  @override
+  String get coordinator_default_new_chats =>
+      'Los chats nuevos usan el modo coordinador';
+
+  @override
+  String get coordinator_default_new_chats_subtitle =>
+      'El chat principal delega el trabajo más largo en hilos en segundo plano.';
+
+  @override
+  String coordinator_mode_failed(String error) {
+    return 'No se pudo cambiar el modo coordinador: $error';
+  }
+
+  @override
+  String approval_from_thread(String goal) {
+    return 'Del hilo: $goal';
+  }
+
+  @override
+  String get thread_notification_finished_title => 'Hilo terminado';
+
+  @override
+  String get thread_notification_failed_title => 'El hilo falló';
+
+  @override
+  String get thread_notification_question_title => 'Un hilo te necesita';
+
+  @override
+  String get thread_notification_private_finished => 'Un hilo terminó.';
+
+  @override
+  String get thread_notification_private_attention =>
+      'Un hilo necesita tu atención.';
+
+  @override
+  String get notification_hide_content =>
+      'Ocultar el contenido en las notificaciones';
+
+  @override
+  String get notification_hide_content_subtitle =>
+      'Las notificaciones de hilos solo indican que un hilo terminó o necesita atención.';
 }

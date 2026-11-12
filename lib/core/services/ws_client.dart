@@ -1507,8 +1507,8 @@ class WsClient {
     );
   }
 
-  /// The app-wide `subagent.roster` read. It needs no session, which makes it
-  /// the probe for thread support on a gateway that advertises nothing.
+  /// The app-wide `subagent.roster` read: live work counted per stored
+  /// conversation. It is not a chat's roster; that is [listSubagents].
   Future<Map<String, dynamic>> subagentRoster() =>
       _threadCall(ThreadRpc.roster, const {});
 

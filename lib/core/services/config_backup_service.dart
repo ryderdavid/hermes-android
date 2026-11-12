@@ -7,6 +7,7 @@ import 'app_update_service.dart';
 import 'appearance_preferences.dart';
 import 'chat_density_preference.dart';
 import 'connection_manager.dart';
+import 'coordinator_mode_store.dart';
 import 'local_chat_pin_store.dart';
 
 /// How an imported backup is applied to the connections already on the device.
@@ -71,6 +72,8 @@ class ConfigBackupService {
     AppUpdateService.skippedVersionKey,
     // Turn-notification toggles and quiet hours (a single JSON string).
     'hermes_notification_prefs',
+    // "New chats use coordinator mode".
+    CoordinatorModeStore.newChatsDefaultKey,
   };
 
   /// Prefixes for per-connection and per-chat preferences, which are keyed by
@@ -78,6 +81,8 @@ class ConfigBackupService {
   static const List<String> preferenceKeyPrefixes = <String>[
     'session_search.',
     'chat_model_override.',
+    // Per-chat coordinator mode.
+    CoordinatorModeStore.keyPrefix,
     'excluded_session_sources_',
     'chat_spaces_v1_',
     LocalChatPinStore.keyPrefix,
@@ -189,6 +194,9 @@ class ConfigBackupService {
     // written: the settings card and any open chat took their copy at build
     // time and would otherwise keep showing the pre-import value.
     ChatDensityStore(_preferences).read();
+    coordinatorNewChatsDefault.value = CoordinatorModeStore(
+      _preferences,
+    ).newChatsDefault;
     AppearancePreferences(_preferences).read();
 
     return ConfigImportResult(

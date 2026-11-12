@@ -10,11 +10,13 @@ import 'dart:convert';
 
 /// RPC method names.
 abstract final class ThreadRpc {
-  /// Per-chat roster of live threads. Params: `session_id`.
+  /// Per-chat roster of live threads. Params: `session_id`. It seeds the
+  /// roster, and its first answer on a connection is the probe for thread
+  /// support on a gateway that advertises none.
   static const list = 'subagent.list';
 
-  /// App-wide count per stored conversation; takes no `session_id`. Used only
-  /// as the once-per-connection probe for thread support on stock gateways.
+  /// App-wide count per stored conversation; takes no `session_id`. Not a
+  /// per-chat roster, so the thread UI does not use it.
   static const roster = 'subagent.roster';
   static const tail = 'subagent.tail';
   static const steer = 'subagent.steer';

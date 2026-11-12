@@ -1,5 +1,7 @@
+import '../models/agent_thread.dart';
 import '../models/gateway_activity.dart';
 import '../models/gateway_insight.dart';
+import '../services/thread_wire.dart';
 import 'message_content.dart';
 
 /// One activity row in the chat: a tool call or a block of reasoning.
@@ -99,6 +101,82 @@ class ChatTurnFold {
   bool get hasFailure => failureCount > 0;
 }
 
+/// The card a parent turn leaves when it starts threads: one row per thread,
+/// each showing that thread's current state.
+class ChatThreadsStartedItem {
+  const ChatThreadsStartedItem({required this.id, required this.threads});
+
+  final String id;
+  final List<AgentThread> threads;
+}
+
+/// A finished thread's result, shown instead of the raw task-source text of
+/// the parent turn that delivered it.
+class ChatThreadReportItem {
+  const ChatThreadReportItem({required this.id, required this.report});
+
+  final String id;
+  final ThreadReportAnnotation report;
+}
+
+/// An update or a question a running thread sent to the parent chat.
+class ChatThreadMessageItem {
+  const ChatThreadMessageItem({
+    required this.id,
+    required this.message,
+    this.stored = true,
+  });
+
+  final String id;
+  final ThreadMessageAnnotation message;
+
+  /// False for a message delivered live that the stored history does not
+  /// show yet.
+  final bool stored;
+}
+
+/// The thread card a stored user row stands for, or `null` for a message a
+/// person wrote.
+///
+/// The gateway's annotation decides (`display_kind`, `display_metadata`). A
+/// row without one is matched on the gateway's own header at the very start
+/// of its text, so a person's message that quotes a report is left alone.
+Object? threadCardForUserRow(Map<String, dynamic> row, String text, int index) {
+  final rowId = _rowId(row) ?? 'index:$index';
+  final kind = row['display_kind'];
+  final metadata = row['display_metadata'];
+  if (kind == null || kind == '' || kind == ThreadDisplayKind.message) {
+    final message =
+        (kind == ThreadDisplayKind.message
+            ? ThreadMessageAnnotation.parse(metadata)
+            : null) ??
+        ThreadMessageAnnotation.fromScaffold(text, rowId: rowId);
+    if (message != null) {
+      return ChatThreadMessageItem(
+        id: 'thread-message:$rowId',
+        message: message,
+      );
+    }
+  }
+  final report = ThreadReportAnnotation.classify(
+    content: text,
+    displayKind: kind,
+    displayMetadata: metadata,
+  );
+  if (report != null) {
+    return ChatThreadReportItem(id: 'thread-report:$rowId', report: report);
+  }
+  return null;
+}
+
+bool _sameThreadMessage(ThreadMessageAnnotation a, ThreadMessageAnnotation b) {
+  if (a.messageId == b.messageId) return true;
+  if (a.subagentId != b.subagentId || a.kind != b.kind) return false;
+  return a.isQuestion
+      ? a.questionId != null && a.questionId == b.questionId
+      : a.text.trim() == b.text.trim();
+}
+
 /// The first non-empty line of [reasoning] with markdown markers removed, or
 /// `null` when that line has no letters or digits.
 String? reasoningHeadlineOf(String reasoning) {
@@ -192,14 +270,25 @@ Duration? turnWorkDuration(
   return end.difference(start);
 }
 
+/// When a turn began: its user message's stored time, or the time this
+/// device sent it.
+DateTime? _turnStart(Map<String, dynamic>? userMessage) {
+  if (userMessage == null) return null;
+  final stored = GatewayToolActivity.storedResultTime(userMessage['timestamp']);
+  if (stored != null) return stored;
+  final observed = userMessage['_turn_started_at'];
+  return observed is DateTime ? observed.toUtc() : null;
+}
+
 class _Turn {
   _Turn(this.index, {this.user, this.rawUser});
 
   /// Position of the turn's first message, the fallback for its id.
   final int index;
 
-  /// The user bubble as displayed, and the stored message it came from.
-  final Map<String, dynamic>? user;
+  /// What opens the turn as displayed (a user bubble, or the thread card a
+  /// gateway-written row stands for), and the stored message it came from.
+  final Object? user;
   final Map<String, dynamic>? rawUser;
 
   /// [ChatActivityStep]s and assistant message maps, in the order they
@@ -234,6 +323,12 @@ String? _rowId(Map<String, dynamic> message) {
 /// blocks stripped) and, for assistant replies, `_retry_prompt`. A
 /// `GatewaySubagentActivity` list and [GatewayNotice]s are appended last.
 ///
+/// A user row the gateway wrote for a thread becomes a [ChatThreadReportItem]
+/// or a [ChatThreadMessageItem] instead of a bubble. Each of [threads] is
+/// listed in one [ChatThreadsStartedItem], placed after the turn that was
+/// running when the thread started. [liveThreadMessages] not yet in the
+/// stored history are appended as cards.
+///
 /// Stored tool-result messages consume [toolActivities] in order. An activity
 /// left over (streamed, not yet stored) is placed after the message it is
 /// anchored to (D2), or at the end when it has no anchor. The caller's list
@@ -247,6 +342,8 @@ List<dynamic> buildChatDisplayItems({
   List<GatewayToolActivity> toolActivities = const [],
   List<GatewaySubagentActivity> subagentActivities = const [],
   List<GatewayNotice> notices = const [],
+  List<AgentThread> threads = const [],
+  List<ThreadMessageAnnotation> liveThreadMessages = const [],
   bool turnActive = false,
   bool? Function(String turnId)? foldChoice,
 }) {
@@ -300,11 +397,13 @@ List<dynamic> buildChatDisplayItems({
 
       if (role == 'user' && content.isNotEmpty) {
         if (!current.isEmpty) turns.add(current);
-        lastUserPrompt = content;
+        final card = threadCardForUserRow(msg, content, index);
+        // A gateway-written turn has no prompt of the user's to retry.
+        lastUserPrompt = card == null ? content : null;
         current = _Turn(
           index,
           rawUser: msg,
-          user: {...msg, 'role': role, '_display_content': content},
+          user: card ?? {...msg, 'role': role, '_display_content': content},
         );
       } else if (role == 'assistant') {
         if (hasReasoning) {
@@ -335,10 +434,38 @@ List<dynamic> buildChatDisplayItems({
   }
   if (!current.isEmpty) turns.add(current);
 
+  // Each thread belongs to the turn that was running when it started: the
+  // last turn that began at or before the thread did.
+  final startedByTurn = <int, List<AgentThread>>{};
+  if (threads.isNotEmpty) {
+    final turnStarts = [for (final turn in turns) _turnStart(turn.rawUser)];
+    for (final thread in threads) {
+      final spawned = thread.spawnedAt;
+      var owner = turns.length - 1;
+      if (spawned != null) {
+        final limit = spawned.add(const Duration(seconds: 2));
+        for (var index = turns.length - 1; index >= 0; index--) {
+          final start = turnStarts[index];
+          if (start != null && !start.isAfter(limit)) {
+            owner = index;
+            break;
+          }
+        }
+      }
+      startedByTurn.putIfAbsent(owner, () => []).add(thread);
+    }
+  }
+  ChatThreadsStartedItem startedCard(List<AgentThread> started) =>
+      ChatThreadsStartedItem(
+        id: 'threads-started:${started.first.id}',
+        threads: List.unmodifiable(started),
+      );
+
   final displayItems = <dynamic>[];
   for (final (turnIndex, turn) in turns.indexed) {
     final running = turnActive && turnIndex == turns.length - 1;
     if (turn.user != null) displayItems.add(turn.user);
+    final started = startedByTurn[turnIndex];
 
     final last = turn.entries.isEmpty ? null : turn.entries.last;
     final finalAnswer =
@@ -355,6 +482,7 @@ List<dynamic> buildChatDisplayItems({
     if (finalAnswer == null || activitySteps.isEmpty) {
       // Running, interrupted, or a reply that needed no tools: nothing folds.
       displayItems.addAll(turn.entries);
+      if (started != null) displayItems.add(startedCard(started));
       continue;
     }
 
@@ -394,6 +522,28 @@ List<dynamic> buildChatDisplayItems({
     );
     if (unfolded) displayItems.addAll(groupActivitySteps(steps));
     displayItems.add(finalAnswer);
+    if (started != null) displayItems.add(startedCard(started));
+  }
+  // Threads with no turn to belong to (an empty chat) still get their card.
+  if (turns.isEmpty && threads.isNotEmpty) {
+    displayItems.add(startedCard(threads));
+  }
+
+  if (liveThreadMessages.isNotEmpty) {
+    final stored = [
+      for (final item in displayItems.whereType<ChatThreadMessageItem>())
+        item.message,
+    ];
+    for (final message in liveThreadMessages) {
+      if (stored.any((other) => _sameThreadMessage(other, message))) continue;
+      displayItems.add(
+        ChatThreadMessageItem(
+          id: 'thread-message:live:${message.messageId}',
+          message: message,
+          stored: false,
+        ),
+      );
+    }
   }
 
   if (subagentActivities.isNotEmpty) {

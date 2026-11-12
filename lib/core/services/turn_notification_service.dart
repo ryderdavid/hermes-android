@@ -477,6 +477,72 @@ class TurnNotificationService {
     return true;
   }
 
+  /// Posts a notification for a thread that finished, failed, or asked the
+  /// user a question while its parent chat was not on screen.
+  ///
+  /// It follows the same per-kind preferences as turn notifications: a
+  /// finished thread is a completed turn, a failed one a failed turn, and a
+  /// question an input request. With the privacy setting on
+  /// ([NotificationPrefs.hideContent]) the notification says only that a
+  /// thread finished or needs attention: no chat title, goal, summary or
+  /// question text.
+  ///
+  /// The payload names the parent chat, so a tap opens it; the card for the
+  /// thread is at the end of that chat.
+  Future<bool> showThreadEvent({
+    required ThreadNotificationEvent event,
+    required ThreadNotificationText text,
+    required String threadId,
+    required String chatTitle,
+    required String goal,
+    String? detail,
+    String? eventId,
+    String? sessionId,
+    String? connectionId,
+  }) {
+    final private = notificationPrefs.value.hideContent;
+    final title = switch (event) {
+      ThreadNotificationEvent.finished => text.finishedTitle,
+      ThreadNotificationEvent.failed => text.failedTitle,
+      ThreadNotificationEvent.question => text.questionTitle,
+    };
+    final String body;
+    if (private) {
+      body = event == ThreadNotificationEvent.question
+          ? text.privateAttention
+          : text.privateFinished;
+    } else {
+      final trimmedDetail = detail?.trim() ?? '';
+      final clipped = trimmedDetail.length > 140
+          ? '${trimmedDetail.substring(0, 140)}…'
+          : trimmedDetail;
+      body = [
+        if (goal.trim().isNotEmpty) goal.trim(),
+        if (clipped.isNotEmpty) clipped,
+      ].join('\n');
+    }
+    return showKind(
+      kind: switch (event) {
+        ThreadNotificationEvent.finished => HermesNotificationKind.turnDone,
+        ThreadNotificationEvent.failed => HermesNotificationKind.turnError,
+        ThreadNotificationEvent.question => HermesNotificationKind.input,
+      },
+      title: private || chatTitle.trim().isEmpty
+          ? title
+          : '$title — ${chatTitle.trim()}',
+      body: body.isEmpty ? title : body,
+      eventId: 'thread:${event.name}:$threadId:${eventId ?? ''}',
+      sessionId: sessionId,
+      connectionId: connectionId,
+      payload: jsonEncode({
+        if (sessionId != null && sessionId.isNotEmpty) 'sessionId': sessionId,
+        if (connectionId != null && connectionId.isNotEmpty)
+          'connectionId': connectionId,
+        'threadId': threadId,
+      }),
+    );
+  }
+
   /// Settings "send test": bypasses gating like the desktop panel does, so a
   /// silent OS-level permission failure can be told apart from a dead feature.
   Future<bool> sendTestNotification({
@@ -530,6 +596,31 @@ class TurnNotificationService {
   /// accepts, and keeps one turn mapped to exactly one notification so a turn
   /// replaces its own notification instead of stacking duplicates.
   static int notificationIdFor(String turnId) => turnId.hashCode & 0x7fffffff;
+}
+
+/// What a thread notification is about.
+enum ThreadNotificationEvent { finished, failed, question }
+
+/// The localized text of thread notifications. The service has no
+/// `BuildContext`; the chat passes these in.
+class ThreadNotificationText {
+  const ThreadNotificationText({
+    required this.finishedTitle,
+    required this.failedTitle,
+    required this.questionTitle,
+    required this.privateFinished,
+    required this.privateAttention,
+  });
+
+  final String finishedTitle;
+  final String failedTitle;
+  final String questionTitle;
+
+  /// Body used instead of the goal and summary when content is hidden.
+  final String privateFinished;
+
+  /// Body used instead of the question when content is hidden.
+  final String privateAttention;
 }
 
 /// A notification tap or action, parsed from the platform response payload.

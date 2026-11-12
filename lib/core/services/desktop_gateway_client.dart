@@ -1143,10 +1143,10 @@ class DesktopGatewayClient {
   // ── Threads (background subagents) and coordinator mode ───────────────
 
   /// Probes thread support once per connection on a gateway that has not
-  /// advertised it. Safe to call on every bind: the registry de-duplicates.
-  Future<void> probeThreadSupport() => _capabilities.probeThreadRoster(
-    () async => (await _connectControl()).subagentRoster(),
-  );
+  /// advertised it, by reading the roster of the chat bound to [sessionId].
+  /// Safe to call on every bind: the registry de-duplicates.
+  Future<void> probeThreadSupport(String sessionId) =>
+      _capabilities.probeThreadRoster(() => listThreads(sessionId));
 
   /// The live threads of the chat bound to [sessionId].
   Future<ThreadRosterSnapshot> listThreads(String sessionId) =>

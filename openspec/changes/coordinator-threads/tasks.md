@@ -28,27 +28,27 @@ set on the board (`bd show hmy-6qr`).
 
 ## 2. Threads controller, roster strip and sheet (app)
 
-- [ ] 2.1 Add `AgentThread` and `AgentThreadsController` (one per chat).
+- [x] 2.1 Add `AgentThread` and `AgentThreadsController` (one per chat).
   The controller seeds from `subagent.roster` on open and reconnect,
   applies `subagent.*` events, derives running/needs-you/done/failed, and
   sorts waiting threads first. Replace `_subagentActivities` in
   `ChatScreen` with it. Verify with controller unit tests: seed, event
   merge, a missed event repaired by re-seed, sort order.
-- [ ] 2.2 Build `ThreadsStrip` (mockup 02) under `ChatContextHeader`. It is
+- [x] 2.2 Build `ThreadsStrip` (mockup 02) under `ChatContextHeader`. It is
   hidden with zero threads, uses `tertiaryContainer` for waiting threads,
   and opens the thread on tap and the sheet from "All". Verify with widget
   tests for hidden/visible/sorted states, plus new goldens
   `threads_strip_*` across the matrix.
-- [ ] 2.3 Build `ThreadsSheet` (mockup 03): slot usage from
+- [x] 2.3 Build `ThreadsSheet` (mockup 03): slot usage from
   `delegation.status`, stop one, Stop all with confirmation, earlier
   threads, and Pause new threads labelled as gateway-wide. Verify with
   widget tests for each action's RPC call and confirmation, plus goldens
   `threads_sheet_*`.
-- [ ] 2.4 Keep the read-only fallback. On a gateway with no thread
+- [x] 2.4 Keep the read-only fallback. On a gateway with no thread
   capability and a failed probe, render today's `GatewaySubagentCard`
   unchanged. Verify that the existing goldens are unchanged and add a
   fallback widget test.
-- [ ] 2.5 Add every new string to all `lib/l10n/app_*.arb` catalogues and
+- [x] 2.5 Add every new string to all `lib/l10n/app_*.arb` catalogues and
   run `flutter gen-l10n`. Verify `flutter analyze` reports no issues and
   `tools/check_no_hardcoded_colors.sh` passes.
 
@@ -114,37 +114,37 @@ set on the board (`bd show hmy-6qr`).
 
 ## 7. Coordinator mode, gateway side (hermes-agent fork)
 
-- [ ] 7.1 Add `session.mode.set {coordinator}`: store the flag on the
+- [x] 7.1 Add `session.mode.set {coordinator}`: store the flag on the
   session and expose it in `session.info`. Verify with gateway tests for
   set, get and persistence across resume.
-- [ ] 7.2 While the flag is set, append the coordinator instruction block to
+- [x] 7.2 While the flag is set, append the coordinator instruction block to
   the main agent's system prompt and default `delegate_task` to
   `background=true` for that session. Verify with tests that the prompt
   includes the block only while the flag is set, that the background
   default applies, and that clearing the flag leaves running children
   untouched.
-- [ ] 7.3 Advertise the D9 capability keys in `session.info`. Verify with a
+- [x] 7.3 Advertise the D9 capability keys in `session.info`. Verify with a
   contract test in `tui_gateway/contracts`.
 
 ## 8. Thread messaging, gateway side (hermes-agent fork)
 
-- [ ] 8.1 Add the child-only `message_parent` tool. `update` enqueues an
+- [x] 8.1 Add the child-only `message_parent` tool. `update` enqueues an
   `async_delegation_message` on the completion queue, rate-limited
   (default 1 per 60 s, with excess merged). Verify with tests for delivery
   when the parent is idle, holding until the turn ends, exactly-once across
   a simulated restart, and merging.
-- [ ] 8.2 Implement `question`: enqueue with a `question_id` and block the
+- [x] 8.2 Implement `question`: enqueue with a `question_id` and block the
   child on a future with `delegation.question_timeout` (default 15 min);
   add the `subagent.reply` RPC, which accepts the first reply only and
   records `answered_by`. Verify with tests for user reply, coordinator
   reply, timeout returning `answered: false`, and a duplicate reply
   rejected.
-- [ ] 8.3 Add `subagent.continue {subagent_id, text}`: resolve the child's
+- [x] 8.3 Add `subagent.continue {subagent_id, text}`: resolve the child's
   stored lineage, rebuild the child, dispatch async with the same
   `subagent_id`, and queue when slots are full. Verify with tests for
   continuing from stored history, the slot-full queue, and the report
   arriving as a new parent turn.
-- [ ] 8.4 Add `delegation.subagent_approval: ask` (the default when the
+- [x] 8.4 Add `delegation.subagent_approval: ask` (the default when the
   parent has a connected client). It raises the child's approval on the
   parent's server-request channel with `subagent_id` and `goal`, and falls
   back to auto-deny/approve with no client. Verify with tests for routing,

@@ -23,6 +23,7 @@ import '../services/attachment_draft_service.dart';
 import '../services/composer_draft_store.dart';
 import '../services/chat_model_override_store.dart';
 import '../services/agent_credential_service.dart';
+import '../services/agent_threads_controller.dart';
 import '../services/chat_density_preference.dart';
 import '../services/chat_history_window.dart';
 import '../services/desktop_gateway_client.dart';
@@ -33,6 +34,7 @@ import '../services/gateway_turn_ui_projection.dart';
 import '../services/remote_files_client.dart';
 import '../services/turn_notification_service.dart';
 import '../services/notification_prefs.dart';
+import '../services/thread_wire.dart';
 import '../services/voice_composer_adapter.dart';
 import '../services/ws_client.dart';
 import '../utils/media_tags.dart';
@@ -57,6 +59,7 @@ import '../widgets/chat_context_header.dart';
 import '../widgets/markdown_code_block.dart';
 import '../widgets/chat_composer.dart';
 import '../widgets/chat_end_affordance.dart';
+import '../widgets/chat_threads_binding.dart';
 import '../widgets/gateway_approval_dialog.dart';
 import '../widgets/gateway_clarify_dialog.dart';
 import '../widgets/gateway_insight_card.dart';
@@ -340,6 +343,11 @@ class ChatScreen extends StatefulWidget {
   final RemoteFilesDataSource Function(String storedSessionId)?
   testMediaFilesClient;
 
+  /// Stands in for the gateway's thread and coordinator-mode calls. The
+  /// screen treats the session as bound from the start.
+  @visibleForTesting
+  final AgentThreadsGateway? testThreadsGateway;
+
   const ChatScreen({
     required this.connection,
     required this.session,
@@ -365,6 +373,7 @@ class ChatScreen extends StatefulWidget {
     this.testLegacyProjectSessionEnsure,
     this.testStoredSessionKey,
     this.testMediaFilesClient,
+    this.testThreadsGateway,
     super.key,
   });
 
@@ -381,7 +390,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   /// Which finished turns the user unfolded or re-folded, keyed by turn id so
   /// the choice survives row eviction and a history refresh.
   final TurnFoldPins _turnFoldPins = TurnFoldPins();
-  final List<GatewaySubagentActivity> _subagentActivities = [];
+
+  /// The chat's threads and coordinator-mode setting.
+  late final ChatThreadsBinding _threads;
+  late final Listenable _threadsChanges;
+  Timer? _threadHistoryRefreshTimer;
   final Map<String, GatewayNotification> _gatewayNotifications = {};
   final Map<String, Timer> _notificationTimers = {};
   late final List<GatewayNotice> _gatewayNotices;
@@ -607,7 +620,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         );
         _desktopGateway!.setAsyncEventListener(_handleDesktopAsyncEvent);
         _desktopGateway!.setConnectionListener(_onDesktopConnectionChanged);
-        _desktopGateway!.setSessionBoundListener(_onSessionBound);
+        _desktopGateway!.setSessionBoundListener(_onDesktopSessionBound);
         unawaited(_ensureDesktopSession());
       } on ArgumentError {
         // The regular mobile chat remains usable; selection surfaces the
@@ -615,6 +628,44 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _desktopGateway = null;
       }
     }
+    final desktopGateway = _desktopGateway;
+    _threads = ChatThreadsBinding(
+      gateway:
+          widget.testThreadsGateway ??
+          (desktopGateway == null
+              ? null
+              : DesktopThreadsGateway(
+                  desktopGateway,
+                  sessionId: widget.session.id,
+                  workingDirectory: widget.projectWorkingDirectory,
+                )),
+      connectionIdentity: _connectionIdentity,
+      connectionId: widget.connection.id,
+      sessionId: widget.session.id,
+      isNewChat: widget.session.isLocalDraft,
+      chatTitle: () => _sessionTitle,
+      isAppInBackground: () => _appInBackground,
+      notifications: _turnNotifications,
+      notificationText: () => ThreadNotificationText(
+        finishedTitle: context.l10n.thread_notification_finished_title,
+        failedTitle: context.l10n.thread_notification_failed_title,
+        questionTitle: context.l10n.thread_notification_question_title,
+        privateFinished: context.l10n.thread_notification_private_finished,
+        privateAttention: context.l10n.thread_notification_private_attention,
+      ),
+      loadHistory: (childSessionId, {required limit, required offset}) =>
+          _client.getMessages(
+            childSessionId,
+            limit: limit,
+            offset: offset,
+            latest: true,
+          ),
+      sendCoordinatorPrompt: _sendThreadCoordinatorPrompt,
+      onThreadActivity: _scheduleThreadHistoryRefresh,
+    );
+    _threadsChanges = Listenable.merge([_threads, _threads.threads])
+      ..addListener(_onThreadsChanged);
+    if (widget.testThreadsGateway != null) _threads.onSessionBound();
     // Test seam: with no real gateway, hand the same handler to the test
     // hook so it can simulate reconnect transitions.
     widget.testDesktopConnectionHook?.handler = _onDesktopConnectionChanged;
@@ -705,6 +756,62 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
+  /// The legacy Desktop transport bound this chat's session: on open and
+  /// after every reconnect. That is when the roster is read and coordinator
+  /// mode re-applied.
+  void _onDesktopSessionBound(String localSessionId, String storedSessionId) {
+    _onSessionBound(localSessionId, storedSessionId);
+    if (localSessionId == widget.session.id) {
+      _threads.onSessionBound(storedSessionId);
+    }
+  }
+
+  void _onThreadsChanged() {
+    if (mounted) setState(() {});
+  }
+
+  /// A thread finished or sent a message, so the gateway starts a parent
+  /// turn this chat did not submit. Read the history once the chat is idle
+  /// so the turn's card and the coordinator's reply appear.
+  void _scheduleThreadHistoryRefresh() {
+    _threadHistoryRefreshTimer?.cancel();
+    _threadHistoryRefreshTimer = Timer(const Duration(seconds: 2), () {
+      if (!mounted ||
+          _sending ||
+          _streaming ||
+          _loading ||
+          _pendingReattachResync) {
+        // A turn of the chat's own refreshes the history when it settles.
+        return;
+      }
+      unawaited(_fetchMessages());
+    });
+  }
+
+  /// Sends [prompt] to the coordinator as the user, without disturbing an
+  /// unsent draft. Returns false when the chat cannot send right now.
+  Future<bool> _sendThreadCoordinatorPrompt(String prompt) async {
+    if (_sending ||
+        _streaming ||
+        _preparingSend ||
+        _pendingReattachResync ||
+        _voiceComposer.listening ||
+        _attachmentDrafts.isNotEmpty) {
+      return false;
+    }
+    final draft = _textController.text;
+    _textController.text = prompt;
+    // _sendMessage captures and clears the composer before its first await.
+    final sending = _sendMessage();
+    if (draft.isNotEmpty) {
+      _textController
+        ..text = draft
+        ..selection = TextSelection.collapsed(offset: draft.length);
+    }
+    await sending;
+    return true;
+  }
+
   void _onSessionBound(String localSessionId, String storedSessionId) {
     if (localSessionId != widget.session.id) return;
     if (!mounted) return;
@@ -776,6 +883,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         List<AttachmentDraft>.from(_attachmentDrafts),
       ),
     );
+    _threadHistoryRefreshTimer?.cancel();
+    _threadsChanges.removeListener(_onThreadsChanged);
+    _threads.dispose();
     _desktopGateway?.setAsyncEventListener(null);
     _desktopGateway?.setSessionBoundListener(null);
     _desktopGateway?.close();
@@ -1185,7 +1295,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     unawaited(
       _turnNotifications.showKind(
         kind: HermesNotificationKind.approval,
-        title: '${context.l10n.approval_needed} — $_sessionTitle',
+        // Names the chat, and the thread when a thread raised the request.
+        title: [
+          '${context.l10n.approval_needed} — $_sessionTitle',
+          ?request.thread?.goal,
+        ].join(' · '),
         body: body,
         eventId: serverRequestId,
         sessionId: widget.session.id,
@@ -3045,6 +3159,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       if (desktopGateway != null) {
         await _applySessionModelOverride(desktopGateway);
       }
+      // Coordinator mode is a session flag, never prompt text.
+      await _threads.applyCoordinatorModeBeforeSend();
       if (!mounted || responseGeneration != _responseGeneration) return;
       await _attachmentSendCoordinator.uploadThenSubmit(
         drafts: attachments,
@@ -3711,6 +3827,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _handleDesktopGatewayEvent(event, _responseGeneration);
       return;
     }
+    // A turn the gateway started for a thread report or message ends
+    // without a submit of this chat's to refresh the history afterwards.
+    if ((event.type == 'message.complete' || event.type == 'turn.end') &&
+        _threads.threads.hasThreads) {
+      _scheduleThreadHistoryRefresh();
+    }
     if (_handlePendingReattachTerminalEvent(event)) return;
     if (event.type == 'notification.show') {
       final notification = GatewayNotification.fromEventData(event.data);
@@ -3821,24 +3943,17 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void _upsertSubagent(String eventType, Map<String, dynamic> data) {
-    final update = GatewaySubagentActivity.fromGatewayEvent(eventType, data);
-    if (update == null || !mounted) return;
-    setState(() {
-      final index = _subagentActivities.indexWhere(
-        (activity) => activity.id == update.id,
-      );
-      if (index < 0) {
-        _subagentActivities.add(update);
-      } else {
-        _subagentActivities[index] = _subagentActivities[index].merge(update);
-      }
-      if (!update.isComplete) {
+    // The threads controller owns the roster; it notifies the screen.
+    if (!mounted || !_threads.applyEvent(eventType, data)) return;
+    final progress = ThreadProgressEvent.parse(eventType, data);
+    if (progress != null && !progress.isComplete) {
+      setState(() {
         _gatewayTurnStatus = GatewayTurnStatus(
           kind: 'subagent',
-          text: context.l10n.delegated_task(update.goal),
+          text: context.l10n.delegated_task(progress.goal ?? 'Delegated task'),
         );
-      }
-    });
+      });
+    }
     _scheduleStreamingFollow();
   }
 
@@ -4884,6 +4999,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            _threads.buildAppBarLabel(context),
                             if (_loadingModelOptions || _changingModel) ...[
                               const ExpressiveLoadingIndicator(
                                 size: 14,
@@ -4992,6 +5108,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 }
                 if (action == 'export') _exportConversation();
                 if (action == 'rename') unawaited(_renameSession());
+                if (action == ChatThreadsBinding.menuValue) {
+                  unawaited(_threads.onMenuSelected(context));
+                }
               },
               itemBuilder: (_) => [
                 // Spoken replies moved here from the composer (design D7).
@@ -5000,6 +5119,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   checked: _voiceReplyEnabled,
                   child: Text(context.l10n.spoken_replies),
                 ),
+                _threads.buildMenuItem(context),
                 PopupMenuItem(
                   value: 'rename',
                   enabled: _canRename,
@@ -5034,6 +5154,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ),
           child: Column(
             children: [
+              _threads.buildStrip(context),
               for (final notification in _gatewayNotifications.values)
                 _buildGatewayNotification(notification),
               if (_legacyTransportFallback)
@@ -5169,7 +5290,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final displayMessages = buildChatDisplayItems(
       messages: _messages,
       toolActivities: _toolActivities,
-      subagentActivities: _subagentActivities,
+      // A gateway with thread support gets the roster and thread cards; any
+      // other keeps the read-only task list.
+      subagentActivities: _threads.showsThreads
+          ? const []
+          : _threads.threads.legacyActivities,
+      threads: _threads.showsThreads
+          ? _threads.threads.threadsInStartOrder
+          : const [],
+      liveThreadMessages: _threads.threads.liveMessages,
       notices: _gatewayNotices,
       turnActive: _streaming,
       foldChoice: (turnId) => _turnFoldPins[turnId],
@@ -5255,6 +5384,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 ),
               );
             }
+            final threadItem = _threads.buildItem(
+              context,
+              item,
+              busy: _sending || _streaming,
+            );
+            if (threadItem != null) return threadItem;
             if (item is List<GatewaySubagentActivity>) {
               return GatewaySubagentCard(activities: item);
             }

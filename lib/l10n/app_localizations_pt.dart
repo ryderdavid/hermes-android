@@ -2854,6 +2854,364 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get activity_sheet_details => 'Detalhes';
+
+  @override
+  String get thread_state_running => 'Em execução';
+
+  @override
+  String get thread_state_needs_you => 'Precisa de você';
+
+  @override
+  String get thread_state_done => 'Concluído';
+
+  @override
+  String get thread_state_failed => 'Falhou';
+
+  @override
+  String get thread_state_stopped => 'Interrompido';
+
+  @override
+  String get thread_state_queued => 'Na fila';
+
+  @override
+  String thread_tools_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ferramentas',
+      one: '$count ferramenta',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get thread_untitled => 'Thread';
+
+  @override
+  String get threads_all => 'Todas';
+
+  @override
+  String get threads_paused_chip => 'Pausadas';
+
+  @override
+  String get threads_title => 'Threads';
+
+  @override
+  String threads_slots_in_use(int used, int limit) {
+    return '$used de $limit vagas em uso';
+  }
+
+  @override
+  String threads_active_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count threads ativas',
+      one: '$count thread ativa',
+      zero: 'Nenhuma thread em execução',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_earlier => 'Threads anteriores';
+
+  @override
+  String threads_earlier_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count concluídas nesta conversa',
+      one: '$count concluída nesta conversa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_stop_tooltip => 'Interromper thread';
+
+  @override
+  String get threads_stop_all => 'Interromper todas';
+
+  @override
+  String get threads_stop_all_title => 'Interromper todas as threads?';
+
+  @override
+  String threads_stop_all_body(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Isso interrompe as $count threads em execução nesta conversa.',
+      one: 'Isso interrompe a $count thread em execução nesta conversa.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_pause_new => 'Pausar novas threads';
+
+  @override
+  String get threads_resume_new => 'Retomar novas threads';
+
+  @override
+  String get threads_pause_gateway_wide =>
+      'Pausa novas threads em todas as conversas deste gateway. As threads em execução continuam.';
+
+  @override
+  String get threads_paused_gateway_wide =>
+      'Novas threads estão pausadas em todas as conversas deste gateway.';
+
+  @override
+  String threads_action_failed(String error) {
+    return 'Não foi possível acessar o gateway: $error';
+  }
+
+  @override
+  String get threads_already_finished => 'Essa thread já tinha terminado.';
+
+  @override
+  String thread_of_chat(String chat) {
+    return 'Thread de $chat';
+  }
+
+  @override
+  String get thread_live => 'Ao vivo';
+
+  @override
+  String get thread_task_title => 'Tarefa do coordenador';
+
+  @override
+  String get thread_history_unavailable =>
+      'Não foi possível carregar a transcrição salva.';
+
+  @override
+  String get thread_history_partial =>
+      'As etapas anteriores não estão disponíveis.';
+
+  @override
+  String get thread_live_tail_truncated =>
+      'Mostrando a atividade mais recente. As etapas anteriores aparecem quando a thread termina.';
+
+  @override
+  String get thread_no_activity_yet => 'Ainda não há nada desta thread.';
+
+  @override
+  String get thread_queued_waiting => 'Aguardando uma vaga livre';
+
+  @override
+  String thread_queue_position(int position) {
+    return 'Posição $position na fila';
+  }
+
+  @override
+  String get thread_steer_hint => 'Orientar esta thread…';
+
+  @override
+  String get thread_steer_send => 'Orientar';
+
+  @override
+  String get thread_steer_sent =>
+      'Orientação na fila para a próxima etapa da thread.';
+
+  @override
+  String get thread_steer_acknowledged => 'A thread recebeu sua orientação.';
+
+  @override
+  String get thread_steer_did_not_land =>
+      'A thread terminou antes de a orientação chegar. O texto foi mantido para você enviar como continuação.';
+
+  @override
+  String get thread_steer_unsupported => 'Esta thread não aceita orientação.';
+
+  @override
+  String get thread_steer_unavailable_gateway =>
+      'Este gateway não consegue orientar threads.';
+
+  @override
+  String thread_steer_failed(String error) {
+    return 'Não foi possível enviar a orientação: $error';
+  }
+
+  @override
+  String get thread_follow_up_hint => 'Enviar uma continuação…';
+
+  @override
+  String get thread_follow_up_send => 'Continuar thread';
+
+  @override
+  String get thread_continue_queued =>
+      'Continuação na fila. Ela começa quando uma vaga for liberada.';
+
+  @override
+  String get thread_continue_started => 'A thread está em execução novamente.';
+
+  @override
+  String thread_continue_rejected(String reason) {
+    return 'O gateway recusou a continuação: $reason';
+  }
+
+  @override
+  String thread_continue_failed(String error) {
+    return 'Não foi possível enviar a continuação: $error';
+  }
+
+  @override
+  String threads_started(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count threads iniciadas',
+      one: '$count thread iniciada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String thread_report_finished(String goal) {
+    return '$goal · concluída';
+  }
+
+  @override
+  String thread_report_failed(String goal) {
+    return '$goal · falhou';
+  }
+
+  @override
+  String thread_report_stopped(String goal) {
+    return '$goal · interrompida';
+  }
+
+  @override
+  String get thread_report_no_summary => 'A thread não retornou nenhum resumo.';
+
+  @override
+  String get thread_open => 'Abrir thread';
+
+  @override
+  String thread_continue_dialog_title(String goal) {
+    return 'Continuar $goal';
+  }
+
+  @override
+  String get thread_continue_dialog_hint => 'O que ela deve fazer em seguida?';
+
+  @override
+  String thread_update_title(String goal) {
+    return '$goal · atualização';
+  }
+
+  @override
+  String thread_question_title(String goal) {
+    return '$goal pergunta';
+  }
+
+  @override
+  String thread_updates_merged(int count) {
+    return '$count atualizações combinadas';
+  }
+
+  @override
+  String get thread_reply => 'Responder';
+
+  @override
+  String get thread_let_coordinator_decide => 'Deixar o coordenador decidir';
+
+  @override
+  String thread_reply_dialog_title(String goal) {
+    return 'Responder a $goal';
+  }
+
+  @override
+  String get thread_reply_hint => 'Sua resposta';
+
+  @override
+  String thread_question_answered_by_you(String answer) {
+    return 'Você respondeu: $answer';
+  }
+
+  @override
+  String thread_question_answered_by_coordinator(String answer) {
+    return 'O coordenador respondeu: $answer';
+  }
+
+  @override
+  String get thread_question_answered => 'Respondida.';
+
+  @override
+  String get thread_question_answered_coordinator_plain =>
+      'O coordenador respondeu.';
+
+  @override
+  String get thread_question_deciding =>
+      'O coordenador foi chamado para decidir…';
+
+  @override
+  String get thread_question_expired =>
+      'Expirou sem resposta. A thread seguiu em frente.';
+
+  @override
+  String get thread_question_cancelled => 'A thread parou de esperar.';
+
+  @override
+  String get thread_question_closed => 'Não está mais aguardando resposta.';
+
+  @override
+  String thread_reply_failed(String error) {
+    return 'Não foi possível enviar a resposta: $error';
+  }
+
+  @override
+  String get coordinator_mode => 'Modo coordenador';
+
+  @override
+  String get coordinator_mode_subtitle => 'Passar trabalho longo para threads';
+
+  @override
+  String get coordinator_mode_unavailable => 'O gateway precisa ser atualizado';
+
+  @override
+  String get coordinator_label => 'Coordenador';
+
+  @override
+  String get coordinator_default_new_chats =>
+      'Novas conversas usam o modo coordenador';
+
+  @override
+  String get coordinator_default_new_chats_subtitle =>
+      'A conversa principal passa o trabalho mais longo para threads em segundo plano.';
+
+  @override
+  String coordinator_mode_failed(String error) {
+    return 'Não foi possível alterar o modo coordenador: $error';
+  }
+
+  @override
+  String approval_from_thread(String goal) {
+    return 'Da thread: $goal';
+  }
+
+  @override
+  String get thread_notification_finished_title => 'Thread concluída';
+
+  @override
+  String get thread_notification_failed_title => 'A thread falhou';
+
+  @override
+  String get thread_notification_question_title => 'Uma thread precisa de você';
+
+  @override
+  String get thread_notification_private_finished => 'Uma thread terminou.';
+
+  @override
+  String get thread_notification_private_attention =>
+      'Uma thread precisa da sua atenção.';
+
+  @override
+  String get notification_hide_content => 'Ocultar conteúdo nas notificações';
+
+  @override
+  String get notification_hide_content_subtitle =>
+      'As notificações de threads informam apenas que uma thread terminou ou precisa de atenção.';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -5598,4 +5956,362 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get activity_sheet_details => 'Detalhes';
+
+  @override
+  String get thread_state_running => 'Em execução';
+
+  @override
+  String get thread_state_needs_you => 'Precisa de você';
+
+  @override
+  String get thread_state_done => 'Concluído';
+
+  @override
+  String get thread_state_failed => 'Falhou';
+
+  @override
+  String get thread_state_stopped => 'Interrompido';
+
+  @override
+  String get thread_state_queued => 'Na fila';
+
+  @override
+  String thread_tools_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ferramentas',
+      one: '$count ferramenta',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get thread_untitled => 'Thread';
+
+  @override
+  String get threads_all => 'Todas';
+
+  @override
+  String get threads_paused_chip => 'Pausadas';
+
+  @override
+  String get threads_title => 'Threads';
+
+  @override
+  String threads_slots_in_use(int used, int limit) {
+    return '$used de $limit vagas em uso';
+  }
+
+  @override
+  String threads_active_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count threads ativas',
+      one: '$count thread ativa',
+      zero: 'Nenhuma thread em execução',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_earlier => 'Threads anteriores';
+
+  @override
+  String threads_earlier_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count concluídas nesta conversa',
+      one: '$count concluída nesta conversa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_stop_tooltip => 'Interromper thread';
+
+  @override
+  String get threads_stop_all => 'Interromper todas';
+
+  @override
+  String get threads_stop_all_title => 'Interromper todas as threads?';
+
+  @override
+  String threads_stop_all_body(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Isso interrompe as $count threads em execução nesta conversa.',
+      one: 'Isso interrompe a $count thread em execução nesta conversa.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_pause_new => 'Pausar novas threads';
+
+  @override
+  String get threads_resume_new => 'Retomar novas threads';
+
+  @override
+  String get threads_pause_gateway_wide =>
+      'Pausa novas threads em todas as conversas deste gateway. As threads em execução continuam.';
+
+  @override
+  String get threads_paused_gateway_wide =>
+      'Novas threads estão pausadas em todas as conversas deste gateway.';
+
+  @override
+  String threads_action_failed(String error) {
+    return 'Não foi possível acessar o gateway: $error';
+  }
+
+  @override
+  String get threads_already_finished => 'Essa thread já tinha terminado.';
+
+  @override
+  String thread_of_chat(String chat) {
+    return 'Thread de $chat';
+  }
+
+  @override
+  String get thread_live => 'Ao vivo';
+
+  @override
+  String get thread_task_title => 'Tarefa do coordenador';
+
+  @override
+  String get thread_history_unavailable =>
+      'Não foi possível carregar a transcrição salva.';
+
+  @override
+  String get thread_history_partial =>
+      'As etapas anteriores não estão disponíveis.';
+
+  @override
+  String get thread_live_tail_truncated =>
+      'Mostrando a atividade mais recente. As etapas anteriores aparecem quando a thread termina.';
+
+  @override
+  String get thread_no_activity_yet => 'Ainda não há nada desta thread.';
+
+  @override
+  String get thread_queued_waiting => 'Aguardando uma vaga livre';
+
+  @override
+  String thread_queue_position(int position) {
+    return 'Posição $position na fila';
+  }
+
+  @override
+  String get thread_steer_hint => 'Orientar esta thread…';
+
+  @override
+  String get thread_steer_send => 'Orientar';
+
+  @override
+  String get thread_steer_sent =>
+      'Orientação na fila para a próxima etapa da thread.';
+
+  @override
+  String get thread_steer_acknowledged => 'A thread recebeu sua orientação.';
+
+  @override
+  String get thread_steer_did_not_land =>
+      'A thread terminou antes de a orientação chegar. O texto foi mantido para você enviar como continuação.';
+
+  @override
+  String get thread_steer_unsupported => 'Esta thread não aceita orientação.';
+
+  @override
+  String get thread_steer_unavailable_gateway =>
+      'Este gateway não consegue orientar threads.';
+
+  @override
+  String thread_steer_failed(String error) {
+    return 'Não foi possível enviar a orientação: $error';
+  }
+
+  @override
+  String get thread_follow_up_hint => 'Enviar uma continuação…';
+
+  @override
+  String get thread_follow_up_send => 'Continuar thread';
+
+  @override
+  String get thread_continue_queued =>
+      'Continuação na fila. Ela começa quando uma vaga for liberada.';
+
+  @override
+  String get thread_continue_started => 'A thread está em execução novamente.';
+
+  @override
+  String thread_continue_rejected(String reason) {
+    return 'O gateway recusou a continuação: $reason';
+  }
+
+  @override
+  String thread_continue_failed(String error) {
+    return 'Não foi possível enviar a continuação: $error';
+  }
+
+  @override
+  String threads_started(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count threads iniciadas',
+      one: '$count thread iniciada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String thread_report_finished(String goal) {
+    return '$goal · concluída';
+  }
+
+  @override
+  String thread_report_failed(String goal) {
+    return '$goal · falhou';
+  }
+
+  @override
+  String thread_report_stopped(String goal) {
+    return '$goal · interrompida';
+  }
+
+  @override
+  String get thread_report_no_summary => 'A thread não retornou nenhum resumo.';
+
+  @override
+  String get thread_open => 'Abrir thread';
+
+  @override
+  String thread_continue_dialog_title(String goal) {
+    return 'Continuar $goal';
+  }
+
+  @override
+  String get thread_continue_dialog_hint => 'O que ela deve fazer em seguida?';
+
+  @override
+  String thread_update_title(String goal) {
+    return '$goal · atualização';
+  }
+
+  @override
+  String thread_question_title(String goal) {
+    return '$goal pergunta';
+  }
+
+  @override
+  String thread_updates_merged(int count) {
+    return '$count atualizações combinadas';
+  }
+
+  @override
+  String get thread_reply => 'Responder';
+
+  @override
+  String get thread_let_coordinator_decide => 'Deixar o coordenador decidir';
+
+  @override
+  String thread_reply_dialog_title(String goal) {
+    return 'Responder a $goal';
+  }
+
+  @override
+  String get thread_reply_hint => 'Sua resposta';
+
+  @override
+  String thread_question_answered_by_you(String answer) {
+    return 'Você respondeu: $answer';
+  }
+
+  @override
+  String thread_question_answered_by_coordinator(String answer) {
+    return 'O coordenador respondeu: $answer';
+  }
+
+  @override
+  String get thread_question_answered => 'Respondida.';
+
+  @override
+  String get thread_question_answered_coordinator_plain =>
+      'O coordenador respondeu.';
+
+  @override
+  String get thread_question_deciding =>
+      'O coordenador foi chamado para decidir…';
+
+  @override
+  String get thread_question_expired =>
+      'Expirou sem resposta. A thread seguiu em frente.';
+
+  @override
+  String get thread_question_cancelled => 'A thread parou de esperar.';
+
+  @override
+  String get thread_question_closed => 'Não está mais aguardando resposta.';
+
+  @override
+  String thread_reply_failed(String error) {
+    return 'Não foi possível enviar a resposta: $error';
+  }
+
+  @override
+  String get coordinator_mode => 'Modo coordenador';
+
+  @override
+  String get coordinator_mode_subtitle => 'Passar trabalho longo para threads';
+
+  @override
+  String get coordinator_mode_unavailable => 'O gateway precisa ser atualizado';
+
+  @override
+  String get coordinator_label => 'Coordenador';
+
+  @override
+  String get coordinator_default_new_chats =>
+      'Novas conversas usam o modo coordenador';
+
+  @override
+  String get coordinator_default_new_chats_subtitle =>
+      'A conversa principal passa o trabalho mais longo para threads em segundo plano.';
+
+  @override
+  String coordinator_mode_failed(String error) {
+    return 'Não foi possível alterar o modo coordenador: $error';
+  }
+
+  @override
+  String approval_from_thread(String goal) {
+    return 'Da thread: $goal';
+  }
+
+  @override
+  String get thread_notification_finished_title => 'Thread concluída';
+
+  @override
+  String get thread_notification_failed_title => 'A thread falhou';
+
+  @override
+  String get thread_notification_question_title => 'Uma thread precisa de você';
+
+  @override
+  String get thread_notification_private_finished => 'Uma thread terminou.';
+
+  @override
+  String get thread_notification_private_attention =>
+      'Uma thread precisa da sua atenção.';
+
+  @override
+  String get notification_hide_content => 'Ocultar conteúdo nas notificações';
+
+  @override
+  String get notification_hide_content_subtitle =>
+      'As notificações de threads informam apenas que uma thread terminou ou precisa de atenção.';
 }

@@ -20,6 +20,7 @@ import '../../main.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/app_update_service.dart';
+import '../widgets/coordinator_default_tile.dart';
 import '../widgets/update_available_dialog.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
@@ -473,6 +474,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ),
+        const CoordinatorDefaultTile(),
       ],
     );
   }
@@ -1051,6 +1053,16 @@ class _NotificationSettingsState extends State<_NotificationSettings> {
                     : null,
               ),
             ],
+            const Divider(height: 1),
+            SwitchListTile(
+              key: const Key('settings-notification-hide-content'),
+              title: Text(context.l10n.notification_hide_content),
+              subtitle: Text(context.l10n.notification_hide_content_subtitle),
+              value: prefs.hideContent,
+              onChanged: prefs.enabled
+                  ? (on) => unawaited(NotificationPrefsStore.setHideContent(on))
+                  : null,
+            ),
             const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.send_outlined),

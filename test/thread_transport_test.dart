@@ -346,7 +346,7 @@ void main() {
       addTearDown(client.close);
 
       await client.ensureSession('mobile-1');
-      await client.probeThreadSupport();
+      await client.probeThreadSupport('mobile-1');
 
       final caps = client.capabilities;
       expect(caps.threadsRoster, isTrue);
@@ -356,7 +356,7 @@ void main() {
       expect(caps.threadsApprovals, isTrue);
       expect(caps.coordinatorMode, isTrue);
       // Advertised support needs no probe.
-      expect(gateway.requestsFor(ThreadRpc.roster), isEmpty);
+      expect(gateway.requestsFor(ThreadRpc.list), isEmpty);
     });
 
     test('reads keys from a session.info event', () async {
@@ -381,7 +381,7 @@ void main() {
       () async {
         final gateway = await FakeThreadGateway.start();
         addTearDown(gateway.stop);
-        gateway.handlers[ThreadRpc.roster] = (_) => rpcResult({'sessions': []});
+        gateway.handlers[ThreadRpc.list] = (_) => rpcResult({'subagents': []});
         final client = DesktopGatewayClient.fromConnection(
           gateway.connection(),
         );
@@ -389,10 +389,10 @@ void main() {
         await client.ensureSession('mobile-1');
         expect(client.capabilities.threadsRoster, isFalse);
 
-        await client.probeThreadSupport();
-        await client.probeThreadSupport();
+        await client.probeThreadSupport('mobile-1');
+        await client.probeThreadSupport('mobile-1');
 
-        expect(gateway.requestsFor(ThreadRpc.roster), hasLength(1));
+        expect(gateway.requestsFor(ThreadRpc.list), hasLength(1));
         expect(client.capabilities.threadsRoster, isTrue);
         expect(client.capabilities.threadsSteer, isTrue);
         // What only the updated gateway serves stays off.
@@ -414,10 +414,10 @@ void main() {
         addTearDown(client.close);
         await client.ensureSession('mobile-1');
 
-        await client.probeThreadSupport();
-        await client.probeThreadSupport();
+        await client.probeThreadSupport('mobile-1');
+        await client.probeThreadSupport('mobile-1');
 
-        expect(gateway.requestsFor(ThreadRpc.roster), hasLength(1));
+        expect(gateway.requestsFor(ThreadRpc.list), hasLength(1));
         expect(client.capabilities.threadsRoster, isFalse);
         expect(client.capabilities.threadsSteer, isFalse);
       },
@@ -429,17 +429,17 @@ void main() {
       final client = DesktopGatewayClient.fromConnection(gateway.connection());
       addTearDown(client.close);
       await client.ensureSession('mobile-1');
-      await client.probeThreadSupport();
+      await client.probeThreadSupport('mobile-1');
       expect(client.capabilities.threadsRoster, isFalse);
 
       // The gateway restarts with thread support.
-      gateway.handlers[ThreadRpc.roster] = (_) => rpcResult({'sessions': []});
+      gateway.handlers[ThreadRpc.list] = (_) => rpcResult({'subagents': []});
       await gateway.dropSockets();
       await waitFor(() => gateway.connectionCount >= 2);
       await client.ensureSession('mobile-1');
-      await client.probeThreadSupport();
+      await client.probeThreadSupport('mobile-1');
 
-      expect(gateway.requestsFor(ThreadRpc.roster), hasLength(2));
+      expect(gateway.requestsFor(ThreadRpc.list), hasLength(2));
       expect(client.capabilities.threadsRoster, isTrue);
     });
   });

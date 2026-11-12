@@ -3,6 +3,7 @@ import 'package:hermes_android/core/services/chat_density_preference.dart';
 import 'package:hermes_android/core/services/config_backup.dart';
 import 'package:hermes_android/core/services/config_backup_service.dart';
 import 'package:hermes_android/core/services/connection_manager.dart';
+import 'package:hermes_android/core/services/coordinator_mode_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _MemoryCredentialStore implements CredentialStore {
@@ -308,6 +309,55 @@ void main() {
       expect(reexported.connections.single.id, original.connections.single.id);
       expect(reexported.preferences['theme_mode'], 'dark');
       expect(reexported.preferences['app_text_size_preference'], 1.15);
+    });
+
+    test('coordinator mode survives an encrypted backup round trip', () async {
+      final (source, sourceManager, sourcePrefs) = await buildService(
+        <String, Object>{},
+      );
+      await sourceManager.saveConnection('Host', 'host', 8642, 'key');
+      final sourceStore = CoordinatorModeStore(sourcePrefs);
+      await sourceStore.save(
+        connectionIdentity: 'conn-a',
+        sessionId: 'chat-on',
+        enabled: true,
+      );
+      await sourceStore.save(
+        connectionIdentity: 'conn-a',
+        sessionId: 'chat-off',
+        enabled: false,
+      );
+      await sourceStore.setNewChatsDefault(true);
+      final file = await ConfigBackupCodec.encrypt(
+        await source.export(appVersion: 'test'),
+        passphrase: 'correct horse',
+        iterations: 1000,
+      );
+
+      // A fresh install: nothing stored, the live default is off.
+      coordinatorNewChatsDefault.value = false;
+      final (target, _, targetPrefs) = await buildService(<String, Object>{});
+      await target.import(
+        await ConfigBackupCodec.decrypt(file, passphrase: 'correct horse'),
+        mode: ConfigImportMode.replace,
+      );
+
+      final restored = CoordinatorModeStore(targetPrefs);
+      expect(
+        restored.read(connectionIdentity: 'conn-a', sessionId: 'chat-on'),
+        isTrue,
+      );
+      expect(
+        restored.read(connectionIdentity: 'conn-a', sessionId: 'chat-off'),
+        isFalse,
+      );
+      expect(
+        restored.read(connectionIdentity: 'conn-a', sessionId: 'chat-new'),
+        isNull,
+      );
+      expect(restored.newChatsDefault, isTrue);
+      // The Settings switch follows the restore without a restart.
+      expect(coordinatorNewChatsDefault.value, isTrue);
     });
   });
 }

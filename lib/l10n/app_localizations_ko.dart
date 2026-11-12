@@ -2777,4 +2777,348 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get activity_sheet_details => '세부정보';
+
+  @override
+  String get thread_state_running => '실행 중';
+
+  @override
+  String get thread_state_needs_you => '확인 필요';
+
+  @override
+  String get thread_state_done => '완료';
+
+  @override
+  String get thread_state_failed => '실패';
+
+  @override
+  String get thread_state_stopped => '중지됨';
+
+  @override
+  String get thread_state_queued => '대기 중';
+
+  @override
+  String thread_tools_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '도구 $count개',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get thread_untitled => '스레드';
+
+  @override
+  String get threads_all => '전체';
+
+  @override
+  String get threads_paused_chip => '일시 중지됨';
+
+  @override
+  String get threads_title => '스레드';
+
+  @override
+  String threads_slots_in_use(int used, int limit) {
+    return '슬롯 $limit개 중 $used개 사용 중';
+  }
+
+  @override
+  String threads_active_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '활성 스레드 $count개',
+      zero: '실행 중인 스레드 없음',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_earlier => '이전 스레드';
+
+  @override
+  String threads_earlier_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '이 채팅에서 $count개 완료',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_stop_tooltip => '스레드 중지';
+
+  @override
+  String get threads_stop_all => '모두 중지';
+
+  @override
+  String get threads_stop_all_title => '모든 스레드를 중지할까요?';
+
+  @override
+  String threads_stop_all_body(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '이 채팅에서 실행 중인 스레드 $count개를 중단합니다.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_pause_new => '새 스레드 일시 중지';
+
+  @override
+  String get threads_resume_new => '새 스레드 다시 허용';
+
+  @override
+  String get threads_pause_gateway_wide =>
+      '이 게이트웨이의 모든 채팅에서 새 스레드를 일시 중지합니다. 실행 중인 스레드는 계속됩니다.';
+
+  @override
+  String get threads_paused_gateway_wide =>
+      '이 게이트웨이의 모든 채팅에서 새 스레드가 일시 중지되었습니다.';
+
+  @override
+  String threads_action_failed(String error) {
+    return '게이트웨이에 연결할 수 없습니다: $error';
+  }
+
+  @override
+  String get threads_already_finished => '해당 스레드는 이미 끝났습니다.';
+
+  @override
+  String thread_of_chat(String chat) {
+    return '$chat의 스레드';
+  }
+
+  @override
+  String get thread_live => '실시간';
+
+  @override
+  String get thread_task_title => '코디네이터가 맡긴 작업';
+
+  @override
+  String get thread_history_unavailable => '저장된 기록을 불러오지 못했습니다.';
+
+  @override
+  String get thread_history_partial => '이전 단계는 불러올 수 없습니다.';
+
+  @override
+  String get thread_live_tail_truncated =>
+      '최근 활동만 표시합니다. 이전 단계는 스레드가 끝나면 표시됩니다.';
+
+  @override
+  String get thread_no_activity_yet => '이 스레드에는 아직 활동이 없습니다.';
+
+  @override
+  String get thread_queued_waiting => '빈 슬롯을 기다리는 중';
+
+  @override
+  String thread_queue_position(int position) {
+    return '대기 순서 $position번';
+  }
+
+  @override
+  String get thread_steer_hint => '이 스레드에 방향 지시…';
+
+  @override
+  String get thread_steer_send => '방향 지시';
+
+  @override
+  String get thread_steer_sent => '스레드의 다음 단계에 지시가 전달되도록 대기 중입니다.';
+
+  @override
+  String get thread_steer_acknowledged => '스레드가 지시를 받았습니다.';
+
+  @override
+  String get thread_steer_did_not_land =>
+      '지시가 전달되기 전에 스레드가 끝났습니다. 내용은 그대로 남아 있어 후속 요청으로 보낼 수 있습니다.';
+
+  @override
+  String get thread_steer_unsupported => '이 스레드는 방향 지시를 받지 않습니다.';
+
+  @override
+  String get thread_steer_unavailable_gateway =>
+      '이 게이트웨이는 스레드 방향 지시를 지원하지 않습니다.';
+
+  @override
+  String thread_steer_failed(String error) {
+    return '지시를 보내지 못했습니다: $error';
+  }
+
+  @override
+  String get thread_follow_up_hint => '후속 요청 보내기…';
+
+  @override
+  String get thread_follow_up_send => '스레드 계속하기';
+
+  @override
+  String get thread_continue_queued => '후속 요청이 대기열에 들어갔습니다. 슬롯이 비면 시작합니다.';
+
+  @override
+  String get thread_continue_started => '스레드가 다시 실행 중입니다.';
+
+  @override
+  String thread_continue_rejected(String reason) {
+    return '게이트웨이가 후속 요청을 거부했습니다: $reason';
+  }
+
+  @override
+  String thread_continue_failed(String error) {
+    return '후속 요청을 보내지 못했습니다: $error';
+  }
+
+  @override
+  String threads_started(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '스레드 $count개 시작',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String thread_report_finished(String goal) {
+    return '$goal · 완료';
+  }
+
+  @override
+  String thread_report_failed(String goal) {
+    return '$goal · 실패';
+  }
+
+  @override
+  String thread_report_stopped(String goal) {
+    return '$goal · 중지됨';
+  }
+
+  @override
+  String get thread_report_no_summary => '스레드가 요약을 남기지 않았습니다.';
+
+  @override
+  String get thread_open => '스레드 열기';
+
+  @override
+  String thread_continue_dialog_title(String goal) {
+    return '$goal 계속하기';
+  }
+
+  @override
+  String get thread_continue_dialog_hint => '다음에 무엇을 할까요?';
+
+  @override
+  String thread_update_title(String goal) {
+    return '$goal · 진행 상황';
+  }
+
+  @override
+  String thread_question_title(String goal) {
+    return '$goal의 질문';
+  }
+
+  @override
+  String thread_updates_merged(int count) {
+    return '진행 상황 $count건을 합쳤습니다';
+  }
+
+  @override
+  String get thread_reply => '답장';
+
+  @override
+  String get thread_let_coordinator_decide => '코디네이터가 결정';
+
+  @override
+  String thread_reply_dialog_title(String goal) {
+    return '$goal에 답장';
+  }
+
+  @override
+  String get thread_reply_hint => '답변';
+
+  @override
+  String thread_question_answered_by_you(String answer) {
+    return '내 답변: $answer';
+  }
+
+  @override
+  String thread_question_answered_by_coordinator(String answer) {
+    return '코디네이터의 답변: $answer';
+  }
+
+  @override
+  String get thread_question_answered => '답변 완료.';
+
+  @override
+  String get thread_question_answered_coordinator_plain => '코디네이터가 답변했습니다.';
+
+  @override
+  String get thread_question_deciding => '코디네이터에게 결정을 요청했습니다…';
+
+  @override
+  String get thread_question_expired => '답변 없이 만료되었습니다. 스레드는 작업을 이어갔습니다.';
+
+  @override
+  String get thread_question_cancelled => '스레드가 더 이상 기다리지 않습니다.';
+
+  @override
+  String get thread_question_closed => '더 이상 답변을 기다리지 않습니다.';
+
+  @override
+  String thread_reply_failed(String error) {
+    return '답장을 보내지 못했습니다: $error';
+  }
+
+  @override
+  String get coordinator_mode => '코디네이터 모드';
+
+  @override
+  String get coordinator_mode_subtitle => '긴 작업을 스레드에 맡기기';
+
+  @override
+  String get coordinator_mode_unavailable => '게이트웨이를 업데이트해야 합니다';
+
+  @override
+  String get coordinator_label => '코디네이터';
+
+  @override
+  String get coordinator_default_new_chats => '새 채팅에서 코디네이터 모드 사용';
+
+  @override
+  String get coordinator_default_new_chats_subtitle =>
+      '메인 채팅이 오래 걸리는 작업을 백그라운드 스레드에 맡깁니다.';
+
+  @override
+  String coordinator_mode_failed(String error) {
+    return '코디네이터 모드를 변경하지 못했습니다: $error';
+  }
+
+  @override
+  String approval_from_thread(String goal) {
+    return '스레드: $goal';
+  }
+
+  @override
+  String get thread_notification_finished_title => '스레드 완료';
+
+  @override
+  String get thread_notification_failed_title => '스레드 실패';
+
+  @override
+  String get thread_notification_question_title => '스레드에 확인이 필요합니다';
+
+  @override
+  String get thread_notification_private_finished => '스레드가 끝났습니다.';
+
+  @override
+  String get thread_notification_private_attention => '스레드에 확인이 필요합니다.';
+
+  @override
+  String get notification_hide_content => '알림 내용 숨기기';
+
+  @override
+  String get notification_hide_content_subtitle =>
+      '스레드 알림에는 스레드가 끝났거나 확인이 필요하다는 사실만 표시합니다.';
 }

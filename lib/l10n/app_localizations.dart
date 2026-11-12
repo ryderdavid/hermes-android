@@ -4761,6 +4761,528 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Details'**
   String get activity_sheet_details;
+
+  /// No description provided for @thread_state_running.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get thread_state_running;
+
+  /// No description provided for @thread_state_needs_you.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs you'**
+  String get thread_state_needs_you;
+
+  /// No description provided for @thread_state_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get thread_state_done;
+
+  /// No description provided for @thread_state_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get thread_state_failed;
+
+  /// No description provided for @thread_state_stopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get thread_state_stopped;
+
+  /// No description provided for @thread_state_queued.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued'**
+  String get thread_state_queued;
+
+  /// No description provided for @thread_tools_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} tool} other{{count} tools}}'**
+  String thread_tools_count(int count);
+
+  /// No description provided for @thread_untitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Thread'**
+  String get thread_untitled;
+
+  /// No description provided for @threads_all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get threads_all;
+
+  /// No description provided for @threads_paused_chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get threads_paused_chip;
+
+  /// No description provided for @threads_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Threads'**
+  String get threads_title;
+
+  /// No description provided for @threads_slots_in_use.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {limit} slots in use'**
+  String threads_slots_in_use(int used, int limit);
+
+  /// No description provided for @threads_active_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No threads are running} one{{count} active thread} other{{count} active threads}}'**
+  String threads_active_count(int count);
+
+  /// No description provided for @threads_earlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier threads'**
+  String get threads_earlier;
+
+  /// No description provided for @threads_earlier_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} finished in this chat} other{{count} finished in this chat}}'**
+  String threads_earlier_count(int count);
+
+  /// No description provided for @threads_stop_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop thread'**
+  String get threads_stop_tooltip;
+
+  /// No description provided for @threads_stop_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop all'**
+  String get threads_stop_all;
+
+  /// No description provided for @threads_stop_all_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop all threads?'**
+  String get threads_stop_all_title;
+
+  /// No description provided for @threads_stop_all_body.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{This interrupts the {count} running thread in this chat.} other{This interrupts all {count} running threads in this chat.}}'**
+  String threads_stop_all_body(int count);
+
+  /// No description provided for @threads_pause_new.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause new threads'**
+  String get threads_pause_new;
+
+  /// No description provided for @threads_resume_new.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume new threads'**
+  String get threads_resume_new;
+
+  /// No description provided for @threads_pause_gateway_wide.
+  ///
+  /// In en, this message translates to:
+  /// **'Pauses new threads for every chat on this gateway. Running threads keep going.'**
+  String get threads_pause_gateway_wide;
+
+  /// No description provided for @threads_paused_gateway_wide.
+  ///
+  /// In en, this message translates to:
+  /// **'New threads are paused for every chat on this gateway.'**
+  String get threads_paused_gateway_wide;
+
+  /// No description provided for @threads_action_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the gateway: {error}'**
+  String threads_action_failed(String error);
+
+  /// No description provided for @threads_already_finished.
+  ///
+  /// In en, this message translates to:
+  /// **'That thread had already finished.'**
+  String get threads_already_finished;
+
+  /// No description provided for @thread_of_chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Thread of {chat}'**
+  String thread_of_chat(String chat);
+
+  /// No description provided for @thread_live.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get thread_live;
+
+  /// No description provided for @thread_task_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Task from the coordinator'**
+  String get thread_task_title;
+
+  /// No description provided for @thread_history_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The stored transcript could not be loaded.'**
+  String get thread_history_unavailable;
+
+  /// No description provided for @thread_history_partial.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier steps are unavailable.'**
+  String get thread_history_partial;
+
+  /// No description provided for @thread_live_tail_truncated.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the most recent activity. Earlier steps appear when the thread finishes.'**
+  String get thread_live_tail_truncated;
+
+  /// No description provided for @thread_no_activity_yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing from this thread yet.'**
+  String get thread_no_activity_yet;
+
+  /// No description provided for @thread_queued_waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a free slot'**
+  String get thread_queued_waiting;
+
+  /// No description provided for @thread_queue_position.
+  ///
+  /// In en, this message translates to:
+  /// **'Position {position} in line'**
+  String thread_queue_position(int position);
+
+  /// No description provided for @thread_steer_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Steer this thread…'**
+  String get thread_steer_hint;
+
+  /// No description provided for @thread_steer_send.
+  ///
+  /// In en, this message translates to:
+  /// **'Steer'**
+  String get thread_steer_send;
+
+  /// No description provided for @thread_steer_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Steer queued for the thread\'s next step.'**
+  String get thread_steer_sent;
+
+  /// No description provided for @thread_steer_acknowledged.
+  ///
+  /// In en, this message translates to:
+  /// **'The thread picked up your steer.'**
+  String get thread_steer_acknowledged;
+
+  /// No description provided for @thread_steer_did_not_land.
+  ///
+  /// In en, this message translates to:
+  /// **'The thread finished before your steer landed. The text is kept so you can send it as a follow-up.'**
+  String get thread_steer_did_not_land;
+
+  /// No description provided for @thread_steer_unsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'This thread doesn\'t accept steering.'**
+  String get thread_steer_unsupported;
+
+  /// No description provided for @thread_steer_unavailable_gateway.
+  ///
+  /// In en, this message translates to:
+  /// **'This gateway can\'t steer threads.'**
+  String get thread_steer_unavailable_gateway;
+
+  /// No description provided for @thread_steer_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send the steer: {error}'**
+  String thread_steer_failed(String error);
+
+  /// No description provided for @thread_follow_up_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a follow-up…'**
+  String get thread_follow_up_hint;
+
+  /// No description provided for @thread_follow_up_send.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue thread'**
+  String get thread_follow_up_send;
+
+  /// No description provided for @thread_continue_queued.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow-up queued. It starts when a slot frees.'**
+  String get thread_continue_queued;
+
+  /// No description provided for @thread_continue_started.
+  ///
+  /// In en, this message translates to:
+  /// **'The thread is running again.'**
+  String get thread_continue_started;
+
+  /// No description provided for @thread_continue_rejected.
+  ///
+  /// In en, this message translates to:
+  /// **'The gateway refused the follow-up: {reason}'**
+  String thread_continue_rejected(String reason);
+
+  /// No description provided for @thread_continue_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send the follow-up: {error}'**
+  String thread_continue_failed(String error);
+
+  /// No description provided for @threads_started.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Started {count} thread} other{Started {count} threads}}'**
+  String threads_started(int count);
+
+  /// No description provided for @thread_report_finished.
+  ///
+  /// In en, this message translates to:
+  /// **'{goal} · finished'**
+  String thread_report_finished(String goal);
+
+  /// No description provided for @thread_report_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'{goal} · failed'**
+  String thread_report_failed(String goal);
+
+  /// No description provided for @thread_report_stopped.
+  ///
+  /// In en, this message translates to:
+  /// **'{goal} · stopped'**
+  String thread_report_stopped(String goal);
+
+  /// No description provided for @thread_report_no_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'The thread returned no summary.'**
+  String get thread_report_no_summary;
+
+  /// No description provided for @thread_open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open thread'**
+  String get thread_open;
+
+  /// No description provided for @thread_continue_dialog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue {goal}'**
+  String thread_continue_dialog_title(String goal);
+
+  /// No description provided for @thread_continue_dialog_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'What should it do next?'**
+  String get thread_continue_dialog_hint;
+
+  /// No description provided for @thread_update_title.
+  ///
+  /// In en, this message translates to:
+  /// **'{goal} · update'**
+  String thread_update_title(String goal);
+
+  /// No description provided for @thread_question_title.
+  ///
+  /// In en, this message translates to:
+  /// **'{goal} asks'**
+  String thread_question_title(String goal);
+
+  /// No description provided for @thread_updates_merged.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} updates merged'**
+  String thread_updates_merged(int count);
+
+  /// No description provided for @thread_reply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get thread_reply;
+
+  /// No description provided for @thread_let_coordinator_decide.
+  ///
+  /// In en, this message translates to:
+  /// **'Let coordinator decide'**
+  String get thread_let_coordinator_decide;
+
+  /// No description provided for @thread_reply_dialog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply to {goal}'**
+  String thread_reply_dialog_title(String goal);
+
+  /// No description provided for @thread_reply_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer'**
+  String get thread_reply_hint;
+
+  /// No description provided for @thread_question_answered_by_you.
+  ///
+  /// In en, this message translates to:
+  /// **'You answered: {answer}'**
+  String thread_question_answered_by_you(String answer);
+
+  /// No description provided for @thread_question_answered_by_coordinator.
+  ///
+  /// In en, this message translates to:
+  /// **'The coordinator answered: {answer}'**
+  String thread_question_answered_by_coordinator(String answer);
+
+  /// No description provided for @thread_question_answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered.'**
+  String get thread_question_answered;
+
+  /// No description provided for @thread_question_answered_coordinator_plain.
+  ///
+  /// In en, this message translates to:
+  /// **'The coordinator answered.'**
+  String get thread_question_answered_coordinator_plain;
+
+  /// No description provided for @thread_question_deciding.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked the coordinator to decide…'**
+  String get thread_question_deciding;
+
+  /// No description provided for @thread_question_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired without an answer. The thread carried on.'**
+  String get thread_question_expired;
+
+  /// No description provided for @thread_question_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'The thread stopped waiting.'**
+  String get thread_question_cancelled;
+
+  /// No description provided for @thread_question_closed.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer waiting for an answer.'**
+  String get thread_question_closed;
+
+  /// No description provided for @thread_reply_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send the reply: {error}'**
+  String thread_reply_failed(String error);
+
+  /// No description provided for @coordinator_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinator mode'**
+  String get coordinator_mode;
+
+  /// No description provided for @coordinator_mode_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand long work to threads'**
+  String get coordinator_mode_subtitle;
+
+  /// No description provided for @coordinator_mode_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The gateway must be updated'**
+  String get coordinator_mode_unavailable;
+
+  /// No description provided for @coordinator_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinator'**
+  String get coordinator_label;
+
+  /// No description provided for @coordinator_default_new_chats.
+  ///
+  /// In en, this message translates to:
+  /// **'New chats use coordinator mode'**
+  String get coordinator_default_new_chats;
+
+  /// No description provided for @coordinator_default_new_chats_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The main chat hands longer work to background threads.'**
+  String get coordinator_default_new_chats_subtitle;
+
+  /// No description provided for @coordinator_mode_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t change coordinator mode: {error}'**
+  String coordinator_mode_failed(String error);
+
+  /// No description provided for @approval_from_thread.
+  ///
+  /// In en, this message translates to:
+  /// **'From thread: {goal}'**
+  String approval_from_thread(String goal);
+
+  /// No description provided for @thread_notification_finished_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Thread finished'**
+  String get thread_notification_finished_title;
+
+  /// No description provided for @thread_notification_failed_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Thread failed'**
+  String get thread_notification_failed_title;
+
+  /// No description provided for @thread_notification_question_title.
+  ///
+  /// In en, this message translates to:
+  /// **'A thread needs you'**
+  String get thread_notification_question_title;
+
+  /// No description provided for @thread_notification_private_finished.
+  ///
+  /// In en, this message translates to:
+  /// **'A thread finished.'**
+  String get thread_notification_private_finished;
+
+  /// No description provided for @thread_notification_private_attention.
+  ///
+  /// In en, this message translates to:
+  /// **'A thread needs your attention.'**
+  String get thread_notification_private_attention;
+
+  /// No description provided for @notification_hide_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide content in notifications'**
+  String get notification_hide_content;
+
+  /// No description provided for @notification_hide_content_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thread notifications only say that a thread finished or needs attention.'**
+  String get notification_hide_content_subtitle;
 }
 
 class _AppLocalizationsDelegate

@@ -866,5 +866,270 @@
   "activity_sheet_arguments": "Arguments",
   "activity_sheet_output": "Output",
   "activity_sheet_output_truncated": "Output truncated",
-  "activity_sheet_details": "Details"
+  "activity_sheet_details": "Details",
+  "thread_state_running": "Running",
+  "thread_state_needs_you": "Needs you",
+  "thread_state_done": "Done",
+  "thread_state_failed": "Failed",
+  "thread_state_stopped": "Stopped",
+  "thread_state_queued": "Queued",
+  "thread_tools_count": "{count, plural, one{{count} tool} other{{count} tools}}",
+  "@thread_tools_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "thread_untitled": "Thread",
+  "threads_all": "All",
+  "threads_paused_chip": "Paused",
+  "threads_title": "Threads",
+  "threads_slots_in_use": "{used} of {limit} slots in use",
+  "@threads_slots_in_use": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "threads_active_count": "{count, plural, =0{No threads are running} one{{count} active thread} other{{count} active threads}}",
+  "@threads_active_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "threads_earlier": "Earlier threads",
+  "threads_earlier_count": "{count, plural, one{{count} finished in this chat} other{{count} finished in this chat}}",
+  "@threads_earlier_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "threads_stop_tooltip": "Stop thread",
+  "threads_stop_all": "Stop all",
+  "threads_stop_all_title": "Stop all threads?",
+  "threads_stop_all_body": "{count, plural, one{This interrupts the {count} running thread in this chat.} other{This interrupts all {count} running threads in this chat.}}",
+  "@threads_stop_all_body": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "threads_pause_new": "Pause new threads",
+  "threads_resume_new": "Resume new threads",
+  "threads_pause_gateway_wide": "Pauses new threads for every chat on this gateway. Running threads keep going.",
+  "threads_paused_gateway_wide": "New threads are paused for every chat on this gateway.",
+  "threads_action_failed": "Couldn't reach the gateway: {error}",
+  "@threads_action_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "threads_already_finished": "That thread had already finished.",
+  "thread_of_chat": "Thread of {chat}",
+  "@thread_of_chat": {
+    "placeholders": {
+      "chat": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_live": "Live",
+  "thread_task_title": "Task from the coordinator",
+  "thread_history_unavailable": "The stored transcript could not be loaded.",
+  "thread_history_partial": "Earlier steps are unavailable.",
+  "thread_live_tail_truncated": "Showing the most recent activity. Earlier steps appear when the thread finishes.",
+  "thread_no_activity_yet": "Nothing from this thread yet.",
+  "thread_queued_waiting": "Waiting for a free slot",
+  "thread_queue_position": "Position {position} in line",
+  "@thread_queue_position": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "thread_steer_hint": "Steer this thread…",
+  "thread_steer_send": "Steer",
+  "thread_steer_sent": "Steer queued for the thread's next step.",
+  "thread_steer_acknowledged": "The thread picked up your steer.",
+  "thread_steer_did_not_land": "The thread finished before your steer landed. The text is kept so you can send it as a follow-up.",
+  "thread_steer_unsupported": "This thread doesn't accept steering.",
+  "thread_steer_unavailable_gateway": "This gateway can't steer threads.",
+  "thread_steer_failed": "Couldn't send the steer: {error}",
+  "@thread_steer_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_follow_up_hint": "Send a follow-up…",
+  "thread_follow_up_send": "Continue thread",
+  "thread_continue_queued": "Follow-up queued. It starts when a slot frees.",
+  "thread_continue_started": "The thread is running again.",
+  "thread_continue_rejected": "The gateway refused the follow-up: {reason}",
+  "@thread_continue_rejected": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_continue_failed": "Couldn't send the follow-up: {error}",
+  "@thread_continue_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "threads_started": "{count, plural, one{Started {count} thread} other{Started {count} threads}}",
+  "@threads_started": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "thread_report_finished": "{goal} · finished",
+  "@thread_report_finished": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_report_failed": "{goal} · failed",
+  "@thread_report_failed": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_report_stopped": "{goal} · stopped",
+  "@thread_report_stopped": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_report_no_summary": "The thread returned no summary.",
+  "thread_open": "Open thread",
+  "thread_continue_dialog_title": "Continue {goal}",
+  "@thread_continue_dialog_title": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_continue_dialog_hint": "What should it do next?",
+  "thread_update_title": "{goal} · update",
+  "@thread_update_title": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_question_title": "{goal} asks",
+  "@thread_question_title": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_updates_merged": "{count} updates merged",
+  "@thread_updates_merged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "thread_reply": "Reply",
+  "thread_let_coordinator_decide": "Let coordinator decide",
+  "thread_reply_dialog_title": "Reply to {goal}",
+  "@thread_reply_dialog_title": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_reply_hint": "Your answer",
+  "thread_question_answered_by_you": "You answered: {answer}",
+  "@thread_question_answered_by_you": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_question_answered_by_coordinator": "The coordinator answered: {answer}",
+  "@thread_question_answered_by_coordinator": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_question_answered": "Answered.",
+  "thread_question_answered_coordinator_plain": "The coordinator answered.",
+  "thread_question_deciding": "Asked the coordinator to decide…",
+  "thread_question_expired": "Expired without an answer. The thread carried on.",
+  "thread_question_cancelled": "The thread stopped waiting.",
+  "thread_question_closed": "No longer waiting for an answer.",
+  "thread_reply_failed": "Couldn't send the reply: {error}",
+  "@thread_reply_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "coordinator_mode": "Coordinator mode",
+  "coordinator_mode_subtitle": "Hand long work to threads",
+  "coordinator_mode_unavailable": "The gateway must be updated",
+  "coordinator_label": "Coordinator",
+  "coordinator_default_new_chats": "New chats use coordinator mode",
+  "coordinator_default_new_chats_subtitle": "The main chat hands longer work to background threads.",
+  "coordinator_mode_failed": "Couldn't change coordinator mode: {error}",
+  "@coordinator_mode_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "approval_from_thread": "From thread: {goal}",
+  "@approval_from_thread": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "thread_notification_finished_title": "Thread finished",
+  "thread_notification_failed_title": "Thread failed",
+  "thread_notification_question_title": "A thread needs you",
+  "thread_notification_private_finished": "A thread finished.",
+  "thread_notification_private_attention": "A thread needs your attention.",
+  "notification_hide_content": "Hide content in notifications",
+  "notification_hide_content_subtitle": "Thread notifications only say that a thread finished or needs attention."
 }

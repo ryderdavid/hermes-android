@@ -2871,4 +2871,371 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get activity_sheet_details => 'Подробности';
+
+  @override
+  String get thread_state_running => 'Выполняется';
+
+  @override
+  String get thread_state_needs_you => 'Ждёт вас';
+
+  @override
+  String get thread_state_done => 'Готово';
+
+  @override
+  String get thread_state_failed => 'Ошибка';
+
+  @override
+  String get thread_state_stopped => 'Остановлен';
+
+  @override
+  String get thread_state_queued => 'В очереди';
+
+  @override
+  String thread_tools_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count инструмента',
+      many: '$count инструментов',
+      few: '$count инструмента',
+      one: '$count инструмент',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get thread_untitled => 'Поток';
+
+  @override
+  String get threads_all => 'Все';
+
+  @override
+  String get threads_paused_chip => 'Пауза';
+
+  @override
+  String get threads_title => 'Потоки';
+
+  @override
+  String threads_slots_in_use(int used, int limit) {
+    return 'Занято слотов: $used из $limit';
+  }
+
+  @override
+  String threads_active_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count активного потока',
+      many: '$count активных потоков',
+      few: '$count активных потока',
+      one: '$count активный поток',
+      zero: 'Нет активных потоков',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_earlier => 'Предыдущие потоки';
+
+  @override
+  String threads_earlier_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count завершено в этом чате',
+      many: '$count завершено в этом чате',
+      few: '$count завершено в этом чате',
+      one: '$count завершён в этом чате',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_stop_tooltip => 'Остановить поток';
+
+  @override
+  String get threads_stop_all => 'Остановить все';
+
+  @override
+  String get threads_stop_all_title => 'Остановить все потоки?';
+
+  @override
+  String threads_stop_all_body(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Будут прерваны $count выполняющихся потока в этом чате.',
+      many: 'Будут прерваны $count выполняющихся потоков в этом чате.',
+      few: 'Будут прерваны $count выполняющихся потока в этом чате.',
+      one: 'Будет прерван $count выполняющийся поток в этом чате.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_pause_new => 'Приостановить новые потоки';
+
+  @override
+  String get threads_resume_new => 'Возобновить новые потоки';
+
+  @override
+  String get threads_pause_gateway_wide =>
+      'Приостанавливает новые потоки во всех чатах этого шлюза. Запущенные потоки продолжают работу.';
+
+  @override
+  String get threads_paused_gateway_wide =>
+      'Новые потоки приостановлены во всех чатах этого шлюза.';
+
+  @override
+  String threads_action_failed(String error) {
+    return 'Не удалось связаться со шлюзом: $error';
+  }
+
+  @override
+  String get threads_already_finished => 'Этот поток уже завершился.';
+
+  @override
+  String thread_of_chat(String chat) {
+    return 'Поток чата «$chat»';
+  }
+
+  @override
+  String get thread_live => 'В эфире';
+
+  @override
+  String get thread_task_title => 'Задача от координатора';
+
+  @override
+  String get thread_history_unavailable =>
+      'Не удалось загрузить сохранённую запись.';
+
+  @override
+  String get thread_history_partial => 'Более ранние шаги недоступны.';
+
+  @override
+  String get thread_live_tail_truncated =>
+      'Показана последняя активность. Более ранние шаги появятся, когда поток завершится.';
+
+  @override
+  String get thread_no_activity_yet => 'В этом потоке пока ничего нет.';
+
+  @override
+  String get thread_queued_waiting => 'Ожидает свободный слот';
+
+  @override
+  String thread_queue_position(int position) {
+    return 'Позиция в очереди: $position';
+  }
+
+  @override
+  String get thread_steer_hint => 'Направить этот поток…';
+
+  @override
+  String get thread_steer_send => 'Направить';
+
+  @override
+  String get thread_steer_sent =>
+      'Указание поставлено в очередь на следующий шаг потока.';
+
+  @override
+  String get thread_steer_acknowledged => 'Поток принял ваше указание.';
+
+  @override
+  String get thread_steer_did_not_land =>
+      'Поток завершился раньше, чем дошло ваше указание. Текст сохранён — его можно отправить как продолжение.';
+
+  @override
+  String get thread_steer_unsupported => 'Этот поток не принимает указания.';
+
+  @override
+  String get thread_steer_unavailable_gateway =>
+      'Этот шлюз не умеет направлять потоки.';
+
+  @override
+  String thread_steer_failed(String error) {
+    return 'Не удалось отправить указание: $error';
+  }
+
+  @override
+  String get thread_follow_up_hint => 'Отправить продолжение…';
+
+  @override
+  String get thread_follow_up_send => 'Продолжить поток';
+
+  @override
+  String get thread_continue_queued =>
+      'Продолжение поставлено в очередь. Оно начнётся, когда освободится слот.';
+
+  @override
+  String get thread_continue_started => 'Поток снова выполняется.';
+
+  @override
+  String thread_continue_rejected(String reason) {
+    return 'Шлюз отклонил продолжение: $reason';
+  }
+
+  @override
+  String thread_continue_failed(String error) {
+    return 'Не удалось отправить продолжение: $error';
+  }
+
+  @override
+  String threads_started(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Запущено $count потока',
+      many: 'Запущено $count потоков',
+      few: 'Запущено $count потока',
+      one: 'Запущен $count поток',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String thread_report_finished(String goal) {
+    return '$goal · завершён';
+  }
+
+  @override
+  String thread_report_failed(String goal) {
+    return '$goal · ошибка';
+  }
+
+  @override
+  String thread_report_stopped(String goal) {
+    return '$goal · остановлен';
+  }
+
+  @override
+  String get thread_report_no_summary => 'Поток не вернул сводку.';
+
+  @override
+  String get thread_open => 'Открыть поток';
+
+  @override
+  String thread_continue_dialog_title(String goal) {
+    return 'Продолжить: $goal';
+  }
+
+  @override
+  String get thread_continue_dialog_hint => 'Что ему сделать дальше?';
+
+  @override
+  String thread_update_title(String goal) {
+    return '$goal · обновление';
+  }
+
+  @override
+  String thread_question_title(String goal) {
+    return '$goal спрашивает';
+  }
+
+  @override
+  String thread_updates_merged(int count) {
+    return 'Объединено обновлений: $count';
+  }
+
+  @override
+  String get thread_reply => 'Ответить';
+
+  @override
+  String get thread_let_coordinator_decide => 'Пусть решит координатор';
+
+  @override
+  String thread_reply_dialog_title(String goal) {
+    return 'Ответить: $goal';
+  }
+
+  @override
+  String get thread_reply_hint => 'Ваш ответ';
+
+  @override
+  String thread_question_answered_by_you(String answer) {
+    return 'Вы ответили: $answer';
+  }
+
+  @override
+  String thread_question_answered_by_coordinator(String answer) {
+    return 'Координатор ответил: $answer';
+  }
+
+  @override
+  String get thread_question_answered => 'Ответ дан.';
+
+  @override
+  String get thread_question_answered_coordinator_plain =>
+      'Координатор ответил.';
+
+  @override
+  String get thread_question_deciding =>
+      'Координатора попросили принять решение…';
+
+  @override
+  String get thread_question_expired =>
+      'Срок ответа истёк. Поток продолжил работу.';
+
+  @override
+  String get thread_question_cancelled => 'Поток перестал ждать ответа.';
+
+  @override
+  String get thread_question_closed => 'Ответ больше не ожидается.';
+
+  @override
+  String thread_reply_failed(String error) {
+    return 'Не удалось отправить ответ: $error';
+  }
+
+  @override
+  String get coordinator_mode => 'Режим координатора';
+
+  @override
+  String get coordinator_mode_subtitle => 'Передавать долгую работу потокам';
+
+  @override
+  String get coordinator_mode_unavailable => 'Нужно обновить шлюз';
+
+  @override
+  String get coordinator_label => 'Координатор';
+
+  @override
+  String get coordinator_default_new_chats =>
+      'Новые чаты в режиме координатора';
+
+  @override
+  String get coordinator_default_new_chats_subtitle =>
+      'Основной чат передаёт долгую работу фоновым потокам.';
+
+  @override
+  String coordinator_mode_failed(String error) {
+    return 'Не удалось изменить режим координатора: $error';
+  }
+
+  @override
+  String approval_from_thread(String goal) {
+    return 'От потока: $goal';
+  }
+
+  @override
+  String get thread_notification_finished_title => 'Поток завершён';
+
+  @override
+  String get thread_notification_failed_title => 'Поток завершился с ошибкой';
+
+  @override
+  String get thread_notification_question_title => 'Поток ждёт вас';
+
+  @override
+  String get thread_notification_private_finished => 'Поток завершился.';
+
+  @override
+  String get thread_notification_private_attention =>
+      'Поток требует вашего внимания.';
+
+  @override
+  String get notification_hide_content => 'Скрывать содержимое уведомлений';
+
+  @override
+  String get notification_hide_content_subtitle =>
+      'Уведомления о потоках сообщают только, что поток завершился или требует внимания.';
 }

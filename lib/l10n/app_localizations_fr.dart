@@ -2862,4 +2862,365 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get activity_sheet_details => 'Détails';
+
+  @override
+  String get thread_state_running => 'En cours';
+
+  @override
+  String get thread_state_needs_you => 'Vous attend';
+
+  @override
+  String get thread_state_done => 'Terminé';
+
+  @override
+  String get thread_state_failed => 'Échec';
+
+  @override
+  String get thread_state_stopped => 'Arrêté';
+
+  @override
+  String get thread_state_queued => 'En file d’attente';
+
+  @override
+  String thread_tools_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count outils',
+      one: '$count outil',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get thread_untitled => 'Fil';
+
+  @override
+  String get threads_all => 'Tous';
+
+  @override
+  String get threads_paused_chip => 'En pause';
+
+  @override
+  String get threads_title => 'Fils';
+
+  @override
+  String threads_slots_in_use(int used, int limit) {
+    return '$used emplacements utilisés sur $limit';
+  }
+
+  @override
+  String threads_active_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fils actifs',
+      one: '$count fil actif',
+      zero: 'Aucun fil en cours',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_earlier => 'Fils précédents';
+
+  @override
+  String threads_earlier_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count terminés dans cette discussion',
+      one: '$count terminé dans cette discussion',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_stop_tooltip => 'Arrêter le fil';
+
+  @override
+  String get threads_stop_all => 'Tout arrêter';
+
+  @override
+  String get threads_stop_all_title => 'Arrêter tous les fils ?';
+
+  @override
+  String threads_stop_all_body(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Cela interrompt les $count fils en cours de cette discussion.',
+      one: 'Cela interrompt le $count fil en cours de cette discussion.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_pause_new => 'Suspendre les nouveaux fils';
+
+  @override
+  String get threads_resume_new => 'Reprendre les nouveaux fils';
+
+  @override
+  String get threads_pause_gateway_wide =>
+      'Suspend les nouveaux fils pour toutes les discussions de cette passerelle. Les fils en cours continuent.';
+
+  @override
+  String get threads_paused_gateway_wide =>
+      'Les nouveaux fils sont suspendus pour toutes les discussions de cette passerelle.';
+
+  @override
+  String threads_action_failed(String error) {
+    return 'Impossible de joindre la passerelle : $error';
+  }
+
+  @override
+  String get threads_already_finished => 'Ce fil était déjà terminé.';
+
+  @override
+  String thread_of_chat(String chat) {
+    return 'Fil de $chat';
+  }
+
+  @override
+  String get thread_live => 'En direct';
+
+  @override
+  String get thread_task_title => 'Tâche confiée par le coordinateur';
+
+  @override
+  String get thread_history_unavailable =>
+      'La transcription enregistrée n’a pas pu être chargée.';
+
+  @override
+  String get thread_history_partial =>
+      'Les étapes précédentes ne sont pas disponibles.';
+
+  @override
+  String get thread_live_tail_truncated =>
+      'Affichage de l’activité la plus récente. Les étapes précédentes apparaissent une fois le fil terminé.';
+
+  @override
+  String get thread_no_activity_yet => 'Rien pour l’instant dans ce fil.';
+
+  @override
+  String get thread_queued_waiting => 'En attente d’un emplacement libre';
+
+  @override
+  String thread_queue_position(int position) {
+    return 'Position $position dans la file';
+  }
+
+  @override
+  String get thread_steer_hint => 'Orienter ce fil…';
+
+  @override
+  String get thread_steer_send => 'Orienter';
+
+  @override
+  String get thread_steer_sent =>
+      'Consigne mise en attente pour la prochaine étape du fil.';
+
+  @override
+  String get thread_steer_acknowledged =>
+      'Le fil a pris en compte votre consigne.';
+
+  @override
+  String get thread_steer_did_not_land =>
+      'Le fil s’est terminé avant que votre consigne n’arrive. Le texte est conservé pour que vous puissiez l’envoyer en suivi.';
+
+  @override
+  String get thread_steer_unsupported => 'Ce fil n’accepte pas de consignes.';
+
+  @override
+  String get thread_steer_unavailable_gateway =>
+      'Cette passerelle ne peut pas orienter les fils.';
+
+  @override
+  String thread_steer_failed(String error) {
+    return 'Impossible d’envoyer la consigne : $error';
+  }
+
+  @override
+  String get thread_follow_up_hint => 'Envoyer un suivi…';
+
+  @override
+  String get thread_follow_up_send => 'Poursuivre le fil';
+
+  @override
+  String get thread_continue_queued =>
+      'Suivi mis en file d’attente. Il démarre dès qu’un emplacement se libère.';
+
+  @override
+  String get thread_continue_started => 'Le fil est de nouveau en cours.';
+
+  @override
+  String thread_continue_rejected(String reason) {
+    return 'La passerelle a refusé le suivi : $reason';
+  }
+
+  @override
+  String thread_continue_failed(String error) {
+    return 'Impossible d’envoyer le suivi : $error';
+  }
+
+  @override
+  String threads_started(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fils lancés',
+      one: '$count fil lancé',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String thread_report_finished(String goal) {
+    return '$goal · terminé';
+  }
+
+  @override
+  String thread_report_failed(String goal) {
+    return '$goal · échec';
+  }
+
+  @override
+  String thread_report_stopped(String goal) {
+    return '$goal · arrêté';
+  }
+
+  @override
+  String get thread_report_no_summary => 'Le fil n’a renvoyé aucun résumé.';
+
+  @override
+  String get thread_open => 'Ouvrir le fil';
+
+  @override
+  String thread_continue_dialog_title(String goal) {
+    return 'Poursuivre $goal';
+  }
+
+  @override
+  String get thread_continue_dialog_hint => 'Que doit-il faire ensuite ?';
+
+  @override
+  String thread_update_title(String goal) {
+    return '$goal · point d’étape';
+  }
+
+  @override
+  String thread_question_title(String goal) {
+    return '$goal demande';
+  }
+
+  @override
+  String thread_updates_merged(int count) {
+    return '$count points d’étape regroupés';
+  }
+
+  @override
+  String get thread_reply => 'Répondre';
+
+  @override
+  String get thread_let_coordinator_decide => 'Laisser le coordinateur décider';
+
+  @override
+  String thread_reply_dialog_title(String goal) {
+    return 'Répondre à $goal';
+  }
+
+  @override
+  String get thread_reply_hint => 'Votre réponse';
+
+  @override
+  String thread_question_answered_by_you(String answer) {
+    return 'Vous avez répondu : $answer';
+  }
+
+  @override
+  String thread_question_answered_by_coordinator(String answer) {
+    return 'Le coordinateur a répondu : $answer';
+  }
+
+  @override
+  String get thread_question_answered => 'Répondu.';
+
+  @override
+  String get thread_question_answered_coordinator_plain =>
+      'Le coordinateur a répondu.';
+
+  @override
+  String get thread_question_deciding => 'Décision demandée au coordinateur…';
+
+  @override
+  String get thread_question_expired =>
+      'Expirée sans réponse. Le fil a continué.';
+
+  @override
+  String get thread_question_cancelled => 'Le fil a cessé d’attendre.';
+
+  @override
+  String get thread_question_closed => 'N’attend plus de réponse.';
+
+  @override
+  String thread_reply_failed(String error) {
+    return 'Impossible d’envoyer la réponse : $error';
+  }
+
+  @override
+  String get coordinator_mode => 'Mode coordinateur';
+
+  @override
+  String get coordinator_mode_subtitle =>
+      'Confier les longs travaux à des fils';
+
+  @override
+  String get coordinator_mode_unavailable =>
+      'La passerelle doit être mise à jour';
+
+  @override
+  String get coordinator_label => 'Coordinateur';
+
+  @override
+  String get coordinator_default_new_chats =>
+      'Les nouvelles discussions utilisent le mode coordinateur';
+
+  @override
+  String get coordinator_default_new_chats_subtitle =>
+      'La discussion principale confie les travaux plus longs à des fils en arrière-plan.';
+
+  @override
+  String coordinator_mode_failed(String error) {
+    return 'Impossible de changer le mode coordinateur : $error';
+  }
+
+  @override
+  String approval_from_thread(String goal) {
+    return 'Du fil : $goal';
+  }
+
+  @override
+  String get thread_notification_finished_title => 'Fil terminé';
+
+  @override
+  String get thread_notification_failed_title => 'Échec du fil';
+
+  @override
+  String get thread_notification_question_title => 'Un fil vous attend';
+
+  @override
+  String get thread_notification_private_finished => 'Un fil est terminé.';
+
+  @override
+  String get thread_notification_private_attention =>
+      'Un fil requiert votre attention.';
+
+  @override
+  String get notification_hide_content =>
+      'Masquer le contenu des notifications';
+
+  @override
+  String get notification_hide_content_subtitle =>
+      'Les notifications de fils indiquent seulement qu’un fil est terminé ou requiert votre attention.';
 }

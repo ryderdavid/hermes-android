@@ -26,7 +26,15 @@ class NotificationPrefs {
   final bool enabled;
   final Map<HermesNotificationKind, bool> kinds;
 
-  const NotificationPrefs({required this.enabled, required this.kinds});
+  /// Privacy: notifications that would quote a chat (a thread's goal, its
+  /// summary, its question) say only what kind of thing happened.
+  final bool hideContent;
+
+  const NotificationPrefs({
+    required this.enabled,
+    required this.kinds,
+    this.hideContent = false,
+  });
 
   static const defaults = NotificationPrefs(
     enabled: true,
@@ -49,6 +57,7 @@ class NotificationPrefs {
     bool? enabled,
     HermesNotificationKind? kind,
     bool? kindValue,
+    bool? hideContent,
   }) {
     final nextKinds = Map<HermesNotificationKind, bool>.from(kinds);
     if (kind != null && kindValue != null) {
@@ -57,6 +66,7 @@ class NotificationPrefs {
     return NotificationPrefs(
       enabled: enabled ?? this.enabled,
       kinds: nextKinds,
+      hideContent: hideContent ?? this.hideContent,
     );
   }
 
@@ -74,12 +84,14 @@ class NotificationPrefs {
     return NotificationPrefs(
       enabled: json['enabled'] is bool ? json['enabled'] as bool : true,
       kinds: kinds,
+      hideContent: json['hide_content'] == true,
     );
   }
 
   Map<String, dynamic> toJson() => {
     'enabled': enabled,
     'kinds': {for (final entry in kinds.entries) entry.key.name: entry.value},
+    'hide_content': hideContent,
   };
 }
 
@@ -115,6 +127,12 @@ abstract final class NotificationPrefsStore {
 
   static Future<void> setEnabled(bool enabled) async {
     final next = notificationPrefs.value.copyWith(enabled: enabled);
+    notificationPrefs.value = next;
+    await _persist(next);
+  }
+
+  static Future<void> setHideContent(bool hide) async {
+    final next = notificationPrefs.value.copyWith(hideContent: hide);
     notificationPrefs.value = next;
     await _persist(next);
   }

@@ -2777,4 +2777,347 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get activity_sheet_details => '詳細';
+
+  @override
+  String get thread_state_running => '実行中';
+
+  @override
+  String get thread_state_needs_you => '対応が必要';
+
+  @override
+  String get thread_state_done => '完了';
+
+  @override
+  String get thread_state_failed => '失敗';
+
+  @override
+  String get thread_state_stopped => '停止済み';
+
+  @override
+  String get thread_state_queued => '待機中';
+
+  @override
+  String thread_tools_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ツール$count件',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get thread_untitled => 'スレッド';
+
+  @override
+  String get threads_all => 'すべて';
+
+  @override
+  String get threads_paused_chip => '一時停止中';
+
+  @override
+  String get threads_title => 'スレッド';
+
+  @override
+  String threads_slots_in_use(int used, int limit) {
+    return '$limitスロット中$usedを使用中';
+  }
+
+  @override
+  String threads_active_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '実行中のスレッド$count件',
+      zero: '実行中のスレッドはありません',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_earlier => '以前のスレッド';
+
+  @override
+  String threads_earlier_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'このチャットで$count件完了',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_stop_tooltip => 'スレッドを停止';
+
+  @override
+  String get threads_stop_all => 'すべて停止';
+
+  @override
+  String get threads_stop_all_title => 'すべてのスレッドを停止しますか？';
+
+  @override
+  String threads_stop_all_body(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'このチャットで実行中のスレッド$count件を中断します。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get threads_pause_new => '新しいスレッドを一時停止';
+
+  @override
+  String get threads_resume_new => '新しいスレッドを再開';
+
+  @override
+  String get threads_pause_gateway_wide =>
+      'このゲートウェイのすべてのチャットで新しいスレッドを一時停止します。実行中のスレッドは継続します。';
+
+  @override
+  String get threads_paused_gateway_wide =>
+      'このゲートウェイのすべてのチャットで新しいスレッドが一時停止されています。';
+
+  @override
+  String threads_action_failed(String error) {
+    return 'ゲートウェイに接続できませんでした: $error';
+  }
+
+  @override
+  String get threads_already_finished => 'そのスレッドはすでに終了していました。';
+
+  @override
+  String thread_of_chat(String chat) {
+    return '$chat のスレッド';
+  }
+
+  @override
+  String get thread_live => 'ライブ';
+
+  @override
+  String get thread_task_title => 'コーディネーターからのタスク';
+
+  @override
+  String get thread_history_unavailable => '保存された記録を読み込めませんでした。';
+
+  @override
+  String get thread_history_partial => 'これより前の手順は利用できません。';
+
+  @override
+  String get thread_live_tail_truncated =>
+      '最新のアクティビティを表示しています。以前の手順はスレッドの終了後に表示されます。';
+
+  @override
+  String get thread_no_activity_yet => 'このスレッドからはまだ何もありません。';
+
+  @override
+  String get thread_queued_waiting => '空きスロットを待っています';
+
+  @override
+  String thread_queue_position(int position) {
+    return '待ち順 $position 番目';
+  }
+
+  @override
+  String get thread_steer_hint => 'このスレッドに指示…';
+
+  @override
+  String get thread_steer_send => '指示を送信';
+
+  @override
+  String get thread_steer_sent => 'スレッドの次のステップに向けて指示を送りました。';
+
+  @override
+  String get thread_steer_acknowledged => 'スレッドが指示を受け取りました。';
+
+  @override
+  String get thread_steer_did_not_land =>
+      '指示が届く前にスレッドが終了しました。テキストは残してあるので、フォローアップとして送信できます。';
+
+  @override
+  String get thread_steer_unsupported => 'このスレッドは指示を受け付けません。';
+
+  @override
+  String get thread_steer_unavailable_gateway => 'このゲートウェイではスレッドに指示を送れません。';
+
+  @override
+  String thread_steer_failed(String error) {
+    return '指示を送信できませんでした: $error';
+  }
+
+  @override
+  String get thread_follow_up_hint => 'フォローアップを送信…';
+
+  @override
+  String get thread_follow_up_send => 'スレッドを続行';
+
+  @override
+  String get thread_continue_queued => 'フォローアップを待機させました。スロットが空くと開始します。';
+
+  @override
+  String get thread_continue_started => 'スレッドを再開しました。';
+
+  @override
+  String thread_continue_rejected(String reason) {
+    return 'ゲートウェイがフォローアップを拒否しました: $reason';
+  }
+
+  @override
+  String thread_continue_failed(String error) {
+    return 'フォローアップを送信できませんでした: $error';
+  }
+
+  @override
+  String threads_started(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'スレッドを$count件開始',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String thread_report_finished(String goal) {
+    return '$goal · 完了';
+  }
+
+  @override
+  String thread_report_failed(String goal) {
+    return '$goal · 失敗';
+  }
+
+  @override
+  String thread_report_stopped(String goal) {
+    return '$goal · 停止';
+  }
+
+  @override
+  String get thread_report_no_summary => 'スレッドは要約を返しませんでした。';
+
+  @override
+  String get thread_open => 'スレッドを開く';
+
+  @override
+  String thread_continue_dialog_title(String goal) {
+    return '$goal を続行';
+  }
+
+  @override
+  String get thread_continue_dialog_hint => '次に何をさせますか？';
+
+  @override
+  String thread_update_title(String goal) {
+    return '$goal · 進捗';
+  }
+
+  @override
+  String thread_question_title(String goal) {
+    return '$goal からの質問';
+  }
+
+  @override
+  String thread_updates_merged(int count) {
+    return '$count件の進捗をまとめました';
+  }
+
+  @override
+  String get thread_reply => '返信';
+
+  @override
+  String get thread_let_coordinator_decide => 'コーディネーターに任せる';
+
+  @override
+  String thread_reply_dialog_title(String goal) {
+    return '$goal に返信';
+  }
+
+  @override
+  String get thread_reply_hint => '回答';
+
+  @override
+  String thread_question_answered_by_you(String answer) {
+    return 'あなたの回答: $answer';
+  }
+
+  @override
+  String thread_question_answered_by_coordinator(String answer) {
+    return 'コーディネーターの回答: $answer';
+  }
+
+  @override
+  String get thread_question_answered => '回答済み。';
+
+  @override
+  String get thread_question_answered_coordinator_plain => 'コーディネーターが回答しました。';
+
+  @override
+  String get thread_question_deciding => 'コーディネーターに判断を依頼しました…';
+
+  @override
+  String get thread_question_expired => '回答がないまま期限切れになりました。スレッドは作業を続けました。';
+
+  @override
+  String get thread_question_cancelled => 'スレッドは回答待ちをやめました。';
+
+  @override
+  String get thread_question_closed => '回答待ちは終了しました。';
+
+  @override
+  String thread_reply_failed(String error) {
+    return '返信を送信できませんでした: $error';
+  }
+
+  @override
+  String get coordinator_mode => 'コーディネーターモード';
+
+  @override
+  String get coordinator_mode_subtitle => '時間のかかる作業をスレッドに任せる';
+
+  @override
+  String get coordinator_mode_unavailable => 'ゲートウェイの更新が必要です';
+
+  @override
+  String get coordinator_label => 'コーディネーター';
+
+  @override
+  String get coordinator_default_new_chats => '新しいチャットでコーディネーターモードを使う';
+
+  @override
+  String get coordinator_default_new_chats_subtitle =>
+      'メインチャットが時間のかかる作業をバックグラウンドのスレッドに任せます。';
+
+  @override
+  String coordinator_mode_failed(String error) {
+    return 'コーディネーターモードを変更できませんでした: $error';
+  }
+
+  @override
+  String approval_from_thread(String goal) {
+    return 'スレッド: $goal';
+  }
+
+  @override
+  String get thread_notification_finished_title => 'スレッドが完了しました';
+
+  @override
+  String get thread_notification_failed_title => 'スレッドが失敗しました';
+
+  @override
+  String get thread_notification_question_title => 'スレッドが対応を待っています';
+
+  @override
+  String get thread_notification_private_finished => 'スレッドが終了しました。';
+
+  @override
+  String get thread_notification_private_attention => 'スレッドが確認を必要としています。';
+
+  @override
+  String get notification_hide_content => '通知の内容を隠す';
+
+  @override
+  String get notification_hide_content_subtitle =>
+      'スレッドの通知には、終了したことや確認が必要なことだけを表示します。';
 }

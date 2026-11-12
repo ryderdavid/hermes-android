@@ -1,3 +1,5 @@
+import '../services/thread_wire.dart';
+
 enum GatewayApprovalChoice {
   once('once'),
   session('session'),
@@ -28,12 +30,17 @@ class GatewayApprovalRequest {
   final bool smartDenied;
   final List<GatewayApprovalChoice> choices;
 
+  /// The thread that raised this approval, when a thread did. `null` for the
+  /// main agent's own approvals.
+  final ThreadApprovalAttribution? thread;
+
   const GatewayApprovalRequest({
     required this.command,
     required this.description,
     required this.allowPermanent,
     required this.smartDenied,
     required this.choices,
+    this.thread,
   });
 
   factory GatewayApprovalRequest.fromEventData(Map<String, dynamic> data) {
@@ -94,6 +101,7 @@ class GatewayApprovalRequest {
       allowPermanent: allowPermanent,
       smartDenied: smartDenied,
       choices: List.unmodifiable(choices),
+      thread: ThreadApprovalAttribution.parse(data),
     );
   }
 }
