@@ -8,6 +8,7 @@ import 'connection_manager.dart';
 import 'gateway_turn_coordinator.dart';
 import 'gateway_turn_journal.dart';
 import 'projects_gateway_client.dart';
+import 'thread_wire.dart';
 import 'ws_client.dart';
 
 typedef DesktopAsyncEventCallback =
@@ -75,6 +76,9 @@ class DesktopGatewayClient {
     'subagent.tool',
     'subagent.progress',
     'subagent.complete',
+    // Thread messages (updates and questions) and the question lifecycle.
+    ThreadEventType.message,
+    ThreadEventType.question,
     // A detached legacy turn can settle after its prompt.submit listener was
     // rejected by socket close. Route its terminal frame to ChatScreen's
     // recovery controller; live turns ignore this duplicate async delivery.
@@ -407,6 +411,7 @@ class DesktopGatewayClient {
         runtimeSessionId: resumed.runtimeSessionId,
         storedSessionId: storedSessionId,
         resumed: resumed,
+        info: resumed.info,
       );
     } on JsonRpcError catch (error) {
       if (error.code != 4007 &&
@@ -422,6 +427,7 @@ class DesktopGatewayClient {
       return _DesktopGatewayBinding(
         runtimeSessionId: created.runtimeSessionId,
         storedSessionId: created.storedSessionId,
+        info: created.info,
       );
     }
   }
@@ -435,6 +441,9 @@ class DesktopGatewayClient {
         _storedSessionIds[mobileSessionId] != binding.storedSessionId;
     _gatewaySessionIds[mobileSessionId] = binding.runtimeSessionId;
     _storedSessionIds[mobileSessionId] = binding.storedSessionId;
+    // Learn the thread capabilities before the bound listener runs: it is
+    // what seeds the roster and re-applies coordinator mode.
+    _capabilities.ingestSessionInfo(binding.info);
     if (bindingChanged) {
       _sessionBoundListener?.call(mobileSessionId, binding.storedSessionId);
     }
@@ -679,6 +688,12 @@ class DesktopGatewayClient {
     client.onServerRequest = (request) => _handleServerRequest(client, request);
     client.onConnectionClosed = () => _forgetServerRequestsFrom(client);
     client.onStreamEvent = (event) {
+      if (event.type == ThreadEventType.sessionInfo) {
+        // session.info carries the thread and coordinator capability keys.
+        // It only feeds the registry; panes listen to that, not the event.
+        _capabilities.ingestSessionInfo(event.data);
+        return;
+      }
       if (!_asyncEventTypes.contains(event.type)) return;
       var deliveredEvent = event;
       if (event.type == 'request.cancel') {
@@ -1125,6 +1140,103 @@ class DesktopGatewayClient {
     );
   }
 
+  // ── Threads (background subagents) and coordinator mode ───────────────
+
+  /// Probes thread support once per connection on a gateway that has not
+  /// advertised it. Safe to call on every bind: the registry de-duplicates.
+  Future<void> probeThreadSupport() => _capabilities.probeThreadRoster(
+    () async => (await _connectControl()).subagentRoster(),
+  );
+
+  /// The live threads of the chat bound to [sessionId].
+  Future<ThreadRosterSnapshot> listThreads(String sessionId) =>
+      _callSessionScoped(
+        sessionId,
+        (gateway) => gateway.client.listSubagents(gateway.sessionId),
+      );
+
+  Future<ThreadTailSnapshot> tailThread({
+    required String sessionId,
+    required String subagentId,
+  }) => _callSessionScoped(
+    sessionId,
+    (gateway) => gateway.client.tailSubagent(
+      sessionId: gateway.sessionId,
+      subagentId: subagentId,
+    ),
+  );
+
+  Future<ThreadSteerResult> steerThread({
+    required String sessionId,
+    required String subagentId,
+    required String text,
+  }) => _callSessionScoped(
+    sessionId,
+    (gateway) => gateway.client.steerSubagent(
+      sessionId: gateway.sessionId,
+      subagentId: subagentId,
+      text: text,
+    ),
+  );
+
+  Future<ThreadInterruptResult> interruptThread({
+    required String sessionId,
+    required String subagentId,
+  }) => _callSessionScoped(
+    sessionId,
+    (gateway) => gateway.client.interruptSubagent(
+      sessionId: gateway.sessionId,
+      subagentId: subagentId,
+    ),
+  );
+
+  /// Gateway-wide: slots in use, the limit and the pause flag.
+  Future<DelegationStatusSnapshot> delegationStatus() async =>
+      (await _connectControl()).delegationStatus();
+
+  /// Gateway-wide: pauses or resumes new threads for every chat.
+  Future<bool> setDelegationPaused(bool paused) async =>
+      (await _connectControl()).setDelegationPaused(paused);
+
+  Future<CoordinatorModeResult> setCoordinatorMode({
+    required String sessionId,
+    required bool coordinator,
+  }) => _callSessionScoped(
+    sessionId,
+    (gateway) => gateway.client.setCoordinatorMode(
+      sessionId: gateway.sessionId,
+      coordinator: coordinator,
+    ),
+  );
+
+  Future<void> replyToThread({
+    required String sessionId,
+    required String subagentId,
+    required String questionId,
+    required String text,
+  }) => _callSessionScoped(
+    sessionId,
+    (gateway) => gateway.client.replyToSubagent(
+      sessionId: gateway.sessionId,
+      subagentId: subagentId,
+      questionId: questionId,
+      text: text,
+    ),
+  );
+
+  Future<ThreadContinueResult> continueThread({
+    required String sessionId,
+    required String subagentId,
+    required String text,
+  }) => _callSessionScoped(
+    sessionId,
+    (gateway) => gateway.client.continueSubagent(
+      sessionId: gateway.sessionId,
+      subagentId: subagentId,
+      text: text,
+    ),
+  );
+
   void close() {
     // Idempotent: a double close must not re-enter or corrupt state.
     if (_closed) return;
@@ -1184,11 +1296,15 @@ class _DesktopGatewayBinding {
   final String runtimeSessionId;
   final String storedSessionId;
   final ResumedGatewaySession? resumed;
+
+  /// The session.info object the bind returned, when the gateway sent one.
+  final Map<String, dynamic>? info;
   bool resumeStateDelivered = false;
 
   _DesktopGatewayBinding({
     required this.runtimeSessionId,
     required this.storedSessionId,
     this.resumed,
+    this.info,
   });
 }

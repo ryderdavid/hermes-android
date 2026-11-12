@@ -20,6 +20,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import 'thread_wire.dart';
 import 'ws_client.dart';
 
 /// What the registry currently knows about one gateway method.
@@ -49,6 +50,9 @@ class CapabilityRegistry extends ChangeNotifier {
   int? _protocolMajor;
   final Map<String, Map<String, dynamic>> _advertised = {};
   final Map<String, CapabilitySupport> _probed = {};
+  final Set<String> _sessionCapabilities = {};
+  bool _threadRosterProbeStarted = false;
+  int _connectionEpoch = 0;
 
   /// The protocol name from the last accepted `gateway.ready` frame.
   String? get protocolName => _protocolName;
@@ -151,7 +155,93 @@ class CapabilityRegistry extends ChangeNotifier {
     _protocolMajor = null;
     _advertised.clear();
     _probed.clear();
+    _sessionCapabilities.clear();
+    _threadRosterProbeStarted = false;
+    _connectionEpoch += 1;
     notifyListeners();
+  }
+
+  // ── Threads and coordinator mode ───────────────────────────────────────
+  //
+  // These capabilities are advertised as a list of keys in `session.info`
+  // rather than in `gateway.ready`. A stock gateway advertises none of them
+  // but already serves the roster, tail, steer and interrupt RPCs, so thread
+  // support there is proven by one probe per connection instead.
+
+  /// Reads the capability keys of a `session.info` object: the event
+  /// payload, or the `info` of a session.create / session.resume result.
+  ///
+  /// An object without a `capabilities` list is a stock gateway's and leaves
+  /// what is known untouched; only [reset] (a new connection) forgets keys.
+  void ingestSessionInfo(Object? info) {
+    final parsed = ThreadSessionInfo.parse(info);
+    if (parsed == null || parsed.capabilities.isEmpty) return;
+    final before = _sessionCapabilities.length;
+    _sessionCapabilities.addAll(parsed.capabilities);
+    if (_sessionCapabilities.length != before) notifyListeners();
+  }
+
+  /// Whether `session.info` advertised [key] on this connection.
+  bool advertisesSessionCapability(String key) =>
+      _sessionCapabilities.contains(key);
+
+  bool get _threadRosterProbed => isSupported(ThreadRpc.roster);
+
+  /// The roster, tail, slot status and pause are available: advertised, or
+  /// proven by the probe.
+  bool get threadsRoster =>
+      advertisesSessionCapability(ThreadCapabilityKey.roster) ||
+      _threadRosterProbed;
+
+  /// Steer and stop are available. A stock gateway that passes the roster
+  /// probe serves both.
+  bool get threadsSteer =>
+      advertisesSessionCapability(ThreadCapabilityKey.steer) ||
+      _threadRosterProbed;
+
+  /// Thread updates and questions, and `subagent.reply`. Advertised only.
+  bool get threadsMessages =>
+      advertisesSessionCapability(ThreadCapabilityKey.messages);
+
+  /// `subagent.continue`. Advertised only.
+  bool get threadsContinue =>
+      advertisesSessionCapability(ThreadCapabilityKey.continueThreads);
+
+  /// Thread attribution on approval requests. Advertised only.
+  bool get threadsApprovals =>
+      advertisesSessionCapability(ThreadCapabilityKey.approvals);
+
+  /// `session.mode.set`. Advertised only: the app never imitates it.
+  bool get coordinatorMode =>
+      advertisesSessionCapability(ThreadCapabilityKey.coordinatorMode);
+
+  /// Probes `subagent.roster` once per connection on a gateway that has not
+  /// advertised thread support. [call] performs the RPC.
+  ///
+  /// A result, or a domain error, proves the method exists. An unknown-method
+  /// error proves it does not, and the app keeps the read-only task list. A
+  /// transport failure proves nothing, so a later call may probe again.
+  /// [reset] re-arms the probe for the next connection.
+  Future<void> probeThreadRoster(Future<Object?> Function() call) async {
+    if (_threadRosterProbeStarted ||
+        advertisesSessionCapability(ThreadCapabilityKey.roster)) {
+      return;
+    }
+    _threadRosterProbeStarted = true;
+    final epoch = _connectionEpoch;
+    try {
+      await call();
+      // An answer from a connection that has since been replaced says
+      // nothing about the current one.
+      if (epoch != _connectionEpoch) return;
+      recordSuccess(ThreadRpc.roster);
+    } catch (error) {
+      if (epoch != _connectionEpoch) return;
+      recordFailure(ThreadRpc.roster, error);
+      if (supportFor(ThreadRpc.roster) == CapabilitySupport.unknown) {
+        _threadRosterProbeStarted = false;
+      }
+    }
   }
 
   void _record(String method, CapabilitySupport support) {

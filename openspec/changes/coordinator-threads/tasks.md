@@ -10,17 +10,17 @@ set on the board (`bd show hmy-6qr`).
 
 ## 1. Thread transport and capabilities (app)
 
-- [ ] 1.1 Add `WsClient` wrappers for `subagent.roster`, `subagent.tail`,
+- [x] 1.1 Add `WsClient` wrappers for `subagent.roster`, `subagent.tail`,
   `subagent.steer`, `subagent.interrupt`, `delegation.status` and
   `delegation.pause`. Each wrapper parses gateway errors through
   `JsonRpcError`. Verify with unit tests against a fake socket that cover
   success, error and missing-result cases.
-- [ ] 1.2 Extend `CapabilityRegistry` with the D9 keys (`threads.roster`,
+- [x] 1.2 Extend `CapabilityRegistry` with the D9 keys (`threads.roster`,
   `threads.steer`, `threads.messages`, `threads.continue`,
   `threads.approvals`, `coordinator_mode`), read from `session.info`. On
   stock gateways, probe `subagent.roster` once per connection. Verify with
   tests: advertised, probe success, probe failure, reconnect re-probe.
-- [ ] 1.3 Route the async event types needed by threads through
+- [x] 1.3 Route the async event types needed by threads through
   `DesktopGatewayClient` without changing the existing `subagent.*`
   delivery. Verify that the existing `desktop_gateway_client` tests still
   pass, and add one test asserting that roster-relevant events reach the

@@ -9,6 +9,8 @@ import 'dart:convert';
 
 import 'package:web_socket_channel/io.dart';
 
+import 'thread_wire.dart';
+
 Object? _deepFreezeJson(Object? value) {
   if (value is Map) {
     final copy = <String, dynamic>{};
@@ -153,9 +155,13 @@ class CreatedGatewaySession {
   final String runtimeSessionId;
   final String storedSessionId;
 
+  /// The `info` object of the result (the session.info shape), when present.
+  final Map<String, dynamic>? info;
+
   const CreatedGatewaySession({
     required this.runtimeSessionId,
     required this.storedSessionId,
+    this.info,
   });
 }
 
@@ -171,12 +177,16 @@ class ResumedGatewaySession {
   final Map<String, dynamic>? inflight;
   final List<dynamic> openRequests;
 
+  /// The `info` object of the result (the session.info shape), when present.
+  final Map<String, dynamic>? info;
+
   const ResumedGatewaySession({
     required this.runtimeSessionId,
     this.running,
     this.status,
     this.inflight,
     this.openRequests = const [],
+    this.info,
   });
 }
 
@@ -1181,6 +1191,9 @@ class WsClient {
       openRequests: payload['open_requests'] is List
           ? List<dynamic>.from(payload['open_requests'] as List)
           : const [],
+      info: payload['info'] is Map
+          ? Map<String, dynamic>.from(payload['info'] as Map)
+          : null,
     );
   }
 
@@ -1340,6 +1353,9 @@ class WsClient {
     return CreatedGatewaySession(
       runtimeSessionId: runtimeSessionId,
       storedSessionId: storedSessionId,
+      info: payload['info'] is Map
+          ? Map<String, dynamic>.from(payload['info'] as Map)
+          : null,
     );
   }
 
@@ -1459,6 +1475,159 @@ class WsClient {
   bool get isConnected => _connected;
 
   /// Close the connection.
+  // ── Threads (background subagents) ───────────────────────────────────
+
+  /// Sends a thread RPC and returns its result object. A gateway error is
+  /// thrown as a [JsonRpcError]; a response without a result object is one
+  /// too, so a caller never reads fields off a missing payload.
+  Future<Map<String, dynamic>> _threadCall(
+    String method,
+    Map<String, dynamic> params,
+  ) async {
+    final response = await send(method, params);
+    final error = response['error'];
+    if (error != null) {
+      throw _gatewayResponseError(
+        method,
+        error,
+        fallbackMessage: 'The gateway rejected $method',
+      );
+    }
+    final result = response['result'];
+    if (result is! Map) {
+      throw JsonRpcError(method, 'Gateway returned no result');
+    }
+    return Map<String, dynamic>.from(result);
+  }
+
+  /// The live threads of one chat (`subagent.list`).
+  Future<ThreadRosterSnapshot> listSubagents(String sessionId) async {
+    return ThreadRosterSnapshot.parse(
+      await _threadCall(ThreadRpc.list, {'session_id': sessionId}),
+    );
+  }
+
+  /// The app-wide `subagent.roster` read. It needs no session, which makes it
+  /// the probe for thread support on a gateway that advertises nothing.
+  Future<Map<String, dynamic>> subagentRoster() =>
+      _threadCall(ThreadRpc.roster, const {});
+
+  /// The last 16 KB of a running thread's live transcript.
+  Future<ThreadTailSnapshot> tailSubagent({
+    required String sessionId,
+    required String subagentId,
+  }) async {
+    return ThreadTailSnapshot.parse(
+      await _threadCall(ThreadRpc.tail, {
+        'session_id': sessionId,
+        'subagent_id': subagentId,
+      }),
+    );
+  }
+
+  /// Queues steer text for a running thread's next step.
+  Future<ThreadSteerResult> steerSubagent({
+    required String sessionId,
+    required String subagentId,
+    required String text,
+  }) async {
+    return ThreadSteerResult.parse(
+      await _threadCall(
+        ThreadRpc.steer,
+        ThreadSteerResult.params(
+          sessionId: sessionId,
+          subagentId: subagentId,
+          text: text,
+        ),
+      ),
+    );
+  }
+
+  /// Interrupts one thread.
+  Future<ThreadInterruptResult> interruptSubagent({
+    required String sessionId,
+    required String subagentId,
+  }) async {
+    return ThreadInterruptResult.parse(
+      await _threadCall(ThreadRpc.interrupt, {
+        'session_id': sessionId,
+        'subagent_id': subagentId,
+      }),
+    );
+  }
+
+  /// Gateway-wide delegation state: slots in use, the limit, and the pause.
+  Future<DelegationStatusSnapshot> delegationStatus() async {
+    return DelegationStatusSnapshot.parse(
+      await _threadCall(ThreadRpc.delegationStatus, const {}),
+    );
+  }
+
+  /// Pauses or resumes new threads for the whole gateway. Returns the new
+  /// state.
+  Future<bool> setDelegationPaused(bool paused) async {
+    final result = await _threadCall(ThreadRpc.delegationPause, {
+      'paused': paused,
+    });
+    return result['paused'] == true;
+  }
+
+  /// Sets the session's coordinator flag.
+  Future<CoordinatorModeResult> setCoordinatorMode({
+    required String sessionId,
+    required bool coordinator,
+  }) async {
+    return CoordinatorModeResult.parse(
+      await _threadCall(
+        ThreadRpc.sessionModeSet,
+        CoordinatorModeResult.params(
+          sessionId: sessionId,
+          coordinator: coordinator,
+        ),
+      ),
+    );
+  }
+
+  /// Answers a thread's open question as the user. A closed question is a
+  /// [JsonRpcError] with code [ThreadReplyWire.closedCode].
+  Future<void> replyToSubagent({
+    required String sessionId,
+    required String subagentId,
+    required String questionId,
+    required String text,
+  }) async {
+    final result = await _threadCall(
+      ThreadRpc.reply,
+      ThreadReplyWire.params(
+        sessionId: sessionId,
+        subagentId: subagentId,
+        questionId: questionId,
+        text: text,
+      ),
+    );
+    if (!ThreadReplyWire.accepted(result)) {
+      throw JsonRpcError(ThreadRpc.reply, 'The reply was not accepted');
+    }
+  }
+
+  /// Sends a follow-up to a finished thread.
+  Future<ThreadContinueResult> continueSubagent({
+    required String sessionId,
+    required String subagentId,
+    required String text,
+  }) async {
+    return ThreadContinueResult.parse(
+      await _threadCall(
+        ThreadRpc.continueThread,
+        ThreadContinueResult.params(
+          sessionId: sessionId,
+          subagentId: subagentId,
+          text: text,
+        ),
+      ),
+    );
+  }
+
   void close() {
     if (!_connected && _channel == null) return;
     final generation = _connectionGeneration;
