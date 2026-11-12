@@ -1,10 +1,11 @@
+// ignore_for_file: prefer_initializing_formals
+
 import 'package:flutter/foundation.dart';
 import 'package:hermes_android/core/services/agent_threads_controller.dart';
 import 'package:hermes_android/core/services/thread_wire.dart';
 
 /// An in-memory [AgentThreadsGateway] that records every call.
 class FakeThreadsGateway extends ChangeNotifier implements AgentThreadsGateway {
-  // ignore: prefer_initializing_formals
   FakeThreadsGateway({ThreadSupport support = ThreadSupport.stock})
     : _support = support;
 

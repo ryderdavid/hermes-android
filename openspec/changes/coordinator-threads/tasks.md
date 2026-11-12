@@ -54,16 +54,16 @@ set on the board (`bd show hmy-6qr`).
 
 ## 3. Coordinator toggle, app side (app)
 
-- [ ] 3.1 Store coordinator mode per chat (new preference store, following
+- [x] 3.1 Store coordinator mode per chat (new preference store, following
   `chat_model_override_store.dart`), plus a "new chats use coordinator
   mode" default in Settings. Include both in `config_backup.dart`. Verify
   with store tests and a backup round-trip test.
-- [ ] 3.2 Add the Coordinator mode `CheckedPopupMenuItem` with its subtitle
+- [x] 3.2 Add the Coordinator mode `CheckedPopupMenuItem` with its subtitle
   to the chat menu (mockup 07), and the Coordinator label under the app bar
   title (mockup 02). Disable it with the "gateway must be updated" subtitle
   when `coordinator_mode` is absent. Verify with widget tests for the
   enabled/disabled/checked states and the app bar label.
-- [ ] 3.3 Send `session.mode.set` on toggle and on every session bind while
+- [x] 3.3 Send `session.mode.set` on toggle and on every session bind while
   the mode is on. Never change prompt text. Verify with a fake-gateway test
   that the RPC is sent on bind and toggle, and that prompt payloads are
   byte-identical with the mode on and off.
