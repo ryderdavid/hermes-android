@@ -524,7 +524,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   double? _initialEndLastExtent;
   int _initialEndStableFrames = 0;
   int _initialEndFramesRemaining = 0;
-  static const _initialEndFrameBudget = 12;
+  // Frame budget for the initial jump-to-end: covers composer/text-field
+  // layout settling at open (the composer's startup padding tween can move
+  // the list extent for more frames than this once the turn-status bar is
+  // gone), stopping early once the extent is stable.
+  static const _initialEndFrameBudget = 30;
   static const _requiredStableEndFrames = 2;
   static const _stableExtentTolerance = 0.5;
   static final Map<String, List<GatewayNotice>> _savedGatewayNotices = {};
@@ -1447,6 +1451,27 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void _goToEnd() {
     _applyScrollTarget(const ChatScrollTarget.end());
+    // An explicit "go to end" should stay pinned through late layout settling
+    // (async bubble sizing, composer tween), same as the initial open.
+    _startEndAlignment();
+  }
+
+  void _scheduleInitialEndAlignment() {
+    if (_scrollCoordinator.consumeInitialEndAlignment() == null) {
+      _scheduleScrollTarget(null);
+      return;
+    }
+    _initialEndFramesRemaining = _initialEndFrameBudget;
+    _initialEndStableFrames = 0;
+    _initialEndLastExtent = null;
+    _scheduleNextInitialEndFrame();
+  }
+
+  void _startEndAlignment() {
+    _initialEndFramesRemaining = _initialEndFrameBudget;
+    _initialEndStableFrames = 0;
+    _initialEndLastExtent = null;
+    _scheduleNextInitialEndFrame();
   }
 
   void _scheduleScrollTarget(ChatScrollTarget? target) {
@@ -1473,17 +1498,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _syncEndAffordance(_scrollController.position, clearUnreadAtEnd: false);
       }
     });
-  }
-
-  void _scheduleInitialEndAlignment() {
-    if (_scrollCoordinator.consumeInitialEndAlignment() == null) {
-      _scheduleScrollTarget(null);
-      return;
-    }
-    _initialEndFramesRemaining = _initialEndFrameBudget;
-    _initialEndStableFrames = 0;
-    _initialEndLastExtent = null;
-    _scheduleNextInitialEndFrame();
   }
 
   void _scheduleNextInitialEndFrame() {
@@ -5094,14 +5108,26 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ),
         ),
         actions: [
-          if (_streaming)
+          if (_streaming || _sending)
             Padding(
               padding: EdgeInsets.only(right: 8),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   ExpressiveLoadingIndicator(size: 24, contained: false),
                   SizedBox(width: 8),
-                  Text(context.l10n.responding, style: TextStyle(fontSize: 13)),
+                  // Live turn status next to the spinner when the gateway
+                  // provides one; the composer bar that used to show it is
+                  // gone. Bounded so compact app bars do not overflow.
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 96),
+                    child: Text(
+                      _gatewayTurnStatus?.text ?? context.l10n.responding,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13),
+                    ),
+                  ),
                 ],
               ),
             )
@@ -5260,9 +5286,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       availableHeight: availableHeight,
       textController: _textController,
       textEnabled: !_transcriptLoadBlocksComposer,
-      turnStatus: _gatewayTurnStatus != null && (_sending || _streaming)
-          ? _gatewayTurnStatus!.text
-          : null,
       attachments: _attachmentDrafts,
       attachmentsBusy: _sending,
       onMoveAttachment: _moveAttachment,

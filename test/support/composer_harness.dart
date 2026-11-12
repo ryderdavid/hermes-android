@@ -39,7 +39,6 @@ class ComposerHost {
     streaming: streaming,
     onSend: () => sends++,
     onStop: () => stops++,
-    turnStatus: streaming ? 'Thinking…' : null,
   );
 
   /// An image draft that has finished uploading.

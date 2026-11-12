@@ -30,7 +30,6 @@ class ChatComposer extends StatelessWidget {
     required this.streaming,
     required this.onSend,
     required this.onStop,
-    this.turnStatus,
     super.key,
   });
 
@@ -39,9 +38,6 @@ class ChatComposer extends StatelessWidget {
 
   final TextEditingController textController;
   final bool textEnabled;
-
-  /// The gateway's live turn status line, shown while a turn runs.
-  final String? turnStatus;
 
   final List<AttachmentDraft> attachments;
   final bool attachmentsBusy;
@@ -82,7 +78,6 @@ class ChatComposer extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (turnStatus != null) _buildTurnStatus(context),
                     if (attachments.isNotEmpty) _buildAttachmentTray(context),
                     if (voiceComposer.listening)
                       VoiceComposerIndicator(
@@ -97,33 +92,6 @@ class ChatComposer extends StatelessWidget {
             _buildInputRow(context),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTurnStatus(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(4, 2, 4, 6),
-      padding: const EdgeInsets.fromLTRB(8, 6, 14, 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          // Material 3 Expressive loading indicator while Hermes works.
-          const ExpressiveLoadingIndicator(size: 28),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              turnStatus!,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
-        ],
       ),
     );
   }
