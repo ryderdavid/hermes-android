@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test(
-    'Build 2.1.31-you.13 has the exact release identity and an upgrade-safe code',
+    'Build 2.1.31-you.14 has the exact release identity and an upgrade-safe code',
     () {
       final pubspec = File('pubspec.yaml').readAsStringSync();
       final match = RegExp(
@@ -14,11 +14,11 @@ void main() {
 
       expect(match, isNotNull);
       // The fork appends -you.<n> to the upstream version it is based on.
-      expect(match!.group(1), '2.1.31-you.13');
-      expect(int.parse(match.group(2)!), 2176);
-      expect(int.parse(match.group(2)!), greaterThan(2175));
+      expect(match!.group(1), '2.1.31-you.14');
+      expect(int.parse(match.group(2)!), 2177);
+      expect(int.parse(match.group(2)!), greaterThan(2176));
       // F-Droid ABI split: packaged arm64 code is base * 10 + ABI code.
-      expect(int.parse(match.group(2)!) * 10 + 2, 21762);
+      expect(int.parse(match.group(2)!) * 10 + 2, 21772);
     },
   );
 
