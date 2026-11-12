@@ -5269,7 +5269,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _pendingReattachResync;
     final sendBlocked =
         _transcriptLoadBlocksComposer ||
-        _sending ||
+        // A send while streaming is a steer/queue (see _sendMessage); only the
+        // pre-stream _sending phase blocks the send key.
+        (_sending && !_streaming) ||
         _pendingReattachResync ||
         _voiceComposer.listening;
     return ChatComposer(
