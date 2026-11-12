@@ -3873,10 +3873,17 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
     final notice = GatewayNotice.fromGatewayEvent(event.type, event.data);
     if (notice == null) return;
-    if (_gatewayNotices.any((item) => item.identity == notice.identity)) return;
-    _notifyBackgroundNotice(notice);
+    // Anchor the notice to the message on screen when it arrived so the
+    // chat can place it chronologically instead of pinned at the bottom.
+    final anchored = notice.withAnchor(
+      _messages.isEmpty ? null : messageRowId(_messages.last),
+    );
+    if (_gatewayNotices.any((item) => item.identity == anchored.identity)) {
+      return;
+    }
+    _notifyBackgroundNotice(anchored);
     setState(() {
-      _gatewayNotices.add(notice);
+      _gatewayNotices.add(anchored);
       if (_gatewayNotices.length > 20) _gatewayNotices.removeAt(0);
       _savedGatewayNotices[_gatewayNoticeIdentity] = List.unmodifiable(
         _gatewayNotices,
@@ -5394,7 +5401,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               return GatewaySubagentCard(activities: item);
             }
             if (item is GatewayNotice) {
-              return GatewayNoticeCard(notice: item);
+              return ActivityRow.notice(
+                key: ValueKey<String>('notice:${item.identity}'),
+                notice: item,
+                onTap: () => showActivityDetailSheet(
+                  context,
+                  notice: item,
+                  messages: _messages,
+                ),
+              );
             }
 
             final msg = item as Map<String, dynamic>;

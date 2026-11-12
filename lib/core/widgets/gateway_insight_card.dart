@@ -4,50 +4,6 @@ import '../theme/hermes_theme.dart';
 import '../models/gateway_insight.dart';
 
 import 'package:hermes_android/core/l10n/l10n.dart';
-class GatewayNoticeCard extends StatelessWidget {
-  final GatewayNotice notice;
-
-  const GatewayNoticeCard({required this.notice, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final isBackground = notice.kind == GatewayNoticeKind.background;
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              isBackground
-                  ? Icons.task_alt_outlined
-                  : Icons.fact_check_outlined,
-              size: 21,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: SelectionArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      notice.title,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(notice.text),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class GatewaySubagentCard extends StatelessWidget {
   final List<GatewaySubagentActivity> activities;
@@ -76,7 +32,10 @@ class GatewaySubagentCard extends StatelessWidget {
             ListTile(
               dense: true,
               leading: activity.isComplete
-                  ? Icon(Icons.check_circle_outline, color: HermesTokens.of(context).success)
+                  ? Icon(
+                      Icons.check_circle_outline,
+                      color: HermesTokens.of(context).success,
+                    )
                   : const SizedBox.square(
                       dimension: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),

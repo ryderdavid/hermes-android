@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 import '../models/gateway_activity.dart';
+import '../models/gateway_insight.dart';
 import '../theme/hermes_theme.dart';
 
 /// The broad kind of a tool, which picks a row's icon and a group's label.
@@ -145,6 +146,22 @@ class ActivityRow extends StatelessWidget {
        _reasoning = false,
        icon = null,
        label = null,
+       kindLabel = null,
+       state = ActivityRowState.completed;
+
+  /// A gateway notice (Hermes review / background completion) as one line:
+  /// title plus the notice text, ellipsized. Tapping opens the detail sheet.
+  ActivityRow.notice({
+    required GatewayNotice notice,
+    this.onTap,
+    super.key,
+  }) : activity = null,
+       _groupCount = null,
+       _reasoning = false,
+       icon = notice.kind == GatewayNoticeKind.review
+           ? Icons.fact_check_outlined
+           : Icons.task_alt_outlined,
+       label = '${notice.title} — ${notice.text.replaceAll('\n', ' ')}',
        kindLabel = null,
        state = ActivityRowState.completed;
 

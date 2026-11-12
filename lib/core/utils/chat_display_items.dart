@@ -305,6 +305,10 @@ String? _rowId(Map<String, dynamic> message) {
   return null;
 }
 
+/// Public [row id][_rowId] of a message, used to anchor notices to the
+/// message that was on screen when they arrived.
+String? messageRowId(Map<String, dynamic> message) => _rowId(message);
+
 /// Project a raw Hermes message list into the flat list the chat screen
 /// renders.
 ///
@@ -321,7 +325,10 @@ String? _rowId(Map<String, dynamic> message) {
 ///
 /// Bubbles are `Map<String, dynamic>` carrying `_display_content` (tool-result
 /// blocks stripped) and, for assistant replies, `_retry_prompt`. A
-/// `GatewaySubagentActivity` list and [GatewayNotice]s are appended last.
+/// `GatewaySubagentActivity` list is appended last. [GatewayNotice]s keep
+/// their chronological place: each is inserted right after the bubble of its
+/// [GatewayNotice.anchorMessageId]; unanchored or stale-anchored notices
+/// trail at the end.
 ///
 /// A user row the gateway wrote for a thread becomes a [ChatThreadReportItem]
 /// or a [ChatThreadMessageItem] instead of a bubble. Each of [threads] is
@@ -549,7 +556,39 @@ List<dynamic> buildChatDisplayItems({
   if (subagentActivities.isNotEmpty) {
     displayItems.add(List<GatewaySubagentActivity>.from(subagentActivities));
   }
-  displayItems.addAll(notices);
+
+  // Notices keep their chronological place: each lands right after the
+  // bubble of its anchor message. Notices with no anchor, or an anchor that
+  // is no longer in the history, trail at the end (previous behavior).
+  if (notices.isNotEmpty) {
+    final byAnchor = <String, List<GatewayNotice>>{};
+    final trailing = <GatewayNotice>[];
+    for (final notice in notices) {
+      final anchor = notice.anchorMessageId;
+      if (anchor == null) {
+        trailing.add(notice);
+      } else {
+        byAnchor.putIfAbsent(anchor, () => []).add(notice);
+      }
+    }
+    final merged = <dynamic>[];
+    for (final item in displayItems) {
+      merged.add(item);
+      if (item is Map<String, dynamic>) {
+        final pending = byAnchor[_rowId(item)];
+        if (pending != null && pending.isNotEmpty) {
+          merged.addAll(pending);
+          byAnchor.remove(_rowId(item));
+        }
+      }
+    }
+    // Anchors that matched no bubble plus unanchored notices go last.
+    for (final pending in byAnchor.values) {
+      merged.addAll(pending);
+    }
+    merged.addAll(trailing);
+    return merged;
+  }
 
   return displayItems;
 }

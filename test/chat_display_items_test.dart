@@ -340,6 +340,29 @@ void main() {
       expect((items[2] as GatewayNotice).text, 'task done');
     });
 
+    test(
+      'anchored notices land after their anchor message, not at the end',
+      () {
+        final items = buildChatDisplayItems(
+          messages: [
+            {'role': 'user', 'content': 'q1', 'id': 'u1'},
+            {'role': 'assistant', 'content': 'a1', 'id': 'a1'},
+            {'role': 'user', 'content': 'q2', 'id': 'u2'},
+            {'role': 'assistant', 'content': 'a2', 'id': 'a2'},
+          ],
+          notices: [
+            _notice.withAnchor('message:a1'),
+            const GatewayNotice(kind: GatewayNoticeKind.review, text: 'later'),
+          ],
+        );
+
+        expect(items, hasLength(6));
+        expect((items[2] as GatewayNotice).text, 'task done');
+        expect((items[3] as Map<String, dynamic>)['content'], 'q2');
+        expect((items.last as GatewayNotice).text, 'later');
+      },
+    );
+
     test('returns nothing for an empty conversation', () {
       expect(buildChatDisplayItems(messages: const []), isEmpty);
     });

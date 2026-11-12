@@ -91,7 +91,25 @@ class GatewayNotice {
   final String text;
   final String? taskId;
 
-  const GatewayNotice({required this.kind, required this.text, this.taskId});
+  /// Row id (see `messageRowId` in chat_display_items.dart) of the last
+  /// message when this notice arrived. The chat places the notice right
+  /// after that message so notices stay in chronological order; `null`
+  /// (or an anchor no longer present) trails at the end.
+  final String? anchorMessageId;
+
+  const GatewayNotice({
+    required this.kind,
+    required this.text,
+    this.taskId,
+    this.anchorMessageId,
+  });
+
+  GatewayNotice withAnchor(String? anchor) => GatewayNotice(
+    kind: kind,
+    text: text,
+    taskId: taskId,
+    anchorMessageId: anchor,
+  );
 
   String get identity => '${kind.name}|${taskId ?? ''}|$text';
 

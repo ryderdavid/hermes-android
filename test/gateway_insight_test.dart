@@ -160,11 +160,20 @@ void main() {
                     messages: const [],
                   ),
                 ),
-                const GatewayNoticeCard(
-                  notice: GatewayNotice(
+                ActivityRow.notice(
+                  notice: const GatewayNotice(
                     kind: GatewayNoticeKind.background,
                     taskId: 'bg-7',
                     text: 'Indexed the selected files.',
+                  ),
+                  onTap: () => showActivityDetailSheet(
+                    context,
+                    notice: const GatewayNotice(
+                      kind: GatewayNoticeKind.background,
+                      taskId: 'bg-7',
+                      text: 'Indexed the selected files.',
+                    ),
+                    messages: const [],
                   ),
                 ),
               ],
@@ -175,18 +184,23 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 300));
 
-    // The row shows the first line only; the notice is selectable in place.
-    expect(find.text('Verified the complete gateway contract.'), findsOneWidget);
-    expect(find.text('Background task bg-7 completed'), findsOneWidget);
-    expect(find.byType(SelectionArea), findsOneWidget);
-
-    await tester.tap(find.byType(ActivityRow));
-    await tester.pumpAndSettle();
-    expect(find.text('Reasoning'), findsOneWidget);
+    // The reasoning row shows its first line; the notice is a single-line
+    // row (title + text), not a card.
     expect(
-      find.text('Verified the complete gateway contract.\nThen the rest.'),
+      find.text('Verified the complete gateway contract.'),
       findsOneWidget,
     );
+    expect(
+      find.text('Background task bg-7 completed — Indexed the selected files.'),
+      findsOneWidget,
+    );
+    expect(find.byType(Card), findsNothing);
+
+    // Tapping the notice row opens the bottom drawer with the full text.
+    await tester.tap(find.byType(ActivityRow).last);
+    await tester.pumpAndSettle();
+    expect(find.text('Background task bg-7 completed'), findsOneWidget);
+    expect(find.text('Indexed the selected files.'), findsOneWidget);
     expect(
       find.descendant(
         of: find.byType(ActivityDetailSheet),
@@ -199,8 +213,8 @@ void main() {
   testWidgets('subagent card exposes delegated progress', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: GatewaySubagentCard(
             activities: [

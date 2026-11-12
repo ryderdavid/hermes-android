@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 import '../models/gateway_activity.dart';
+import '../models/gateway_insight.dart';
 import '../theme/hermes_theme.dart';
 import '../utils/chat_display_items.dart';
 import '../utils/message_content.dart';
@@ -146,11 +147,16 @@ Future<void> showActivityDetailSheet(
   BuildContext context, {
   ChatActivityStep? step,
   ChatActivityGroupItem? group,
+  GatewayNotice? notice,
   required List<Map<String, dynamic>> messages,
 }) {
-  assert((step == null) != (group == null));
+  assert(
+    [step != null, group != null, notice != null].where((b) => b).length == 1,
+  );
   final Widget body;
-  if (group != null) {
+  if (notice != null) {
+    body = ActivityDetailSheet.notice(notice);
+  } else if (group != null) {
     body = ActivityDetailSheet.group([
       for (final item in group.steps)
         ActivityCallDetail.resolve(item, messages),
@@ -210,21 +216,31 @@ class ActivityDetailSheet extends StatelessWidget {
   const ActivityDetailSheet.call(ActivityCallDetail detail, {super.key})
     : _calls = const [],
       _call = detail,
-      _reasoning = null;
+      _reasoning = null,
+      _notice = null;
 
   const ActivityDetailSheet.group(List<ActivityCallDetail> details, {super.key})
     : _calls = details,
       _call = null,
-      _reasoning = null;
+      _reasoning = null,
+      _notice = null;
 
   const ActivityDetailSheet.reasoning(String text, {super.key})
     : _calls = const [],
       _call = null,
-      _reasoning = text;
+      _reasoning = text,
+      _notice = null;
+
+  const ActivityDetailSheet.notice(GatewayNotice notice, {super.key})
+    : _calls = const [],
+      _call = null,
+      _reasoning = null,
+      _notice = notice;
 
   final ActivityCallDetail? _call;
   final List<ActivityCallDetail> _calls;
   final String? _reasoning;
+  final GatewayNotice? _notice;
 
   @override
   Widget build(BuildContext context) {
@@ -237,6 +253,34 @@ class ActivityDetailSheet extends StatelessWidget {
       children = [
         SelectionArea(
           child: Text(_reasoning, style: theme.textTheme.bodyLarge),
+        ),
+      ];
+    } else if (_notice != null) {
+      final notice = _notice;
+      title = notice.title;
+      children = [
+        Row(
+          children: [
+            Icon(
+              notice.kind == GatewayNoticeKind.review
+                  ? Icons.fact_check_outlined
+                  : Icons.task_alt_outlined,
+              size: 18,
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'Notice',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: HermesTokens.of(context).muted,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: HermesSpacing.md),
+        SelectionArea(
+          child: Text(notice.text, style: theme.textTheme.bodyLarge),
         ),
       ];
     } else if (_call != null) {
