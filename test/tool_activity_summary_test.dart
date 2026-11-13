@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/models/gateway_activity.dart';
 import 'package:hermes_android/core/utils/tool_activity_summary.dart';
 
 void main() {
@@ -280,6 +283,96 @@ void main() {
         'installing dependencies from requirements.txt',
       );
       expect(commandSentence('unknownbinary --x'), 'running `unknownbinary`');
+    });
+  });
+
+  group('toolCallArgsById', () {
+    test('joins assistant tool_calls by id, parsing string arguments', () {
+      final messages = [
+        {
+          'role': 'assistant',
+          'tool_calls': [
+            {
+              'id': 'call-1',
+              'function': {
+                'name': 'terminal',
+                'arguments': jsonEncode({'command': 'git status'}),
+              },
+            },
+            {
+              'call_id': 'call-2',
+              'function': {
+                'name': 'read_file',
+                'arguments': {'path': 'lib/main.dart'},
+              },
+            },
+          ],
+        },
+        {'role': 'tool', 'tool_call_id': 'call-1', 'content': 'ok'},
+      ];
+      final args = toolCallArgsById(messages);
+      expect(args['call-1'], {'command': 'git status'});
+      expect(args['call-2'], {'path': 'lib/main.dart'});
+    });
+
+    test('skips malformed calls and non-map arguments', () {
+      final messages = [
+        {
+          'role': 'assistant',
+          'tool_calls': [
+            {
+              'id': 'bad',
+              'function': {'name': 'terminal', 'arguments': '{oops'},
+            },
+            {
+              'id': '',
+              'function': {'name': 'x', 'arguments': <String, dynamic>{}},
+            },
+            'not-a-map',
+            {
+              'id': 'good',
+              'function': {
+                'name': 'terminal',
+                'arguments': {'command': 'ls'},
+              },
+            },
+          ],
+        },
+      ];
+      final args = toolCallArgsById(messages);
+      expect(args.keys, ['good']);
+      expect(args['good'], {'command': 'ls'});
+    });
+
+    test('a stored tool row summarizes from the joined args', () {
+      final messages = [
+        {
+          'role': 'assistant',
+          'tool_calls': [
+            {
+              'id': 'call-1',
+              'function': {
+                'name': 'terminal',
+                'arguments': jsonEncode({'command': 'git status'}),
+              },
+            },
+          ],
+        },
+        {
+          'role': 'tool',
+          'tool_call_id': 'call-1',
+          'tool_name': 'terminal',
+          'content': 'output',
+          'timestamp': 1792544000,
+        },
+      ];
+      final activity = GatewayToolActivity.fromStoredResult(
+        name: 'terminal',
+        toolId: 'call-1',
+        timestamp: 1792544000,
+        args: toolCallArgsById(messages)['call-1'],
+      );
+      expect(activity.summary, 'checking repo status');
     });
   });
 }

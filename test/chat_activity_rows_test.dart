@@ -264,6 +264,59 @@ void main() {
       expect(find.text('Worked for 2m 24s'), findsOneWidget);
     });
 
+    testWidgets('stored tool rows keep their summary from the joined '
+        'assistant tool_call args', (tester) async {
+      final client = _ControlledChatHttpClient(const []);
+      final remote = await _startRemoteTurn(
+        tester,
+        'stored-summary',
+        client: client,
+      );
+      remote.emit('tool.start', _terminal('call-1'));
+      remote.emit('tool.complete', _terminal('call-1'));
+      remote.emit('message.delta', {'text': 'All done'});
+      remote.emit('message.complete', {'text': 'All done'});
+      remote.finish();
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(TurnFoldLine));
+      await tester.pumpAndSettle();
+      expect(find.text('Running the test suite'), findsOneWidget);
+
+      client.serverMessages = [
+        {'id': 1, 'role': 'user', 'content': 'go', 'timestamp': 1792544000},
+        {
+          'id': 2,
+          'role': 'assistant',
+          'content': '',
+          'tool_calls': [
+            {
+              'id': 'call-1',
+              'function': {
+                'name': 'terminal',
+                'arguments': jsonEncode({'command': 'flutter test'}),
+              },
+            },
+          ],
+        },
+        _storedTool(3, 'call-1', 'terminal'),
+        {
+          'id': 4,
+          'role': 'assistant',
+          'content': 'All done',
+          'timestamp': 1792544144,
+        },
+      ];
+      await tester.tap(find.byTooltip('Chat actions'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Refresh'));
+      await tester.pumpAndSettle();
+
+      // The stored row has no args of its own; the summary comes from the
+      // assistant message's tool_call joined by tool_call_id.
+      expect(find.text('Running the test suite'), findsOneWidget);
+    });
+
     testWidgets('a turn loaded from history starts folded', (tester) async {
       await _pumpChat(
         tester,

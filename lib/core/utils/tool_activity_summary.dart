@@ -15,6 +15,8 @@
 /// nothing here needs the l10n catalogues.
 library;
 
+import 'dart:convert';
+
 /// Longest summary rendered next to the tool name.
 const int kToolSummaryMaxLength = 80;
 
@@ -568,4 +570,41 @@ String _clip(String text, {required bool keepTail}) {
     return '$ellipsis${text.substring(text.length - kToolSummaryMaxLength + ellipsis.length)}';
   }
   return '${text.substring(0, kToolSummaryMaxLength - ellipsis.length)}$ellipsis';
+}
+
+/// Maps tool-call id → parsed arguments for every message in [messages] that
+/// carries `tool_calls`. Stored tool-result rows reference their call by
+/// `tool_call_id` but do not repeat the args (the REST history ships the args
+/// only on the assistant message), so a stored row's summary is phrased from
+/// the matching call joined here.
+Map<String, Map<String, dynamic>> toolCallArgsById(
+  List<Map<String, dynamic>> messages,
+) {
+  final result = <String, Map<String, dynamic>>{};
+  for (final message in messages) {
+    final calls = message['tool_calls'];
+    if (calls is! List) continue;
+    for (final call in calls) {
+      if (call is! Map) continue;
+      final id = (call['id'] as String?) ?? (call['call_id'] as String?) ?? '';
+      final function = call['function'];
+      if (id.isEmpty || function is! Map) continue;
+      final args = _parseToolCallArguments(function['arguments']);
+      if (args != null) result[id] = args;
+    }
+  }
+  return result;
+}
+
+Map<String, dynamic>? _parseToolCallArguments(dynamic raw) {
+  if (raw is Map) return raw.cast<String, dynamic>();
+  if (raw is String && raw.trim().isNotEmpty) {
+    try {
+      final parsed = jsonDecode(raw);
+      if (parsed is Map) return parsed.cast<String, dynamic>();
+    } catch (_) {
+      // Malformed arguments stay absent; the row falls back to the preview.
+    }
+  }
+  return null;
 }

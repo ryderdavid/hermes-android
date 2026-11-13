@@ -51,6 +51,7 @@ import '../utils/chat_display_items.dart';
 import '../utils/chat_history_scroll.dart';
 import '../utils/message_content.dart';
 import '../utils/responsive.dart';
+import '../utils/tool_activity_summary.dart';
 import '../utils/turn_recovery_fallback.dart';
 import 'files_screen.dart';
 import '../widgets/activity_detail_sheet.dart';
@@ -2146,6 +2147,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         if (activity.toolId != null) activity.toolId!: activity,
     };
     _toolActivities.clear();
+    // Stored tool-result rows carry the call id but not the args; the args
+    // live on the assistant message's tool_calls, joined here by id.
+    final argsByToolCallId = toolCallArgsById(messages);
     for (final msg in messages) {
       if (!isToolResultMessage(msg)) continue;
 
@@ -2171,9 +2175,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           timestamp: msg['timestamp'],
           observedStart: observedByToolId[toolCallId]?.startedAt,
           observedLastActivity: observedByToolId[toolCallId]?.lastActivityAt,
-          args: msg['args'] is Map
-              ? (msg['args'] as Map).cast<String, dynamic>()
-              : null,
+          args:
+              argsByToolCallId[toolCallId] ??
+              (msg['args'] is Map
+                  ? (msg['args'] as Map).cast<String, dynamic>()
+                  : null),
           contextPreview: msg['context'] is String
               ? msg['context'] as String
               : null,

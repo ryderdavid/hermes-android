@@ -192,6 +192,9 @@ List<GatewayToolActivity> toolActivitiesFromStoredMessages(
   List<Map<String, dynamic>> messages,
 ) {
   final activities = <GatewayToolActivity>[];
+  // Stored tool-result rows reference their call by tool_call_id but ship no
+  // args; join the assistant message's tool_calls to recover them.
+  final argsByToolCallId = toolCallArgsById(messages);
   for (final message in messages) {
     if (!isToolResultMessage(message)) continue;
     final name =
@@ -211,9 +214,11 @@ List<GatewayToolActivity> toolActivitiesFromStoredMessages(
         toolId: toolCallId.isEmpty ? null : toolCallId,
         name: toolName.isEmpty ? 'tool' : toolName,
         timestamp: message['timestamp'],
-        args: message['args'] is Map
-            ? (message['args'] as Map).cast<String, dynamic>()
-            : null,
+        args:
+            argsByToolCallId[toolCallId] ??
+            (message['args'] is Map
+                ? (message['args'] as Map).cast<String, dynamic>()
+                : null),
         contextPreview: message['context'] is String
             ? message['context'] as String
             : null,
