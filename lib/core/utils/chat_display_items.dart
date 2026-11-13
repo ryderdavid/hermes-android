@@ -399,7 +399,13 @@ List<dynamic> buildChatDisplayItems({
     }
     if (role == 'user' || role == 'assistant') {
       final content = stripToolResultText(messageContentToText(msg['content']));
-      final reasoning = msg['_gateway_reasoning']?.toString() ?? '';
+      // Stored history ships reasoning under `reasoning`/`reasoning_content`;
+      // live-streamed deltas land in `_gateway_reasoning`. Both render.
+      final reasoning =
+          msg['_gateway_reasoning']?.toString() ??
+          msg['reasoning']?.toString() ??
+          msg['reasoning_content']?.toString() ??
+          '';
       final hasReasoning = role == 'assistant' && reasoning.trim().isNotEmpty;
 
       if (role == 'user' && content.isNotEmpty) {

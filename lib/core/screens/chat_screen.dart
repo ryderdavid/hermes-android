@@ -2141,12 +2141,47 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     };
   }
 
+  /// Row id of the newest message that has one — during a live turn the last
+  /// message is a not-yet-stored bubble without an id, so notices anchor to
+  /// the last stored message instead.
+  String? _lastAnchoredRowId() {
+    for (var i = _messages.length - 1; i >= 0; i--) {
+      final id = messageRowId(_messages[i]);
+      if (id != null) return id;
+    }
+    return null;
+  }
+
+  /// Notices that arrived while the newest message was still a live (unstored)
+  /// bubble carry no anchor; once [messages] (re)loads from history, anchor
+  /// them to its last row so they keep their chronological place instead of
+  /// trailing at the bottom of the chat.
+  void _reanchorNotices(List<Map<String, dynamic>> messages) {
+    if (_gatewayNotices.isEmpty || messages.isEmpty) return;
+    final lastRowId = messageRowId(messages.last);
+    if (lastRowId == null) return;
+    var changed = false;
+    for (var i = 0; i < _gatewayNotices.length; i++) {
+      final notice = _gatewayNotices[i];
+      if (notice.anchorMessageId == null) {
+        _gatewayNotices[i] = notice.withAnchor(lastRowId);
+        changed = true;
+      }
+    }
+    if (changed) {
+      _savedGatewayNotices[_gatewayNoticeIdentity] = List.unmodifiable(
+        _gatewayNotices,
+      );
+    }
+  }
+
   void _extractToolMessages(List<Map<String, dynamic>> messages) {
     final observedByToolId = {
       for (final activity in _toolActivities)
         if (activity.toolId != null) activity.toolId!: activity,
     };
     _toolActivities.clear();
+    _reanchorNotices(messages);
     // Stored tool-result rows carry the call id but not the args; the args
     // live on the assistant message's tool_calls, joined here by id.
     final argsByToolCallId = toolCallArgsById(messages);
@@ -3896,11 +3931,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
     final notice = GatewayNotice.fromGatewayEvent(event.type, event.data);
     if (notice == null) return;
-    // Anchor the notice to the message on screen when it arrived so the
-    // chat can place it chronologically instead of pinned at the bottom.
-    final anchored = notice.withAnchor(
-      _messages.isEmpty ? null : messageRowId(_messages.last),
-    );
+    // Anchor the notice to the newest message that has a stable row id when
+    // it arrived, so the chat can place it chronologically instead of pinned
+    // at the bottom. While a turn is live the last message has no id yet;
+    // _reanchorNotices then anchors it once history settles.
+    final anchored = notice.withAnchor(_lastAnchoredRowId());
     if (_gatewayNotices.any((item) => item.identity == anchored.identity)) {
       return;
     }

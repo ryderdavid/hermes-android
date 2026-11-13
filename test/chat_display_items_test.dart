@@ -271,6 +271,25 @@ void main() {
       expect(reasoning.reasoningHeadline, 'thinking hard');
     });
 
+    test('stored history reasoning field renders as a reasoning step', () {
+      // REST history ships reasoning under `reasoning`/`reasoning_content`,
+      // not `_gateway_reasoning` (that key is only set by live deltas).
+      final messages = [
+        {
+          'role': 'assistant',
+          'content': 'answer',
+          'reasoning_content': 'stored thinking',
+        },
+      ];
+      final unfolded = buildChatDisplayItems(
+        messages: messages,
+        foldChoice: (_) => true,
+      );
+      final reasoning = unfolded[1] as ChatActivityStep;
+      expect(reasoning.isReasoning, isTrue);
+      expect(reasoning.reasoning, 'stored thinking');
+    });
+
     test('keeps reasoning visible when the message is still text-free', () {
       final items = buildChatDisplayItems(
         messages: [
