@@ -52,7 +52,16 @@ class DesktopGatewayClient {
   final Map<String, GatewayServerRequest> _serverRequests = {};
   final Map<String, WsClient> _serverRequestClients = {};
   final Map<String, String> _serverRequestMobileSessionIds = {};
+  final Map<String, String> _serverRequestGatewaySessionIds = {};
   final Map<String, StreamEvent> _serverRequestEvents = {};
+
+  /// Registered requests no attached chat could present yet: unmapped
+  /// (watched) sessions, no listener, a listener for another session, or a
+  /// second approval queued behind the active one. Delivered when a listener
+  /// attaches (see [setAsyncEventListener]) or when the blocking approval
+  /// settles. Registering instead of answering -32601 keeps the gateway from
+  /// withdrawing the prompt and halting the turn with no final message.
+  final Set<String> _undeliveredServerRequests = {};
   final Map<WsClient, int> _serverRequestClientOrdinals = Map.identity();
   int _nextServerRequestClientOrdinal = 1;
   final Map<String, Set<String>> _serverClarifyRemaining = {};
@@ -675,6 +684,13 @@ class DesktopGatewayClient {
   }) {
     _asyncEventListener = listener;
     _asyncEventAcceptsSession = listener == null ? null : acceptsSession;
+    // A chat just attached: present any server requests that arrived while no
+    // listener was bound (or were queued behind another session's approval).
+    if (listener != null) {
+      for (final requestId in _undeliveredServerRequests.toList()) {
+        _deliverUndelivered(requestId);
+      }
+    }
   }
 
   void _installAsyncEventBridge(WsClient client) {
@@ -742,21 +758,32 @@ class DesktopGatewayClient {
   }
 
   bool _handleServerRequest(WsClient client, GatewayServerRequest request) {
-    const supported = {'clarify', 'approval', 'sudo', 'secret', 'agent_credential'};
+    const supported = {
+      'clarify',
+      'approval',
+      'sudo',
+      'secret',
+      'agent_credential',
+    };
     if (!supported.contains(request.method)) return false;
 
     final gatewaySessionId = request.params['session_id']?.toString();
     final mobileSessionId = _mobileSessionIdFor(gatewaySessionId);
-    if (mobileSessionId == null || _asyncEventListener == null) return false;
-    final acceptsSession = _asyncEventAcceptsSession;
-    if (acceptsSession != null && !acceptsSession(mobileSessionId)) {
-      return false;
-    }
-
     final requestId = _serverRequestKey(client, request.id);
+
+    // Register every supported request even when no chat can present it right
+    // now (watched/unmapped session, no listener attached, listener bound to
+    // another session, or a second approval behind the active one). Returning
+    // false here answers -32601, which makes the gateway withdraw the prompt
+    // and the turn halts with no final message; a registered request instead
+    // stays pending and is delivered when a listener attaches or the blocking
+    // approval settles.
     _serverRequests[requestId] = request;
     _serverRequestClients[requestId] = client;
-    _serverRequestMobileSessionIds[requestId] = mobileSessionId;
+    _serverRequestMobileSessionIds[requestId] =
+        mobileSessionId ?? gatewaySessionId ?? '';
+    _serverRequestGatewaySessionIds[requestId] = gatewaySessionId ?? '';
+
     final data = Map<String, dynamic>.from(request.params);
     data['server_request_id'] = requestId;
 
@@ -784,16 +811,7 @@ class DesktopGatewayClient {
       }
       data['questions'] = remainingQuestions;
       _serverClarifyRemaining[requestId] = qids;
-    } else if (request.method == 'approval') {
-      final previous = _serverApprovalByMobileSession[mobileSessionId];
-      if (previous != null && previous != requestId) {
-        // ChatScreen presents one approval route at a time. Reject a concurrent
-        // request instead of replacing the visible request and stranding both.
-        _forgetServerRequest(requestId);
-        return false;
-      }
-      _serverApprovalByMobileSession[mobileSessionId] = requestId;
-    } else {
+    } else if (request.method != 'approval') {
       // Legacy event models key sensitive prompts by `request_id`; for the
       // peer-to-peer protocol the JSON-RPC id is the response correlation.
       data['request_id'] = requestId;
@@ -805,17 +823,90 @@ class DesktopGatewayClient {
       sessionId: gatewaySessionId,
     );
     _serverRequestEvents[requestId] = event;
-    _asyncEventListener!.call(mobileSessionId, event);
+
+    if (request.method == 'approval') {
+      final sessionKey = _serverRequestMobileSessionIds[requestId]!;
+      final previous = _serverApprovalByMobileSession[sessionKey];
+      if (previous != null && previous != requestId) {
+        // ChatScreen presents one approval route at a time. Queue this one
+        // behind the active request instead of rejecting it — a -32601 here
+        // would make the gateway withdraw the prompt and halt the turn.
+        _undeliveredServerRequests.add(requestId);
+        return true;
+      }
+      _serverApprovalByMobileSession[sessionKey] = requestId;
+    }
+
+    final listener = _asyncEventListener;
+    final acceptsSession = _asyncEventAcceptsSession;
+    if (mobileSessionId != null &&
+        listener != null &&
+        (acceptsSession == null || acceptsSession(mobileSessionId))) {
+      listener.call(mobileSessionId, event);
+    } else {
+      _undeliveredServerRequests.add(requestId);
+    }
     return true;
   }
 
+  /// Delivers a registered-but-undelivered request if a listener can now
+  /// present it. Re-resolves the mobile session id, since the mapping may
+  /// have appeared after the request arrived (e.g. the chat was opened).
+  void _deliverUndelivered(String requestId) {
+    final listener = _asyncEventListener;
+    final event = _serverRequestEvents[requestId];
+    if (listener == null || event == null) return;
+    final gatewaySessionId = _serverRequestGatewaySessionIds[requestId] ?? '';
+    final resolved = _mobileSessionIdFor(
+      gatewaySessionId.isEmpty ? null : gatewaySessionId,
+    );
+    final mobileSessionId =
+        resolved ?? _serverRequestMobileSessionIds[requestId] ?? '';
+    final acceptsSession = _asyncEventAcceptsSession;
+    if (mobileSessionId.isEmpty) return;
+    if (acceptsSession != null && !acceptsSession(mobileSessionId)) return;
+    if (resolved != null) _serverRequestMobileSessionIds[requestId] = resolved;
+    _undeliveredServerRequests.remove(requestId);
+    if (_serverRequests[requestId]?.method == 'approval') {
+      _serverApprovalByMobileSession.putIfAbsent(
+        mobileSessionId,
+        () => requestId,
+      );
+    }
+    listener.call(mobileSessionId, event);
+  }
+
   void _forgetServerRequest(String requestId) {
+    final sessionKey = _serverRequestMobileSessionIds[requestId];
+    // If the settled request was the session's active approval, promote the
+    // next queued approval for that session (if any) and deliver it.
+    final promoteFor =
+        sessionKey != null &&
+            _serverApprovalByMobileSession[sessionKey] == requestId
+        ? sessionKey
+        : null;
     _serverRequests.remove(requestId);
     _serverRequestClients.remove(requestId);
     _serverRequestMobileSessionIds.remove(requestId);
+    _serverRequestGatewaySessionIds.remove(requestId);
     _serverRequestEvents.remove(requestId);
     _serverClarifyRemaining.remove(requestId);
+    _undeliveredServerRequests.remove(requestId);
     _serverApprovalByMobileSession.removeWhere((_, id) => id == requestId);
+    if (promoteFor != null) {
+      final queued = _undeliveredServerRequests
+          .where(
+            (id) =>
+                _serverRequests[id]?.method == 'approval' &&
+                _serverRequestMobileSessionIds[id] == promoteFor,
+          )
+          .toList();
+      if (queued.isNotEmpty) {
+        final next = queued.first;
+        _serverApprovalByMobileSession[promoteFor] = next;
+        _deliverUndelivered(next);
+      }
+    }
   }
 
   void _forgetServerRequestsFrom(WsClient client) {
@@ -840,33 +931,34 @@ class DesktopGatewayClient {
     _serverRequestClientOrdinals.remove(client);
   }
 
-  void _rejectServerRequest(String requestId, String message) {
-    _serverRequests[requestId]?.fail(-32601, message);
-    _forgetServerRequest(requestId);
-  }
-
   /// Replays unresolved requests when a replacement route mounts.
   void replayServerRequestsForSession(String mobileSessionId) {
     final listener = _asyncEventListener;
     if (listener == null) return;
     for (final entry in _serverRequestMobileSessionIds.entries.toList()) {
       if (entry.value != mobileSessionId) continue;
+      if (_undeliveredServerRequests.contains(entry.key)) {
+        // Held while no route was mounted; deliver via the guarded path.
+        _deliverUndelivered(entry.key);
+        continue;
+      }
       final event = _serverRequestEvents[entry.key];
       if (event != null) listener(mobileSessionId, event);
     }
   }
 
-  /// Rejects requests that no mounted route can answer.
+  /// Holds requests whose mounted route went away instead of answering -32601:
+  /// the gateway withdraws the prompt on -32601 and the turn halts with no
+  /// final message. Held requests are re-delivered when a listener re-attaches
+  /// (see [setAsyncEventListener] / [replayServerRequestsForSession]).
   void rejectServerRequestsForSession(String mobileSessionId) {
     final requestIds = _serverRequestMobileSessionIds.entries
         .where((entry) => entry.value == mobileSessionId)
         .map((entry) => entry.key)
         .toList(growable: false);
     for (final requestId in requestIds) {
-      _rejectServerRequest(
-        requestId,
-        'No mounted client can answer this request',
-      );
+      _undeliveredServerRequests.add(requestId);
+      _serverApprovalByMobileSession.removeWhere((_, id) => id == requestId);
     }
   }
 

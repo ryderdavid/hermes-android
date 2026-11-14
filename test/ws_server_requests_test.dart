@@ -223,6 +223,145 @@ void main() {
     },
   );
 
+  test('approval for a watched (unmapped) session is registered, not -32601, '
+      'and delivered when a listener attaches', () async {
+    final gateway = await _ServerRequestGateway.start(withDashboardAuth: true);
+    addTearDown(gateway.stop);
+    final client = DesktopGatewayClient.fromConnection(
+      SavedConnection(
+        id: 'server-request-watched',
+        label: 'Local fixture',
+        host: 'localhost',
+        port: gateway.port,
+        apiKey: 'test-key',
+        useHttps: false,
+        desktopGatewayUrl: 'http://127.0.0.1:${gateway.port}',
+        dashboardUsername: 'user',
+        dashboardPassword: 'pass',
+      ),
+    );
+    addTearDown(client.close);
+    // Only mobile-1 is mapped; the approval targets a watched runtime
+    // session the app has not opened. No listener attached yet.
+    await client.ensureSession('mobile-1');
+
+    gateway.sendServerRequest(
+      id: 'srq-watched',
+      method: 'approval',
+      params: {
+        'session_id': 'runtime-watched',
+        'command': 'rm file',
+        'choices': ['once', 'deny'],
+      },
+    );
+    // Give the request a beat to arrive; it must NOT be answered -32601.
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    expect(gateway.serverResponses.containsKey('srq-watched'), isFalse);
+
+    // A chat attaches its listener: the pending request is now presented.
+    final events = <StreamEvent>[];
+    client.setAsyncEventListener((_, event) => events.add(event));
+    await _waitFor(
+      () => events.any((event) => event.type == 'approval.request'),
+    );
+    final watchedEvent = events.lastWhere(
+      (event) => event.type == 'approval.request',
+    );
+    expect(watchedEvent.sessionId, 'runtime-watched');
+    final requestId = watchedEvent.data['server_request_id'] as String;
+    expect(requestId, endsWith(':srq-watched'));
+
+    await client.respondToApproval(
+      sessionId: 'runtime-watched',
+      choice: 'once',
+      serverRequestId: requestId,
+    );
+    await _waitFor(() => gateway.serverResponses.containsKey('srq-watched'));
+    expect(gateway.serverResponses['srq-watched']?['result'], {
+      'choice': 'once',
+    });
+  });
+
+  test('a second approval on the same session queues instead of -32601 and is '
+      'delivered when the active one is answered', () async {
+    final gateway = await _ServerRequestGateway.start(withDashboardAuth: true);
+    addTearDown(gateway.stop);
+    final client = DesktopGatewayClient.fromConnection(
+      SavedConnection(
+        id: 'server-request-queue',
+        label: 'Local fixture',
+        host: 'localhost',
+        port: gateway.port,
+        apiKey: 'test-key',
+        useHttps: false,
+        desktopGatewayUrl: 'http://127.0.0.1:${gateway.port}',
+        dashboardUsername: 'user',
+        dashboardPassword: 'pass',
+      ),
+    );
+    addTearDown(client.close);
+    final events = <StreamEvent>[];
+    client.setAsyncEventListener((_, event) => events.add(event));
+    await client.ensureSession('mobile-1');
+
+    gateway.sendServerRequest(
+      id: 'srq-first',
+      method: 'approval',
+      params: {
+        'session_id': 'runtime-1',
+        'command': 'rm a',
+        'choices': ['once', 'deny'],
+      },
+    );
+    await _waitFor(
+      () => events.any((event) => event.type == 'approval.request'),
+    );
+    final firstId = events
+        .lastWhere((event) => event.type == 'approval.request')
+        .data['server_request_id']
+        .toString();
+
+    gateway.sendServerRequest(
+      id: 'srq-second',
+      method: 'approval',
+      params: {
+        'session_id': 'runtime-1',
+        'command': 'rm b',
+        'choices': ['once', 'deny'],
+      },
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    // Queued, not rejected: the gateway must not see -32601 for srq-second.
+    expect(gateway.serverResponses.containsKey('srq-second'), isFalse);
+    expect(events.where((event) => event.type == 'approval.request').length, 1);
+
+    await client.respondToApproval(
+      sessionId: 'mobile-1',
+      choice: 'deny',
+      serverRequestId: firstId,
+    );
+    await _waitFor(() => gateway.serverResponses.containsKey('srq-first'));
+    // Answering the first promotes and delivers the queued second.
+    await _waitFor(
+      () =>
+          events.where((event) => event.type == 'approval.request').length == 2,
+    );
+    final secondId = events
+        .lastWhere((event) => event.type == 'approval.request')
+        .data['server_request_id']
+        .toString();
+    expect(secondId, endsWith(':srq-second'));
+    await client.respondToApproval(
+      sessionId: 'mobile-1',
+      choice: 'deny',
+      serverRequestId: secondId,
+    );
+    await _waitFor(() => gateway.serverResponses.containsKey('srq-second'));
+    expect(gateway.serverResponses['srq-second']?['result'], {
+      'choice': 'deny',
+    });
+  });
+
   test(
     'application recovery socket routes requests and responses end to end',
     () async {
@@ -331,13 +470,13 @@ void main() {
           'choices': ['once', 'deny'],
         },
       );
-      await _waitFor(
-        () =>
-            gateway.serverResponses.containsKey('recovery-approval-concurrent'),
-      );
+      // Queued behind the active approval instead of -32601: the gateway
+      // withdraws the prompt on -32601 and the turn halts with no final
+      // message, so the request must stay pending and unanswered here.
+      await Future<void>.delayed(const Duration(milliseconds: 200));
       expect(
-        gateway.serverResponses['recovery-approval-concurrent']?['error'],
-        containsPair('code', -32601),
+        gateway.serverResponses.containsKey('recovery-approval-concurrent'),
+        isFalse,
       );
       expect(
         events.where((event) => event.type == 'approval.request'),
@@ -353,6 +492,33 @@ void main() {
               .toString(),
         ),
         isTrue,
+      );
+      // Answering the active approval promotes and delivers the queued one.
+      await _waitFor(
+        () =>
+            events.where((event) => event.type == 'approval.request').length ==
+            2,
+      );
+      final concurrentId = events
+          .lastWhere((event) => event.type == 'approval.request')
+          .data['server_request_id']
+          .toString();
+      expect(concurrentId, endsWith(':recovery-approval-concurrent'));
+      expect(
+        await session.tryRespondToApproval(
+          sessionId: 'mobile-1',
+          choice: 'deny',
+          requestId: concurrentId,
+        ),
+        isTrue,
+      );
+      await _waitFor(
+        () =>
+            gateway.serverResponses.containsKey('recovery-approval-concurrent'),
+      );
+      expect(
+        gateway.serverResponses['recovery-approval-concurrent']?['result'],
+        {'choice': 'deny'},
       );
       expect(
         await session.tryRespondToSudo(
@@ -660,12 +826,13 @@ void main() {
         ),
       );
       session.removeAsyncEventListener('mobile-1', registration);
-      await _waitFor(
-        () => gateway.serverResponses.containsKey('recovery-pending-detach'),
-      );
+      // Detached: pending requests are held, NOT answered -32601 (the gateway
+      // withdraws the prompt on -32601 and the turn halts with no final
+      // message).
+      await Future<void>.delayed(const Duration(milliseconds: 200));
       expect(
-        gateway.serverResponses['recovery-pending-detach']?['error'],
-        containsPair('code', -32601),
+        gateway.serverResponses.containsKey('recovery-pending-detach'),
+        isFalse,
       );
       gateway.sendServerRequest(
         id: 'recovery-detached',
@@ -676,13 +843,35 @@ void main() {
           'prompt': 'Detached token',
         },
       );
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      expect(gateway.serverResponses.containsKey('recovery-detached'), isFalse);
+
+      // Re-attaching the route presents the held requests instead of having
+      // failed them.
+      final reattachedEvents = <StreamEvent>[];
+      final reattach = session.setAsyncEventListener(
+        'mobile-1',
+        (_, event) => reattachedEvents.add(event),
+      );
       await _waitFor(
-        () => gateway.serverResponses.containsKey('recovery-detached'),
+        () => reattachedEvents.any(
+          (event) =>
+              event.type == 'secret.request' &&
+              event.data['request_id'].toString().endsWith(
+                ':recovery-pending-detach',
+              ),
+        ),
       );
-      expect(
-        gateway.serverResponses['recovery-detached']?['error'],
-        containsPair('code', -32601),
+      await _waitFor(
+        () => reattachedEvents.any(
+          (event) =>
+              event.type == 'secret.request' &&
+              event.data['request_id'].toString().endsWith(
+                ':recovery-detached',
+              ),
+        ),
       );
+      session.removeAsyncEventListener('mobile-1', reattach);
 
       gateway.sendServerRequest(
         id: 'recovery-disconnected',
