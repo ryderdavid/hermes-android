@@ -28,13 +28,7 @@ class ExpressiveLoadingIndicator extends StatefulWidget {
   final Color? containerColor;
   final String? semanticsLabel;
 
-  static const sequence = [
-    ExpressiveShape.cookie,
-    ExpressiveShape.clover,
-    ExpressiveShape.burst,
-    ExpressiveShape.flower,
-    ExpressiveShape.sunny,
-  ];
+  static const sequence = ExpressiveShape.morphSequence;
 
   @override
   State<ExpressiveLoadingIndicator> createState() =>
@@ -66,7 +60,10 @@ class _ExpressiveLoadingIndicatorState extends State<ExpressiveLoadingIndicator>
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) => CustomPaint(
-          painter: _MorphPainter(progress: _controller.value, color: color),
+          painter: ExpressiveMorphPainter(
+            progress: _controller.value,
+            color: color,
+          ),
         ),
       ),
     );
@@ -89,53 +86,6 @@ class _ExpressiveLoadingIndicatorState extends State<ExpressiveLoadingIndicator>
       ),
     );
   }
-}
-
-class _MorphPainter extends CustomPainter {
-  _MorphPainter({required this.progress, required this.color});
-
-  final double progress;
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const shapes = ExpressiveLoadingIndicator.sequence;
-    final scaled = progress * shapes.length;
-    final index = scaled.floor() % shapes.length;
-    final from = shapes[index];
-    final to = shapes[(index + 1) % shapes.length];
-    // Hold each shape briefly, then morph with an ease that overshoots a
-    // little, the way the spring-driven indicator settles.
-    final local = scaled - scaled.floor();
-    final t = Curves.easeInOutBack.transform(
-      ((local - 0.35) / 0.65).clamp(0.0, 1.0),
-    );
-    final rotation = progress * 2 * math.pi * 2;
-    final scale = 1 - 0.08 * math.sin(local * math.pi);
-
-    final center = size.center(Offset.zero);
-    final radius = size.shortestSide / 2 * scale;
-    final path = Path();
-    const steps = 144;
-    for (var i = 0; i <= steps; i++) {
-      final a = i * 2 * math.pi / steps;
-      double r(ExpressiveShape s) =>
-          (1 + s.amplitude * math.cos(s.lobes * a)) / (1 + s.amplitude);
-      final rr = radius * (r(from) * (1 - t) + r(to) * t);
-      final p =
-          center + Offset(math.cos(a + rotation), math.sin(a + rotation)) * rr;
-      if (i == 0) {
-        path.moveTo(p.dx, p.dy);
-      } else {
-        path.lineTo(p.dx, p.dy);
-      }
-    }
-    canvas.drawPath(path..close(), Paint()..color = color);
-  }
-
-  @override
-  bool shouldRepaint(_MorphPainter old) =>
-      old.progress != progress || old.color != color;
 }
 
 /// A Material 3 Expressive linear progress indicator whose filled part is a

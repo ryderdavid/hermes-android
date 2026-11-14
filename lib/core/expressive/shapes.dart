@@ -52,6 +52,10 @@ class ExpressiveShape {
     pentagon,
   ];
 
+  /// The sequence the M3E loading indicator — and any busy [ShapeMark] —
+  /// morphs through, in order.
+  static const morphSequence = [cookie, clover, burst, flower, sunny];
+
   /// The outline inside [rect], starting at angle 0 and turned by [rotation]
   /// radians.
   Path path(Rect rect, {double rotation = 0}) {
@@ -86,6 +90,57 @@ class ExpressiveShape {
 
   @override
   String toString() => 'ExpressiveShape.$name';
+}
+
+/// Paints the Material 3 Expressive loading morph: the outline interpolated
+/// between consecutive [ExpressiveShape.morphSequence] entries at [progress]
+/// (0..1 over one full cycle), rotating twice per cycle. Shared by
+/// [ExpressiveLoadingIndicator] and busy [ShapeMark]s.
+class ExpressiveMorphPainter extends CustomPainter {
+  ExpressiveMorphPainter({required this.progress, required this.color});
+
+  final double progress;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const shapes = ExpressiveShape.morphSequence;
+    final scaled = progress * shapes.length;
+    final index = scaled.floor() % shapes.length;
+    final from = shapes[index];
+    final to = shapes[(index + 1) % shapes.length];
+    // Hold each shape briefly, then morph with an ease that overshoots a
+    // little, the way the spring-driven indicator settles.
+    final local = scaled - scaled.floor();
+    final t = Curves.easeInOutBack.transform(
+      ((local - 0.35) / 0.65).clamp(0.0, 1.0),
+    );
+    final rotation = progress * 2 * math.pi * 2;
+    final scale = 1 - 0.08 * math.sin(local * math.pi);
+
+    final center = size.center(Offset.zero);
+    final radius = size.shortestSide / 2 * scale;
+    final path = Path();
+    const steps = 144;
+    for (var i = 0; i <= steps; i++) {
+      final a = i * 2 * math.pi / steps;
+      double r(ExpressiveShape s) =>
+          (1 + s.amplitude * math.cos(s.lobes * a)) / (1 + s.amplitude);
+      final rr = radius * (r(from) * (1 - t) + r(to) * t);
+      final p =
+          center + Offset(math.cos(a + rotation), math.sin(a + rotation)) * rr;
+      if (i == 0) {
+        path.moveTo(p.dx, p.dy);
+      } else {
+        path.lineTo(p.dx, p.dy);
+      }
+    }
+    canvas.drawPath(path..close(), Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(ExpressiveMorphPainter old) =>
+      old.progress != progress || old.color != color;
 }
 
 /// An [ExpressiveShape] as a [ShapeBorder], for `Material`, `ShapeDecoration`
@@ -173,6 +228,7 @@ class ShapeMark extends StatelessWidget {
     this.icon,
     this.size = 44,
     this.iconScale = 0.45,
+    this.busy = false,
     super.key,
   });
 
@@ -183,6 +239,11 @@ class ShapeMark extends StatelessWidget {
 
   /// The icon's size as a fraction of [size].
   final double iconScale;
+
+  /// While true, the background morphs and spins through
+  /// [ExpressiveShape.morphSequence] (the M3E loading animation); the glyph
+  /// on top stays still.
+  final bool busy;
 
   @override
   Widget build(BuildContext context) {
@@ -200,15 +261,80 @@ class ShapeMark extends StatelessWidget {
             ),
           );
     return ExcludeSemantics(
-      child: SizedBox.square(
-        dimension: size,
-        child: DecoratedBox(
-          decoration: ShapeDecoration(
-            color: fill,
-            shape: ExpressiveShapeBorder(style.shape),
+      child: busy
+          ? _MorphingShapeMark(
+              fill: fill,
+              size: size,
+              child: Center(child: glyph),
+            )
+          : SizedBox.square(
+              dimension: size,
+              child: DecoratedBox(
+                decoration: ShapeDecoration(
+                  color: fill,
+                  shape: ExpressiveShapeBorder(style.shape),
+                ),
+                child: Center(child: glyph),
+              ),
+            ),
+    );
+  }
+}
+
+/// A [ShapeMark] background running the M3E morph, with a still [child] on
+/// top. Kept separate from [ShapeMark] so the idle path stays stateless and
+/// pixel-identical.
+class _MorphingShapeMark extends StatefulWidget {
+  const _MorphingShapeMark({
+    required this.fill,
+    required this.size,
+    required this.child,
+  });
+
+  final Color fill;
+  final double size;
+  final Widget child;
+
+  @override
+  State<_MorphingShapeMark> createState() => _MorphingShapeMarkState();
+}
+
+class _MorphingShapeMarkState extends State<_MorphingShapeMark>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: Duration(
+      milliseconds: 650 * ExpressiveShape.morphSequence.length,
+    ),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: widget.size,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) => CustomPaint(
+                  painter: ExpressiveMorphPainter(
+                    progress: _controller.value,
+                    color: widget.fill,
+                  ),
+                ),
+              ),
+            ),
           ),
-          child: Center(child: glyph),
-        ),
+          widget.child,
+        ],
       ),
     );
   }

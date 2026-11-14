@@ -5017,23 +5017,37 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _loadingModelOptions ||
         _changingModel;
     final project = _projectName;
+    // While a turn runs, the session mark itself animates (morphing
+    // background, still inner icon) instead of a spinner in the corner; the
+    // live turn-status text rides a dedicated semantics container on the mark
+    // so screen readers still announce it as its own node.
+    final busy = _streaming || _sending;
+    Widget mark = _withChatIcons(
+      context,
+      ChatMark(
+        sessionId: widget.session.id,
+        title: _sessionTitle,
+        letterStyle: project == null || project.isEmpty
+            ? MarkStyle.unassigned
+            : MarkStyle.forKey(project),
+        letterLabel: project ?? _sessionTitle,
+        letterIcon: project == null || project.isEmpty
+            ? Icons.chat_bubble_outline
+            : null,
+        size: 40,
+        busy: busy,
+      ),
+    );
+    if (busy) {
+      mark = Semantics(
+        container: true,
+        label: _gatewayTurnStatus?.text ?? l10n.responding,
+        child: mark,
+      );
+    }
     return Row(
       children: [
-        _withChatIcons(
-          context,
-          ChatMark(
-            sessionId: widget.session.id,
-            title: _sessionTitle,
-            letterStyle: project == null || project.isEmpty
-                ? MarkStyle.unassigned
-                : MarkStyle.forKey(project),
-            letterLabel: project ?? _sessionTitle,
-            letterIcon: project == null || project.isEmpty
-                ? Icons.chat_bubble_outline
-                : null,
-            size: 40,
-          ),
-        ),
+        mark,
         const SizedBox(width: 4),
         // The whole title block is the model picker's 48dp target (tap the
         // title to switch model, as on Pixel's assistant apps); the chat
@@ -5152,63 +5166,52 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ),
         ),
         actions: [
-          if (_streaming || _sending)
-            Padding(
-              padding: EdgeInsets.only(right: 8),
-              // Spinner only in the app bar; the live turn-status text rides
-              // the semantics label so screen readers still announce it.
-              child: Semantics(
-                label: _gatewayTurnStatus?.text ?? context.l10n.responding,
-                child: ExpressiveLoadingIndicator(size: 24, contained: false),
+          PopupMenuButton<String>(
+            tooltip: context.l10n.chat_actions,
+            onSelected: (action) {
+              if (action == 'spoken') _toggleVoiceReply();
+              if (action == 'refresh' && !_pendingReattachResync) {
+                _fetchMessages();
+              }
+              if (action == 'export') _exportConversation();
+              if (action == 'rename') unawaited(_renameSession());
+              if (action == ChatThreadsBinding.menuValue) {
+                unawaited(_threads.onMenuSelected(context));
+              }
+            },
+            itemBuilder: (_) => [
+              // Spoken replies moved here from the composer (design D7).
+              CheckedPopupMenuItem(
+                value: 'spoken',
+                checked: _voiceReplyEnabled,
+                child: Text(context.l10n.spoken_replies),
               ),
-            )
-          else
-            PopupMenuButton<String>(
-              tooltip: context.l10n.chat_actions,
-              onSelected: (action) {
-                if (action == 'spoken') _toggleVoiceReply();
-                if (action == 'refresh' && !_pendingReattachResync) {
-                  _fetchMessages();
-                }
-                if (action == 'export') _exportConversation();
-                if (action == 'rename') unawaited(_renameSession());
-                if (action == ChatThreadsBinding.menuValue) {
-                  unawaited(_threads.onMenuSelected(context));
-                }
-              },
-              itemBuilder: (_) => [
-                // Spoken replies moved here from the composer (design D7).
-                CheckedPopupMenuItem(
-                  value: 'spoken',
-                  checked: _voiceReplyEnabled,
-                  child: Text(context.l10n.spoken_replies),
+              _threads.buildMenuItem(context),
+              PopupMenuItem(
+                value: 'rename',
+                enabled: _canRename,
+                child: ListTile(
+                  leading: Icon(Icons.edit_outlined),
+                  title: Text(context.l10n.rename),
                 ),
-                _threads.buildMenuItem(context),
-                PopupMenuItem(
-                  value: 'rename',
-                  enabled: _canRename,
-                  child: ListTile(
-                    leading: Icon(Icons.edit_outlined),
-                    title: Text(context.l10n.rename),
-                  ),
+              ),
+              PopupMenuItem(
+                value: 'refresh',
+                enabled: !_pendingReattachResync,
+                child: ListTile(
+                  leading: Icon(Icons.refresh),
+                  title: Text(context.l10n.refresh),
                 ),
-                PopupMenuItem(
-                  value: 'refresh',
-                  enabled: !_pendingReattachResync,
-                  child: ListTile(
-                    leading: Icon(Icons.refresh),
-                    title: Text(context.l10n.refresh),
-                  ),
+              ),
+              PopupMenuItem(
+                value: 'export',
+                child: ListTile(
+                  leading: Icon(Icons.ios_share_outlined),
+                  title: Text(context.l10n.export_share),
                 ),
-                PopupMenuItem(
-                  value: 'export',
-                  child: ListTile(
-                    leading: Icon(Icons.ios_share_outlined),
-                    title: Text(context.l10n.export_share),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
+          ),
         ],
       ),
       body: Center(

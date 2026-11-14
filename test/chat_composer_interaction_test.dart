@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/chat_icons/chat_mark.dart';
+import 'package:hermes_android/core/expressive/expressive.dart';
 import 'package:hermes_android/core/models/attachment_draft.dart';
 import 'package:hermes_android/core/screens/chat_screen.dart';
 import 'package:hermes_android/core/services/attachment_draft_service.dart';
@@ -141,6 +143,61 @@ void main() {
     expect(submitted, ['First paragraph\nSecond paragraph']);
     expect(_draft(tester), isEmpty);
   });
+
+  testWidgets(
+    'a running turn animates the app-bar session mark, not a corner spinner',
+    (tester) async {
+      final turn = Completer<void>();
+      await _pumpChat(
+        tester,
+        remoteSubmit:
+            ({
+              required sessionId,
+              required text,
+              required onEvent,
+              required onSent,
+            }) async {
+              onSent();
+              await turn.future;
+            },
+      );
+      await tester.enterText(find.byKey(_composerKey), 'hello');
+      await tester.tap(find.byTooltip('Send'));
+      await tester.pump();
+      await tester.pump();
+
+      final appBar = find.byType(AppBar);
+      // No corner spinner while the turn runs; the session mark is busy.
+      expect(
+        find.descendant(
+          of: appBar,
+          matching: find.byType(ExpressiveLoadingIndicator),
+        ),
+        findsNothing,
+      );
+      final appBarMark = find.descendant(
+        of: appBar,
+        matching: find.byType(ChatMark),
+      );
+      expect(appBarMark, findsOneWidget);
+      expect(tester.widget<ChatMark>(appBarMark).busy, isTrue);
+      // The live turn-status text still rides a semantics label on the mark.
+      expect(
+        tester
+            .widgetList<Semantics>(
+              find.ancestor(of: appBarMark, matching: find.byType(Semantics)),
+            )
+            .where((s) => s.properties.label?.isNotEmpty ?? false),
+        isNotEmpty,
+      );
+
+      // When the turn settles, the mark goes back to its static shape.
+      turn.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(tester.widget<ChatMark>(appBarMark).busy, isFalse);
+    },
+  );
 
   testWidgets('typing during project setup survives submit and completion', (
     tester,

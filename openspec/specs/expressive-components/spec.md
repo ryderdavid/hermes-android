@@ -29,7 +29,7 @@ Work in progress SHALL use the shape loading indicator (a rotating, pulsing expr
 
 #### Scenario: Turn running
 - **WHEN** Hermes is working on a turn
-- **THEN** the turn status shows the shape loading indicator, not a circular spinner
+- **THEN** the chat's session mark in the app bar runs the shape loading morph (no separate corner spinner), not a circular spinner
 
 ### Requirement: Connected button groups and split buttons
 Mutually exclusive filters and modes SHALL use a connected button group whose selected button becomes fully rounded; a primary action with alternatives SHALL use a split button.

@@ -63,6 +63,7 @@ class ChatMark extends StatelessWidget {
     this.letterIcon,
     this.badge,
     this.size = 44,
+    this.busy = false,
     super.key,
   });
 
@@ -79,6 +80,10 @@ class ChatMark extends StatelessWidget {
   final IconData? badge;
   final double size;
 
+  /// While true (the chat's turn is running), the mark's background morphs
+  /// through the M3E shape sequence and the inner icon stays still.
+  final bool busy;
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ChatIconSettings>(
@@ -90,6 +95,7 @@ class ChatMark extends StatelessWidget {
             label: letterLabel ?? title,
             icon: letterIcon,
             size: size,
+            busy: busy,
           );
         }
         final scope = ChatIconScope.maybeOf(context);
@@ -111,6 +117,7 @@ class ChatMark extends StatelessWidget {
               icon: topic?.icon,
               iconScale: 0.5,
               size: size,
+              busy: busy,
             ),
           );
         }

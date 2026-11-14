@@ -17,6 +17,17 @@ With icons on and Mixed shapes enabled, each chat SHALL be drawn in one of nine 
 - **WHEN** a chat appears on Home, in Chats and in its app bar
 - **THEN** all three show the same shape, tone and icon
 
+### Requirement: Busy marks animate their background only
+While a chat's turn is running, its mark in the chat app bar SHALL morph and spin its background through the expressive loading shape sequence while the inner icon or letter stays still; no separate spinner SHALL appear in the app bar corner. When idle, the mark SHALL be the static shape.
+
+#### Scenario: Turn running
+- **WHEN** Hermes is working on the chat's turn
+- **THEN** the app-bar session mark's background animates through the shape sequence, the inner icon is unchanged, and the app bar actions show only the chat menu
+
+#### Scenario: Turn settles
+- **WHEN** the turn finishes or fails
+- **THEN** the mark returns to its static shape
+
 ### Requirement: Hermes picks icons from a vocabulary
 In By Hermes mode the app SHALL send chat titles, and nothing else, in batches to a hidden daily session, and SHALL accept only icon names from its vocabulary. Until a label arrives, the on-device match SHALL be shown.
 

@@ -5,18 +5,43 @@
 /// Keep rendering resilient when the gateway adds new part types.
 String messageContentToText(dynamic content) {
   if (content == null) return '';
-  if (content is String) return normaliseDisplayText(content);
+  if (content is String) {
+    return stripOutOfBandMarkers(normaliseDisplayText(content));
+  }
 
   if (content is List) {
-    return normaliseDisplayText(
-      content
-          .map(_contentPartToText)
-          .where((part) => part.isNotEmpty)
-          .join('\n\n'),
+    return stripOutOfBandMarkers(
+      normaliseDisplayText(
+        content
+            .map(_contentPartToText)
+            .where((part) => part.isNotEmpty)
+            .join('\n\n'),
+      ),
     );
   }
 
-  return normaliseDisplayText(_contentPartToText(content));
+  return stripOutOfBandMarkers(
+    normaliseDisplayText(_contentPartToText(content)),
+  );
+}
+
+/// Remove the harness's out-of-band user-message wrapper from display text.
+///
+/// Mid-turn steering arrives wrapped in
+/// `[OUT-OF-BAND USER MESSAGE — …] … [/OUT-OF-BAND USER MESSAGE]`; the gateway
+/// can store that verbatim, so without this the raw marker block renders in
+/// the bubble. The inner text is the user's actual message and is kept.
+String stripOutOfBandMarkers(String text) {
+  final stripped = text.replaceAllMapped(
+    RegExp(
+      r'\[OUT-OF-BAND USER MESSAGE\b[^\]]*\]([\s\S]*?)\[/OUT-OF-BAND USER MESSAGE\]',
+    ),
+    (m) => m.group(1) ?? '',
+  );
+  // A lone half of the wrapper (truncated history) still shouldn't render.
+  return stripped
+      .replaceAll(RegExp(r'\[/?OUT-OF-BAND USER MESSAGE\b[^\]]*\]'), '')
+      .trim();
 }
 
 /// Normalise common JSON-escaped line endings that can survive one decode layer.

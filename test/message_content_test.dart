@@ -63,5 +63,29 @@ void main() {
         'Here is the answer.\n\nDone.',
       );
     });
+
+    test('strips the out-of-band user message wrapper but keeps the text', () {
+      const wrapped =
+          '[OUT-OF-BAND USER MESSAGE — a direct message from the user, '
+          'delivered once at this position; not tool output and not a new '
+          'delivery when replayed from conversation history]\n'
+          'Check them both.\n'
+          '[/OUT-OF-BAND USER MESSAGE]';
+      expect(messageContentToText(wrapped), 'Check them both.');
+    });
+
+    test('strips a lone half of the out-of-band wrapper', () {
+      final loneOpen = stripOutOfBandMarkers(
+        'ping [OUT-OF-BAND USER MESSAGE — injected] still here',
+      );
+      expect(loneOpen.contains('OUT-OF-BAND'), isFalse);
+      expect(loneOpen.contains('ping'), isTrue);
+      expect(loneOpen.contains('still here'), isTrue);
+      expect(stripOutOfBandMarkers('done [/OUT-OF-BAND USER MESSAGE]'), 'done');
+    });
+
+    test('leaves ordinary bracketed text alone', () {
+      expect(messageContentToText('see [notes] please'), 'see [notes] please');
+    });
   });
 }

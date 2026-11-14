@@ -40,11 +40,11 @@ While a turn is running and the draft has text or attachments, an additional com
 - **THEN** a steer send button appears next to Stop, and tapping it submits the draft without stopping the turn
 
 ### Requirement: No turn-status bar above the composer
-While sending or streaming, work-in-progress SHALL be represented by the timeline activity rows and the chat app bar spinner (which carries the gateway's live turn-status text, ellipsized); the composer SHALL NOT grow a status bar above the input row.
+While sending or streaming, work-in-progress SHALL be represented by the timeline activity rows and the animated session mark in the chat app bar (which carries the gateway's live turn-status text, ellipsized, in its semantics label); the composer SHALL NOT grow a status bar above the input row.
 
 #### Scenario: Status lives in the app bar
 - **WHEN** a turn is running
-- **THEN** the composer height is unchanged and the app bar shows only the spinner (live status text rides its semantics label)
+- **THEN** the composer height is unchanged and the app bar shows only the animated session mark (live status text rides its semantics label)
 
 ### Requirement: Secondary controls stay compact
 Model selection and the spoken-reply toggle SHALL be presented as compact chips or an overflow above or within the composer, not as additional 48 dp circular buttons in the input row.

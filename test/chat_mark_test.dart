@@ -33,6 +33,10 @@ void main() {
   ShapeMark mark(WidgetTester tester) =>
       tester.widget<ShapeMark>(find.byType(ShapeMark));
 
+  Finder morphPaints() => find.byWidgetPredicate(
+    (w) => w is CustomPaint && w.painter is ExpressiveMorphPainter,
+  );
+
   const garden = 'Fix the leaking garden hose';
 
   testWidgets('Letter mode keeps the letter mark it was given', (tester) async {
@@ -142,6 +146,53 @@ void main() {
     );
     expect(find.byIcon(Icons.push_pin), findsOneWidget);
     expect(find.byIcon(Icons.water_drop_rounded), findsOneWidget);
+  });
+
+  testWidgets('a busy mark morphs its background while the icon stays still', (
+    tester,
+  ) async {
+    chatIconSelection.value = const ChatIconSettings(
+      mode: ChatIconMode.onDevice,
+    );
+    await tester.pumpWidget(
+      _app(
+        const ChatMark(
+          sessionId: 's1',
+          title: garden,
+          letterStyle: MarkStyle.unassigned,
+          busy: true,
+        ),
+      ),
+    );
+    expect(mark(tester).busy, isTrue);
+    // The inner icon is still there, on top of the morphing background.
+    expect(find.byIcon(Icons.water_drop_rounded), findsOneWidget);
+    expect(morphPaints(), findsOneWidget);
+
+    double progress() =>
+        (tester.widget<CustomPaint>(morphPaints()).painter
+                as ExpressiveMorphPainter)
+            .progress;
+    final first = progress();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(progress(), greaterThan(first));
+  });
+
+  testWidgets('an idle mark paints no morph animation', (tester) async {
+    chatIconSelection.value = const ChatIconSettings(
+      mode: ChatIconMode.onDevice,
+    );
+    await tester.pumpWidget(
+      _app(
+        const ChatMark(
+          sessionId: 's1',
+          title: garden,
+          letterStyle: MarkStyle.unassigned,
+        ),
+      ),
+    );
+    expect(mark(tester).busy, isFalse);
+    expect(morphPaints(), findsNothing);
   });
 
   group('Appearance › Chat icons', () {
