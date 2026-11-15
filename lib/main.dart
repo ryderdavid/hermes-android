@@ -257,8 +257,53 @@ class HermesApp extends StatefulWidget {
   }
 }
 
+/// Tracks the root navigator's stack by route so notification-driven pushes
+/// can tell whether their route is already on it. `ModalRoute.of` on the
+/// navigator's overlay context is always null for the root navigator, and the
+/// approval sheet is a route ABOVE the chat it belongs to, so neither "the
+/// overlay context" nor "the top route's name" alone can answer that.
+class RootRouteTracker extends NavigatorObserver {
+  final List<Route<dynamic>> _stack = [];
+
+  bool containsNamed(String name) =>
+      _stack.any((route) => route.settings.name == name);
+
+  bool get hasNotificationRoute => _stack.any(
+    (route) => route.settings.name?.startsWith('notification-') == true,
+  );
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _stack.add(route);
+    super.didPush(route, previousRoute);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _stack.remove(route);
+    super.didPop(route, previousRoute);
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _stack.remove(route);
+    super.didRemove(route, previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    if (oldRoute != null) _stack.remove(oldRoute);
+    if (newRoute != null) _stack.add(newRoute);
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+  }
+}
+
 class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
   late final GatewayTurnApplicationController _turnApplicationController;
+
+  /// Observes the root navigator so notification pushes can detect a route
+  /// they already own (see [_openNotificationSession]).
+  final RootRouteTracker _routeTracker = RootRouteTracker();
 
   /// Android foreground keep-alive: while the app is backgrounded with an
   /// unresolved chat turn, a foreground service holds the process so
@@ -327,12 +372,29 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
     return preferred ?? (connections.length == 1 ? connections.single : null);
   }
 
+  String? _lastNotificationTapKey;
+  DateTime? _lastNotificationTapAt;
+
   /// Routes a notification tap (or one of its action buttons) into the app.
   ///
   /// Approval actions answer through the turn controller when it owns the
   /// request; otherwise the action is left pending for the chat that does, and
   /// every response lands the user on the session the notification was about.
   void _handleNotificationResponse(NotificationResponse response) {
+    // A cold-launch tap is delivered twice on some Android/plugin builds —
+    // once via getNotificationAppLaunchDetails, once via
+    // onDidReceiveNotificationResponse. Handling it twice pushes the session
+    // route twice, and the second push covers the approval sheet the first
+    // chat opened (the card "disappears" until back is pressed). Dedupe.
+    final tapKey = '${response.id}|${response.actionId}|${response.payload}';
+    final now = DateTime.now();
+    if (tapKey == _lastNotificationTapKey &&
+        _lastNotificationTapAt != null &&
+        now.difference(_lastNotificationTapAt!) < const Duration(seconds: 5)) {
+      return;
+    }
+    _lastNotificationTapKey = tapKey;
+    _lastNotificationTapAt = now;
     final route = NotificationRoute.fromResponse(response);
     // An explicit connection id must resolve: falling back to another backend
     // could answer an approval against the wrong gateway. Only legacy
@@ -455,8 +517,15 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
       connection.id,
     );
     if (session == null) {
+      // Named per connection+session so a repeated open of the same
+      // notification (Review action, second tap) is recognised as the route
+      // this call already pushed, never stacked on top of it.
+      final workspaceRouteName =
+          'notification-workspace:${connection.id}:${sessionId ?? ''}';
+      if (_routeTracker.containsNamed(workspaceRouteName)) return;
       _navigatorKey.currentState?.push(
         MaterialPageRoute(
+          settings: RouteSettings(name: workspaceRouteName),
           builder: (_) => WorkspaceScreen(
             connection: connection,
             turnApplicationController: _turnApplicationController,
@@ -465,8 +534,14 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
       );
       return;
     }
+    // Never stack a second copy of the same chat: the top route showing this
+    // session would cover the approval sheet the first copy opened. The sheet
+    // itself is a route above the chat, so consult the whole stack.
+    final chatRouteName = 'notification-chat:${connection.id}:${session.id}';
+    if (_routeTracker.containsNamed(chatRouteName)) return;
     _navigatorKey.currentState?.push(
       MaterialPageRoute(
+        settings: RouteSettings(name: chatRouteName),
         builder: (_) => ChatScreen(
           connection: connection,
           session: session!,
@@ -506,6 +581,7 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
     final seed = appearance.colorSource.seed;
     return MaterialApp(
       navigatorKey: _navigatorKey,
+      navigatorObservers: [_routeTracker],
       scaffoldMessengerKey: _messengerKey,
       onGenerateTitle: (context) => context.l10n.hermes_agent,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -554,6 +630,7 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
         turnApplicationController: _turnApplicationController,
         shareIntents: widget.shareIntents,
         launchIntents: widget.launchIntents,
+        notificationRouteTracker: _routeTracker,
       ),
     );
   }
@@ -626,6 +703,7 @@ class HomeScreen extends StatefulWidget {
   final GatewayTurnApplicationController turnApplicationController;
   final AndroidShareIntentService? shareIntents;
   final AndroidLaunchIntentService? launchIntents;
+  final RootRouteTracker? notificationRouteTracker;
   final Future<String?> Function()? pickBackupFile;
   final Future<ConfigImportResult> Function(
     String contents,
@@ -639,6 +717,7 @@ class HomeScreen extends StatefulWidget {
     required this.turnApplicationController,
     this.shareIntents,
     this.launchIntents,
+    this.notificationRouteTracker,
     this.pickBackupFile,
     this.importBackup,
     super.key,
@@ -741,6 +820,9 @@ class HomeScreenState extends State<HomeScreen> {
 
   void _onSharedText() {
     if (!mounted || widget.shareIntents?.pendingShare.value == null) return;
+    // A notification tap that already navigated owns the stack; pushing a
+    // workspace here would cover the approval sheet that chat opened.
+    if (widget.notificationRouteTracker?.hasNotificationRoute == true) return;
     final connection = _connectionForExternalAction();
     if (connection == null) return;
     _autoNavigated = true;
@@ -751,6 +833,8 @@ class HomeScreenState extends State<HomeScreen> {
     if (!mounted || widget.launchIntents?.pendingQuickChat.value != true) {
       return;
     }
+    // Same guard as the share path: never stack over a notification route.
+    if (widget.notificationRouteTracker?.hasNotificationRoute == true) return;
     final connection = _connectionForExternalAction();
     if (connection == null) return;
     _autoNavigated = true;
@@ -783,6 +867,10 @@ class HomeScreenState extends State<HomeScreen> {
         widget.launchIntents?.pendingQuickChat.value == true) {
       return;
     }
+    // A notification tap may already have pushed the session (or its
+    // workspace) onto the navigator; stacking the last-connection Workspace
+    // on top would cover the approval sheet that chat opened.
+    if (Navigator.of(context).canPop()) return;
     final lastId = widget.connManager.prefs.getString(_lastConnectionKey);
     if (lastId == null) return;
     final conn = _connections.where((c) => c.id == lastId).firstOrNull;

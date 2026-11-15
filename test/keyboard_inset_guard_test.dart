@@ -61,6 +61,94 @@ void main() {
     expect(tester.getRect(find.byKey(const Key('dock'))).bottom, 892 - 300);
   });
 
+  testWidgets(
+    'a back press that dismisses the IME (focus retained, inset stuck) docks '
+    'the bar',
+    (tester) async {
+      tester.view.physicalSize = const Size(412, 892);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        _app(
+          Navigator(
+            onGenerateRoute: (_) => MaterialPageRoute(
+              builder: (_) => Scaffold(
+                body: Column(
+                  children: [
+                    const Expanded(child: SizedBox.shrink()),
+                    const TextField(key: Key('field'), autofocus: true),
+                    const SizedBox(key: Key('dock'), height: 48),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // IME up with the field focused: the inset is honored.
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.byKey(const Key('dock'))).bottom, 892 - 300);
+      expect(FocusManager.instance.primaryFocus, isNotNull);
+
+      // Platform fails to clear the inset; the user dismisses the IME with
+      // the system back button (no route pops, focus is retained).
+      await tester.binding.handlePopRoute();
+      // Pump so the focus listener rebuilds after the guard handles the back.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pumpAndSettle();
+      // Primary focus falls back to the enclosing FocusScope, which has no
+      // EditableText ancestor, so the stale inset clamps and the bar docks.
+      expect(tester.getRect(find.byKey(const Key('dock'))).bottom, 892);
+    },
+  );
+
+  testWidgets('a back press that pops a route leaves focus to the Navigator', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _app(
+        Builder(
+          builder: (context) => Scaffold(
+            body: Column(
+              children: [
+                const TextField(key: Key('field'), autofocus: true),
+                TextButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const Scaffold(body: Text('second')),
+                    ),
+                  ),
+                  child: const Text('push'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('push'));
+    await tester.pumpAndSettle();
+    expect(find.text('second'), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(find.text('second'), findsNothing);
+    final focusContext = FocusManager.instance.primaryFocus?.context;
+    expect(focusContext, isNotNull);
+    expect(
+      focusContext!.findAncestorWidgetOfExactType<EditableText>(),
+      isNotNull,
+    );
+    expect(find.byKey(const Key('field')), findsOneWidget);
+  });
+
   testWidgets('ChatScreen: composer returns to the bottom when a stuck inset '
       'outlives focus', (tester) async {
     tester.view.physicalSize = const Size(412, 892);
