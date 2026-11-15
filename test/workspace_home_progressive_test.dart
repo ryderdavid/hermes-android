@@ -19,6 +19,8 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'support/animation_settle.dart';
+
 Map<String, Object?> _row(int index, {bool pinned = false}) => {
   'id': 'session-$index',
   'title': index == 101 ? 'Late unassigned' : 'Chat $index',
@@ -122,7 +124,7 @@ void main() {
       );
 
       laterPage.complete(_page([_row(100, pinned: true), _row(101)]));
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(
         requested.any((uri) => uri.queryParameters['offset'] == '100'),
         isTrue,
@@ -155,7 +157,7 @@ void main() {
         requested.where((uri) => uri.queryParameters['limit'] == '100'),
         hasLength(completePageRequests),
       );
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(find.byType(WorkspaceSessionsScreen), findsOneWidget);
       // Search proves the old unassigned row is in the complete Chats dataset,
       // not just a Home-only background projection.
@@ -163,10 +165,10 @@ void main() {
         find.byKey(kWorkspaceSessionSearchKey),
         'Late unassigned',
       );
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(find.text('Late unassigned'), findsNWidgets(2));
       await tester.tap(find.widgetWithText(ConnectedButtonView, 'Unassigned'));
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(find.text('Late unassigned'), findsNWidgets(2));
     },
   );
@@ -262,10 +264,10 @@ void main() {
     // The older scan started before the new chat existed. Completing it
     // must not replace the newer five-row page on Home or in Chats.
     fullPage.complete(_page(List.generate(3, _row)));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('New chat'), findsOneWidget);
     await tester.tap(find.text('Chats').last);
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(
       find.descendant(
         of: find.byType(WorkspaceSessionsScreen),
@@ -274,9 +276,9 @@ void main() {
       findsOneWidget,
     );
     await tester.tap(find.text('Home').last);
-    await tester.pumpAndSettle();
+    await settle(tester);
     unawaited(home.refresh());
-    await tester.pumpAndSettle();
+    await settle(tester);
     // A completed request is never reused: a later refresh sees new work.
     expect(
       requested.where(
@@ -352,7 +354,7 @@ void main() {
     );
 
     laterPage.complete(_page([]));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Chat 0'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsNothing);
   });
@@ -413,7 +415,7 @@ void main() {
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
 
     laterPage.complete(_page([]));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Chat 5'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsNothing);
   });

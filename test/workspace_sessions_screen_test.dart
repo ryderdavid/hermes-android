@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hermes_android/core/chat_icons/chat_mark.dart';
 import 'package:hermes_android/core/expressive/expressive.dart';
 import 'package:hermes_android/core/models/session.dart';
 import 'package:hermes_android/core/screens/workspace_sessions_screen.dart';
@@ -10,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hermes_android/core/theme/hermes_theme.dart';
 import 'package:hermes_android/core/widgets/hermes_components.dart';
 import 'package:hermes_android/core/widgets/hermes_shell.dart';
+import 'support/animation_settle.dart';
 import 'support/l10n_test_utils.dart';
 import 'package:hermes_android/l10n/app_localizations.dart';
 
@@ -260,7 +262,7 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(find.byType(Scaffold), findsNothing);
     expect(find.byType(AppBar), findsNothing);
@@ -304,7 +306,7 @@ void main() {
     metadata.complete(
       WorkspaceSessionsData(sessions: [chat], claimedSessionIds: const {}),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Cached conversation'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsNothing);
   });
@@ -344,7 +346,7 @@ void main() {
         sessions: [_session('s1', 'First chat'), _session('s2', 'Older chat')],
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Older chat'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsNothing);
     await tester.pumpWidget(browser(preview));
@@ -379,7 +381,7 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await settle(tester);
     }
 
     testWidgets('offers the four validated chips in embedded mode', (
@@ -401,7 +403,7 @@ void main() {
       await pumpChats(tester);
 
       await tester.tap(find.widgetWithText(ConnectedButtonView, 'Recent'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Fresh'), findsOneWidget);
       expect(find.text('Stale'), findsNothing);
@@ -411,7 +413,7 @@ void main() {
       await pumpChats(tester);
 
       await tester.tap(find.widgetWithText(ConnectedButtonView, 'Unassigned'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Filed'), findsNothing);
       expect(find.text('Fresh'), findsOneWidget);
@@ -421,7 +423,7 @@ void main() {
       await pumpChats(tester);
 
       await tester.tap(find.widgetWithText(ConnectedButtonView, 'Archived'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Quick archived'), findsOneWidget);
       expect(find.text('Fresh'), findsNothing);
@@ -457,13 +459,13 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Archived on server'), findsNothing);
       expect(find.text('Fresh'), findsOneWidget);
 
       await tester.tap(find.widgetWithText(ConnectedButtonView, 'Archived'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Archived on server'), findsOneWidget);
       expect(find.text('Fresh'), findsNothing);
@@ -530,7 +532,7 @@ void main() {
           home: embedded ? Scaffold(body: browser) : browser,
         ),
       );
-      await tester.pumpAndSettle();
+      await settle(tester);
     }
 
     Future<void> openRename(WidgetTester tester, {String? rowTitle}) async {
@@ -544,12 +546,12 @@ void main() {
               matching: find.byTooltip(l10n.chat_actions),
             );
       await tester.tap(menu);
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.tap(find.text(l10n.rename));
       // The dialog must wait for the popup route to finish tearing down.
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.pump(kThemeAnimationDuration);
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(find.text(l10n.rename_chat), findsOneWidget);
     }
 
@@ -599,7 +601,7 @@ void main() {
           richSession.title,
         );
         await tester.tap(find.text(l10n.cancel));
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(writes, 0);
       });
 
@@ -622,19 +624,19 @@ void main() {
           },
         );
         await tester.tap(find.byTooltip(l10n.chat_actions));
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(find.text(l10n.rename), findsOneWidget);
         expect(find.text(l10n.pin_on_this_device), findsOneWidget);
         await tester.tap(find.text(l10n.pin_on_this_device));
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(await store.load(), ['s1']);
         expect(writes, 0);
         await tester.tap(find.byTooltip(l10n.chat_actions));
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(find.text(l10n.unpin_on_this_device), findsOneWidget);
         expect(find.text(l10n.rename), findsOneWidget);
         await tester.tapAt(Offset.zero);
-        await tester.pumpAndSettle();
+        await settle(tester);
       });
     }
 
@@ -661,7 +663,7 @@ void main() {
         );
         await openRename(tester, rowTitle: richSession.title);
         await submit(tester, '  Requested title  ');
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(requested, ['Requested title']);
         expect(find.text('Authoritative title'), findsOneWidget);
         expect(find.text(richSession.title), findsNothing);
@@ -678,23 +680,29 @@ void main() {
           find.byKey(kWorkspaceSessionSearchKey),
           'original title',
         );
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(find.text('Authoritative title'), findsNothing);
         await tester.enterText(
           find.byKey(kWorkspaceSessionSearchKey),
           'authoritative title',
         );
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(find.text('Authoritative title'), findsOneWidget);
         await tester.enterText(find.byKey(kWorkspaceSessionSearchKey), '');
-        await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.filter_recent));
-        await tester.pumpAndSettle();
+        await tester.tap(
+          find.widgetWithText(ConnectedButtonView, l10n.filter_recent),
+        );
+        await settle(tester);
         expect(find.text('Authoritative title'), findsOneWidget);
-        await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.unassigned));
-        await tester.pumpAndSettle();
+        await tester.tap(
+          find.widgetWithText(ConnectedButtonView, l10n.unassigned),
+        );
+        await settle(tester);
         expect(find.text('Authoritative title'), findsNothing);
-        await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.archived));
-        await tester.pumpAndSettle();
+        await tester.tap(
+          find.widgetWithText(ConnectedButtonView, l10n.archived),
+        );
+        await settle(tester);
         expect(find.text('Unrelated'), findsOneWidget);
         expect(find.text('Archived row'), findsOneWidget);
       },
@@ -714,7 +722,7 @@ void main() {
         await openRename(tester);
         await tester.enterText(dialogField(), 'Changed but cancelled');
         await tester.tap(find.text(l10n.cancel));
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(writes, 0);
         await openRename(tester);
         await submit(tester, '   ');
@@ -729,10 +737,10 @@ void main() {
         );
         expect(writes, 0);
         await tester.tap(find.text(l10n.cancel));
-        await tester.pumpAndSettle();
+        await settle(tester);
         await openRename(tester);
         await submit(tester, '  ${richSession.title}  ');
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(find.byType(AlertDialog), findsNothing);
         expect(find.text(richSession.title), findsOneWidget);
         expect(writes, 0);
@@ -753,7 +761,7 @@ void main() {
       );
       await openRename(tester);
       await submit(tester, 'Rejected title');
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(writes, 1);
       expect(find.text(richSession.title), findsOneWidget);
       expect(find.text('Rejected title'), findsNothing);
@@ -764,7 +772,7 @@ void main() {
       // A failed save releases the single-flight guard so it can be retried.
       await openRename(tester);
       await tester.tap(find.text(l10n.cancel));
-      await tester.pumpAndSettle();
+      await settle(tester);
     });
 
     testWidgets(
@@ -790,7 +798,7 @@ void main() {
         );
         await openRename(tester);
         await submit(tester, 'Requested title');
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(find.text('Saved title'), findsOneWidget);
         final refreshed = _session(
           's1',
@@ -805,7 +813,7 @@ void main() {
             claimedSessionIds: const {'s1'},
           ),
         );
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(find.text('Saved title'), findsOneWidget);
         expect(find.text(richSession.title), findsNothing);
         expect(find.text('New unrelated row'), findsOneWidget);
@@ -818,7 +826,7 @@ void main() {
           find.byType(RefreshIndicator),
         );
         await refresh.onRefresh();
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(loads, 2);
         expect(find.text('Later server title'), findsOneWidget);
       },
@@ -884,7 +892,7 @@ void main() {
         await refresh;
         await tester.pump();
         save.complete('Saved title');
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(find.text('Saved title'), findsOneWidget);
         expect(find.text('Added during save'), findsOneWidget);
         expect(find.text('New project'), findsOneWidget);
@@ -912,11 +920,13 @@ void main() {
           load: () => staleLoad.future,
           onRename: (_, _) async => 'Archived saved',
         );
-        await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.archived));
-        await tester.pumpAndSettle();
+        await tester.tap(
+          find.widgetWithText(ConnectedButtonView, l10n.archived),
+        );
+        await settle(tester);
         await openRename(tester);
         await submit(tester, 'Requested archive title');
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(find.text('Archived saved'), findsOneWidget);
         expect(find.text('Archived project'), findsOneWidget);
         await tester.tap(find.text('Archived saved'));
@@ -927,9 +937,11 @@ void main() {
         staleLoad.complete(
           const WorkspaceSessionsData(sessions: [richSession]),
         );
-        await tester.pumpAndSettle();
-        await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.filter_all));
-        await tester.pumpAndSettle();
+        await settle(tester);
+        await tester.tap(
+          find.widgetWithText(ConnectedButtonView, l10n.filter_all),
+        );
+        await settle(tester);
         expect(find.text('Archived saved'), findsOneWidget);
         expect(find.text(richSession.title), findsNothing);
       },
@@ -957,7 +969,7 @@ void main() {
         } else {
           save.complete('Late success');
         }
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(tester.takeException(), isNull);
       });
     }
@@ -974,12 +986,12 @@ void main() {
         },
       );
       await tester.tap(find.byTooltip(l10n.chat_actions));
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.tap(find.text(l10n.rename));
       await tester.pump();
       await tester.pumpWidget(const SizedBox());
       await tester.pump(kThemeAnimationDuration);
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(find.byType(AlertDialog), findsNothing);
       expect(writes, 0);
       expect(tester.takeException(), isNull);
@@ -1012,7 +1024,7 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await settle(tester);
     }
 
     testWidgets('marks a running session and a finished one', (tester) async {
@@ -1026,6 +1038,20 @@ void main() {
 
       expect(find.text('Running'), findsOneWidget);
       expect(find.text('Done'), findsOneWidget);
+
+      // The active row's mark runs the same busy morph as the chat app bar;
+      // the finished row's stays still.
+      ChatMark markFor(String title) => tester.widget<ChatMark>(
+        find.descendant(
+          of: find.ancestor(
+            of: find.text(title),
+            matching: find.byType(HermesCard),
+          ),
+          matching: find.byType(ChatMark),
+        ),
+      );
+      expect(markFor('Building').busy, isTrue);
+      expect(markFor('Finished').busy, isFalse);
     });
 
     testWidgets('labels the project when known, Unassigned otherwise', (
@@ -1084,16 +1110,16 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(find.text('Old research'), findsOneWidget);
     await tester.enterText(find.byKey(kWorkspaceSessionSearchKey), 'old');
-    await tester.pumpAndSettle();
+    await settle(tester);
     await tester.tap(find.text('Old research'));
     expect(opened, ['s1']);
 
     await tester.tap(find.byTooltip('Promote to project'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(promoted, ['s1']);
     expect(find.text('Old research'), findsNothing);
   });
@@ -1124,11 +1150,11 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(find.text('Loose chat'), findsOneWidget);
     await tester.tap(find.byTooltip('Move to project').first);
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(moved, ['s1']);
     // The moved chat leaves the Unassigned list immediately (claimed);
@@ -1162,16 +1188,16 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await tester.tap(find.widgetWithText(ConnectedButtonView, 'Unassigned'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     await tester.tap(find.byTooltip('Move to project'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Loose chat'), findsNothing);
 
     await tester.tap(find.widgetWithText(ConnectedButtonView, 'All'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     final row = find.ancestor(
       of: find.text('Loose chat'),
@@ -1188,7 +1214,7 @@ void main() {
     );
 
     await tester.tap(find.widgetWithText(ConnectedButtonView, 'Archived'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Archived chat'), findsOneWidget);
   });
 
@@ -1225,10 +1251,10 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Before chat'), findsOneWidget);
     await key.currentState!.refresh();
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(loads, 2);
     expect(find.text('Before chat'), findsNothing);
     expect(find.text('Renamed in chat'), findsOneWidget);
@@ -1285,7 +1311,7 @@ void main() {
         ),
       );
       await Future.wait([refresh, secondRefresh]);
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(refreshCompleted, isTrue);
       expect(find.text('Confirmed new title'), findsOneWidget);
       expect(find.text('Old snapshot'), findsNothing);
@@ -1329,7 +1355,7 @@ void main() {
         }
         await refresh;
         await state.refresh();
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(loads, 1);
         expect(tester.takeException(), isNull);
       },

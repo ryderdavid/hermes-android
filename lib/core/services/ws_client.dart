@@ -43,6 +43,14 @@ Object? _canonicalJsonValue(Object? value) {
 
 String _canonicalJson(Object? value) => jsonEncode(_canonicalJsonValue(value));
 
+/// How long a `prompt.submit` may wait for the gateway's admission ack.
+/// A genuine rejection answers immediately; only a busy gateway (a turn
+/// running, ordered admission writes queued) stretches the wait. The stock
+/// 30s [WsClient.send] default was short enough to surface
+/// 'Send failed: JsonRpcError(prompt.submit): Timeout' for submissions the
+/// gateway had actually accepted.
+const Duration promptSubmitAckTimeout = Duration(seconds: 120);
+
 /// A JSON-RPC error response from the gateway.
 class JsonRpcError implements Exception {
   final String method;
@@ -967,10 +975,12 @@ class WsClient {
     });
 
     try {
-      final response = await send('prompt.submit', {
-        'session_id': sessionId,
-        'text': message,
-      }, onSent: onSent);
+      final response = await send(
+        'prompt.submit',
+        {'session_id': sessionId, 'text': message},
+        onSent: onSent,
+        timeout: promptSubmitAckTimeout,
+      );
       final error = response['error'];
       if (error != null) {
         throw _gatewayResponseError(

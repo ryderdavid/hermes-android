@@ -4,6 +4,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/widgets/hermes_components.dart';
+import 'core/widgets/keyboard_inset_guard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/android_launch_intent_service.dart';
 import 'core/services/android_share_intent_service.dart';
@@ -539,10 +540,11 @@ class HermesAppState extends State<HermesApp> with WidgetsBindingObserver {
             Theme.of(context).colorScheme,
             edgeToEdge: systemMediaQuery.viewPadding.bottom > 0,
           ),
-          child: MediaQuery(
-            data: systemMediaQuery.copyWith(
-              textScaler: preference.applyTo(systemMediaQuery.textScaler),
-            ),
+          child: KeyboardInsetGuard(
+            // The guard owns the MediaQuery below the root: it applies the
+            // text-size preference and clamps a stale keyboard inset (see
+            // keyboard_inset_guard.dart).
+            textScaler: preference.applyTo(systemMediaQuery.textScaler),
             child: child!,
           ),
         );

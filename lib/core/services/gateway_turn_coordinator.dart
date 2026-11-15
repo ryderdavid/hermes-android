@@ -649,7 +649,7 @@ class GatewayTurnCoordinator {
         'client_turn_id': clientTurnId,
         'text': text,
         if (wireAttachments.isNotEmpty) 'attachments': wireAttachments,
-      });
+      }, timeout: promptSubmitAckTimeout);
       result = _resultOrThrow('prompt.submit', response);
     } on JsonRpcError catch (error, stack) {
       if (!_ambiguousJsonRpcFailure(error)) {

@@ -856,7 +856,8 @@ class WorkspaceSessionsScreenState extends State<WorkspaceSessionsScreen>
         children: [
           // The chat's project mark (or the shared Unassigned mark) with the
           // pin state as its glyph; with topic icons on, the pin moves to a
-          // corner badge.
+          // corner badge. While the session is active the mark morphs like
+          // the chat screen's app-bar mark (the Running chip says the same).
           ChatMark(
             sessionId: session.id,
             title: session.title,
@@ -874,6 +875,7 @@ class WorkspaceSessionsScreenState extends State<WorkspaceSessionsScreen>
                 ? Icons.push_pin_outlined
                 : null,
             size: 44,
+            busy: session.isActive,
           ),
           const SizedBox(width: HermesSpacing.lg),
           Expanded(

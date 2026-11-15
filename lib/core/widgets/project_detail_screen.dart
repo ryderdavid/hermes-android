@@ -20,14 +20,17 @@
 library;
 
 import 'package:flutter/material.dart';
+import '../chat_icons/chat_mark.dart';
+import '../expressive/buttons.dart';
 import '../expressive/segmented_list.dart';
+import '../expressive/shapes.dart';
+import '../screens/workspace_sessions_screen.dart';
 
 import '../models/hermes_project.dart';
 import '../models/project_sessions_tree.dart';
 import '../models/session.dart';
 import '../services/projects_repository.dart';
 import '../theme/hermes_theme.dart';
-import '../utils/project_session_filter.dart';
 import '../utils/relative_time.dart';
 import 'hermes_components.dart';
 
@@ -105,6 +108,15 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
   /// Per-Project search: filters the sessions the server already returned.
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  WorkspaceChatsFilter _filter = WorkspaceChatsFilter.all;
+
+  /// The project view's filter chips. Unassigned cannot occur here — every
+  /// row is claimed by this project — so that chip is not offered.
+  static const _projectFilters = [
+    WorkspaceChatsFilter.all,
+    WorkspaceChatsFilter.recent,
+    WorkspaceChatsFilter.archived,
+  ];
   bool _deleting = false;
   bool _managing = false;
   late String _projectName;
@@ -405,6 +417,18 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
       appBar: AppBar(
         title: Text(title),
         actions: [
+          // The project's expressive mark, the same shape and colour as on
+          // Home and in the Projects pane.
+          Padding(
+            padding: const EdgeInsets.only(right: HermesSpacing.xs),
+            child: Center(
+              child: ShapeMark(
+                style: MarkStyle.forKey(_projectName),
+                icon: Icons.folder_rounded,
+                size: 36,
+              ),
+            ),
+          ),
           if (hasActions)
             if (_deleting || _managing)
               const Padding(
@@ -531,8 +555,15 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
 
   Widget _buildChats(ProjectSessionsView view) {
     final sessions = view.sessions;
-    final filtered = filterProjectSessions(sessions, _searchQuery);
+    // Same machinery as the main Chats destination: filter chip + search,
+    // most-recent-first, then date buckets.
+    final filtered = filterChats(
+      sessions: sessions,
+      filter: _filter,
+      query: _searchQuery,
+    );
     final querying = _searchQuery.trim().isNotEmpty;
+    final groups = groupChatsByDate(DateTime.now(), filtered);
 
     return RefreshIndicator(
       onRefresh: () => _load(refresh: true),
@@ -572,6 +603,32 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                 ),
               ),
             ),
+          if (sessions.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  HermesSpacing.lg,
+                  0,
+                  HermesSpacing.lg,
+                  HermesSpacing.md,
+                ),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: ConnectedButtonGroup<WorkspaceChatsFilter>(
+                    semanticsLabel: context.l10n.filter_all,
+                    selected: _filter,
+                    onSelected: (filter) => setState(() => _filter = filter),
+                    buttons: [
+                      for (final filter in _projectFilters)
+                        ConnectedButton(
+                          value: filter,
+                          label: filter.label(context.l10n),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           if (sessions.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
@@ -597,31 +654,36 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                 ),
               ),
             )
-          else
-            SliverList.builder(
-              itemCount: filtered.length,
-              itemBuilder: (context, index) {
-                final session = filtered[index];
-                return Padding(
+          else ...[
+            // Material 3 Expressive segmented groups: one per date bucket,
+            // same as the main Chats destination.
+            for (final group in groups)
+              SliverToBoxAdapter(
+                child: SegmentedListGroup(
+                  title: group.key.label(context.l10n),
                   padding: const EdgeInsets.fromLTRB(
                     HermesSpacing.lg,
-                    HermesSpacing.sm,
-                    HermesSpacing.lg,
                     0,
+                    HermesSpacing.lg,
+                    HermesSpacing.lg,
                   ),
-                  child: _SessionCard(
-                    session: session,
-                    onTap: widget.onOpenSession == null
-                        ? null
-                        : () => widget.onOpenSession!(session),
-                    onMove: widget.onMoveSession == null
-                        ? null
-                        : () => _chooseMoveDestination(session),
-                  ),
-                );
-              },
-            ),
-          const SliverToBoxAdapter(child: SizedBox(height: HermesSpacing.lg)),
+                  children: [
+                    for (final session in group.value)
+                      _SessionCard(
+                        session: session,
+                        projectName: _projectName,
+                        onTap: widget.onOpenSession == null
+                            ? null
+                            : () => widget.onOpenSession!(session),
+                        onMove: widget.onMoveSession == null
+                            ? null
+                            : () => _chooseMoveDestination(session),
+                      ),
+                  ],
+                ),
+              ),
+          ],
+          const SliverToBoxAdapter(child: SizedBox(height: HermesSpacing.xl)),
         ],
       ),
     );
@@ -910,10 +972,19 @@ class _MoveTarget {
 
 class _SessionCard extends StatelessWidget {
   final Session session;
+
+  /// The owning project's name: the letter-mode mark style, so a chat's
+  /// mark matches the project's mark on Home and in the Projects pane.
+  final String projectName;
   final VoidCallback? onTap;
   final VoidCallback? onMove;
 
-  const _SessionCard({required this.session, this.onTap, this.onMove});
+  const _SessionCard({
+    required this.session,
+    required this.projectName,
+    this.onTap,
+    this.onMove,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -922,44 +993,85 @@ class _SessionCard extends StatelessWidget {
     return HermesCard(
       onTap: onTap,
       status: session.isActive ? HermesStatus.running : null,
-      child: Column(
+      padding: const EdgeInsets.fromLTRB(
+        HermesSpacing.lg,
+        HermesSpacing.md,
+        HermesSpacing.xs,
+        HermesSpacing.md,
+      ),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  session.title,
-                  maxLines: 1,
+          // The chat's mark: the topic shape hash-picked from the session id
+          // (or the project's letter mark); while the session is active it
+          // morphs like the chat screen's app-bar mark.
+          ChatMark(
+            sessionId: session.id,
+            title: session.title,
+            letterStyle: MarkStyle.forKey(projectName),
+            letterIcon: session.pinned
+                ? Icons.push_pin_outlined
+                : Icons.chat_bubble_outline,
+            badge: session.pinned ? Icons.push_pin_outlined : null,
+            size: 44,
+            busy: session.isActive,
+          ),
+          const SizedBox(width: HermesSpacing.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  session.title.isEmpty
+                      ? context.l10n.untitled_chat
+                      : session.title,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: tokens.typography.body.copyWith(
-                    color: tokens.onSurface,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w600,
+                    color: tokens.onSurface,
                   ),
                 ),
-              ),
-              if (session.isActive) ...[
-                const SizedBox(width: HermesSpacing.sm),
-                const StatusChip(status: HermesStatus.running),
-              ],
-              if (onMove != null) ...[
-                const SizedBox(width: HermesSpacing.xs),
-                IconButton(
-                  key: Key('move-session-${session.id}'),
-                  tooltip: context.l10n.move_conversation,
-                  onPressed: onMove,
-                  icon: const Icon(Icons.drive_file_move_outline, size: 20),
+                if (session.preview.isNotEmpty) ...[
+                  Text(
+                    session.preview,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: tokens.muted),
+                  ),
+                ],
+                const SizedBox(height: HermesSpacing.xs),
+                Wrap(
+                  spacing: HermesSpacing.sm,
+                  runSpacing: HermesSpacing.xs,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    StatusChip(
+                      status: session.isActive
+                          ? HermesStatus.running
+                          : HermesStatus.completed,
+                      label: session.isActive
+                          ? context.l10n.status_running
+                          : context.l10n.status_done,
+                    ),
+                    Text(
+                      formatRelativeTime(DateTime.now(), session.lastActive),
+                      style: tokens.typography.label.copyWith(
+                        color: tokens.muted,
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ],
+            ),
           ),
-          if (session.preview.isNotEmpty) ...[
-            const SizedBox(height: HermesSpacing.xs),
-            Text(
-              session.preview,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: tokens.typography.label.copyWith(color: tokens.muted),
+          if (onMove != null) ...[
+            const SizedBox(width: HermesSpacing.xs),
+            IconButton(
+              key: Key('move-session-${session.id}'),
+              tooltip: context.l10n.move_conversation,
+              onPressed: onMove,
+              icon: const Icon(Icons.drive_file_move_outline, size: 20),
             ),
           ],
         ],

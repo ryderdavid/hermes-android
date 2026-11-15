@@ -26,11 +26,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hermes_android/core/models/hermes_project.dart';
 import 'package:hermes_android/core/models/project_sessions_tree.dart';
 import 'package:hermes_android/core/models/session.dart';
+import 'package:hermes_android/core/chat_icons/chat_mark.dart';
+import 'package:hermes_android/core/expressive/buttons.dart';
+import 'package:hermes_android/core/expressive/shapes.dart';
+import 'package:hermes_android/core/screens/workspace_sessions_screen.dart';
 import 'package:hermes_android/core/services/projects_repository.dart';
 import 'package:hermes_android/core/theme/hermes_theme.dart';
 import 'package:hermes_android/core/widgets/hermes_components.dart';
 import 'package:hermes_android/core/widgets/project_detail_screen.dart';
 import 'package:hermes_android/l10n/app_localizations.dart';
+
+import 'support/animation_settle.dart';
 
 Session _session({
   String id = 's1',
@@ -133,7 +139,7 @@ void main() {
       },
       onNewChat: () => chatClosed.future,
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('No chats yet'), findsOneWidget);
 
     await tester.tap(find.byKey(kProjectNewChatButtonKey));
@@ -141,7 +147,7 @@ void main() {
     expect(refreshes, 0);
 
     chatClosed.complete();
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(refreshes, 1);
     expect(find.text('Ship the Files browser'), findsOneWidget);
   });
@@ -162,7 +168,7 @@ void main() {
         support: ProjectsSupport.native,
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(find.byType(LoadingSkeleton), findsNothing);
     expect(find.text('Ship the Files browser'), findsOneWidget);
@@ -179,7 +185,7 @@ void main() {
         support: ProjectsSupport.native,
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(find.byType(EmptyState), findsOneWidget);
     expect(find.textContaining('No chats'), findsOneWidget);
@@ -206,12 +212,12 @@ void main() {
         );
       },
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(find.byType(ErrorState), findsOneWidget);
 
     await tester.tap(find.text('Retry'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(find.text('Ship the Files workspace'), findsNothing);
     expect(find.text('Ship the Files browser'), findsOneWidget);
@@ -244,10 +250,10 @@ void main() {
         );
       },
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await tester.drag(find.byType(CustomScrollView), const Offset(0, 320));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     // The chat the user was reading survives the failed refresh.
     expect(find.text('Ship the Files browser'), findsOneWidget);
@@ -265,7 +271,7 @@ void main() {
         support: ProjectsSupport.unsupported,
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     // Never the empty state: "no chats" would be a claim this gateway cannot
     // support, and a red error would blame the user for an old server.
@@ -285,10 +291,10 @@ void main() {
         support: ProjectsSupport.native,
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await tester.tap(find.text('Overview'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     // Deriving the count from the rows on screen would report 1.
     expect(find.text('12'), findsOneWidget);
@@ -305,7 +311,7 @@ void main() {
         support: ProjectsSupport.native,
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     for (final tab in ['Chats', 'Overview', 'Files', 'Assets', 'Activity']) {
       expect(find.text(tab), findsWidgets, reason: '$tab tab must exist');
@@ -322,10 +328,10 @@ void main() {
         support: ProjectsSupport.native,
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await tester.tap(find.text('Files'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(find.text('/home/carlos/dev/hermes-android'), findsWidgets);
     expect(find.textContaining('hermes-android'), findsWidgets);
@@ -341,10 +347,10 @@ void main() {
         support: ProjectsSupport.native,
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await tester.tap(find.text('Assets'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(
       find.textContaining('server-authoritative Assets index'),
@@ -380,10 +386,10 @@ void main() {
         support: ProjectsSupport.native,
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await tester.tap(find.text('Activity'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(find.text('Running'), findsOneWidget);
     expect(find.text('Done'), findsOneWidget);
@@ -403,10 +409,10 @@ void main() {
       ),
       onOpenSession: (session) => opened = session,
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await tester.tap(find.text('Ship the Files browser'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(opened, isNotNull);
     expect(opened!.id, 's-42');
@@ -438,10 +444,10 @@ void main() {
         return null;
       },
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await tester.tap(find.byKey(const Key('move-session-s-42')));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Move conversation'), findsOneWidget);
     expect(find.text('Unassigned'), findsOneWidget);
     expect(find.text('ScriptHive'), findsOneWidget);
@@ -449,7 +455,7 @@ void main() {
     expect(find.text('Hermes Android'), findsOneWidget);
 
     await tester.tap(find.text('ScriptHive'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(moves, ['p2']);
     expect(refreshes, [false, true]);
@@ -471,28 +477,28 @@ void main() {
       onRenameProject: (name) async => renamed.add(name),
       onArchiveProject: () async => archives++,
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await tester.tap(find.byTooltip('Project actions'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     await tester.tap(find.text('Rename project'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     await tester.enterText(
       find.byKey(const Key('rename-project-name')),
       'Mobile',
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Rename'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(renamed, ['Mobile']);
     expect(find.text('Mobile'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Project actions'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     await tester.tap(find.text('Archive project'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text('Archive Mobile?'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Archive'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(archives, 1);
   });
 
@@ -510,27 +516,27 @@ void main() {
       ),
       onDeleteProject: () async => deletions++,
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await tester.tap(find.byTooltip('Project actions'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     await tester.tap(find.text('Delete project'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(find.text('Delete Hermes Android?'), findsOneWidget);
     expect(find.textContaining('Chats will not be deleted'), findsOneWidget);
     expect(find.textContaining('Unassigned'), findsOneWidget);
 
     await tester.tap(find.text('Cancel'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(deletions, 0);
 
     await tester.tap(find.byTooltip('Project actions'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     await tester.tap(find.text('Delete project'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     await tester.tap(find.widgetWithText(TextButton, 'Delete'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(deletions, 1);
   });
@@ -547,14 +553,14 @@ void main() {
       ),
       onDeleteProject: () async => throw Exception('offline'),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await tester.tap(find.byTooltip('Project actions'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     await tester.tap(find.text('Delete project'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     await tester.tap(find.widgetWithText(TextButton, 'Delete'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(find.byType(ProjectDetailScreen), findsOneWidget);
     expect(find.text('Couldn’t delete project'), findsOneWidget);
@@ -575,7 +581,7 @@ void main() {
         );
       },
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     expect(refreshes, [false]);
 
@@ -584,7 +590,7 @@ void main() {
       const Offset(0, 400),
       800,
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     // The first open may use the cache; an explicit pull must not.
     expect(refreshes, [false, true]);
@@ -618,9 +624,126 @@ void main() {
           onOpenSession: onOpenSession,
         );
 
+    testWidgets(
+      'chats render in the M3E workspace style: marks, status chips, date groups',
+      (tester) async {
+        final now = DateTime.now();
+        await _pump(
+          tester,
+          load: ({required refresh}) async => ProjectSessionsView(
+            projectId: 'p1',
+            tree: _tree(),
+            sessions: [
+              _session(
+                id: 's1',
+                title: 'Ship the Files browser',
+                isActive: true,
+                lastActive:
+                    now
+                        .subtract(const Duration(minutes: 5))
+                        .millisecondsSinceEpoch /
+                    1000,
+              ),
+              _session(
+                id: 's2',
+                title: 'Review the draft',
+                isActive: false,
+                lastActive:
+                    now
+                        .subtract(const Duration(days: 30))
+                        .millisecondsSinceEpoch /
+                    1000,
+              ),
+            ],
+            support: ProjectsSupport.native,
+          ),
+        );
+        await settle(tester);
+
+        // One expressive mark per row; the active row's mark morphs (busy).
+        expect(find.byType(ChatMark), findsNWidgets(2));
+        ChatMark markFor(String title) => tester.widget<ChatMark>(
+          find.descendant(
+            of: find.ancestor(
+              of: find.text(title),
+              matching: find.byType(HermesCard),
+            ),
+            matching: find.byType(ChatMark),
+          ),
+        );
+        expect(markFor('Ship the Files browser').busy, isTrue);
+        expect(markFor('Review the draft').busy, isFalse);
+
+        // Tonal status chips plus relative time, as on the main Chats list.
+        expect(find.text('Running'), findsOneWidget);
+        expect(find.text('Done'), findsOneWidget);
+
+        // Date group headers, not a flat list.
+        expect(find.text('Today'), findsOneWidget);
+        expect(find.text('Earlier'), findsOneWidget);
+
+        // The connected filter segment and the project mark in the app bar.
+        expect(
+          find.byType(ConnectedButtonGroup<WorkspaceChatsFilter>),
+          findsOneWidget,
+        );
+        expect(find.text('All'), findsOneWidget);
+        expect(find.text('Recent'), findsOneWidget);
+        expect(find.text('Archived'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byType(ShapeMark),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets('the Recent chip narrows the list to the recent window', (
+      tester,
+    ) async {
+      final now = DateTime.now();
+      await _pump(
+        tester,
+        load: ({required refresh}) async => ProjectSessionsView(
+          projectId: 'p1',
+          tree: _tree(),
+          sessions: [
+            _session(
+              id: 's1',
+              title: 'Ship the Files browser',
+              lastActive:
+                  now
+                      .subtract(const Duration(minutes: 5))
+                      .millisecondsSinceEpoch /
+                  1000,
+            ),
+            _session(
+              id: 's2',
+              title: 'Review the draft',
+              lastActive:
+                  now
+                      .subtract(const Duration(days: 30))
+                      .millisecondsSinceEpoch /
+                  1000,
+            ),
+          ],
+          support: ProjectsSupport.native,
+        ),
+      );
+      await settle(tester);
+
+      await tester.tap(find.text('Recent'));
+      await settle(tester);
+
+      expect(find.text('Ship the Files browser'), findsOneWidget);
+      expect(find.text('Review the draft'), findsNothing);
+    });
+
     testWidgets('typing narrows the chats to the matches', (tester) async {
       await pumpThree(tester);
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.byKey(kProjectSearchFieldKey), findsOneWidget);
       expect(find.text('Ship the Files browser'), findsOneWidget);
@@ -628,7 +751,7 @@ void main() {
       expect(find.text('Pushed the release tag'), findsOneWidget);
 
       await tester.enterText(searchField(), 'ship');
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Ship the Files browser'), findsOneWidget);
       expect(find.text('Review the draft'), findsNothing);
@@ -638,15 +761,15 @@ void main() {
 
     testWidgets('clearing the search restores every chat', (tester) async {
       await pumpThree(tester);
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       await tester.enterText(searchField(), 'draft');
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(find.text('Review the draft'), findsOneWidget);
       expect(find.text('Ship the Files browser'), findsNothing);
 
       await tester.tap(find.byTooltip('Clear search'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('Ship the Files browser'), findsOneWidget);
       expect(find.text('Review the draft'), findsOneWidget);
@@ -664,7 +787,7 @@ void main() {
           support: ProjectsSupport.native,
         ),
       );
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.byKey(kProjectSearchFieldKey), findsNothing);
       expect(find.byType(EmptyState), findsOneWidget);
@@ -675,10 +798,10 @@ void main() {
       tester,
     ) async {
       await pumpThree(tester);
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       await tester.enterText(searchField(), 'zzz-no-such-chat');
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.byType(EmptyState), findsOneWidget);
       expect(find.text('No matches'), findsOneWidget);
@@ -689,13 +812,13 @@ void main() {
     testWidgets('a filtered row still opens its chat', (tester) async {
       Session? opened;
       await pumpThree(tester, onOpenSession: (session) => opened = session);
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       await tester.enterText(searchField(), 'release');
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       await tester.tap(find.text('Pushed the release tag'));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(opened, isNotNull);
       expect(opened!.id, 's3');

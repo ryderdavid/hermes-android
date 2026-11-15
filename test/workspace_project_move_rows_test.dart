@@ -11,6 +11,7 @@ import 'package:hermes_android/core/widgets/hermes_components.dart';
 import 'package:hermes_android/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'support/animation_settle.dart';
 import 'support/l10n_test_utils.dart';
 
 const _chat = Session(
@@ -111,7 +112,7 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
   }
 
   Future<void> selectMove(WidgetTester tester, String title) async {
@@ -121,7 +122,7 @@ void main() {
         matching: find.byTooltip(l10n.chat_actions),
       ),
     );
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text(l10n.rename), findsOneWidget);
     await tester.tap(find.text(l10n.move_to_project));
     await tester.pump();
@@ -147,10 +148,12 @@ void main() {
             return 'Project B';
           },
         );
-        await tester.tap(find.widgetWithText(ConnectedButtonView, filter.label(l10n)));
-        await tester.pumpAndSettle();
+        await tester.tap(
+          find.widgetWithText(ConnectedButtonView, filter.label(l10n)),
+        );
+        await settle(tester);
         await selectMove(tester, _chat.title);
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(moved.single, same(_chat));
         if (filter == WorkspaceChatsFilter.unassigned ||
             filter == WorkspaceChatsFilter.archived) {
@@ -180,7 +183,7 @@ void main() {
         },
       );
       await selectMove(tester, _chat.title);
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(moves, 1);
       expect(
         find.descendant(of: row(_chat.title), matching: find.text('Project B')),
@@ -199,9 +202,9 @@ void main() {
         onOpen: opened.add,
       );
       await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.archived));
-      await tester.pumpAndSettle();
+      await settle(tester);
       await selectMove(tester, _archived.title);
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(
         find.descendant(
           of: row(_archived.title),
@@ -211,8 +214,10 @@ void main() {
       );
       await tester.tap(find.text(_archived.title));
       expect(opened.single, same(_archived));
-      await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.filter_all));
-      await tester.pumpAndSettle();
+      await tester.tap(
+        find.widgetWithText(ConnectedButtonView, l10n.filter_all),
+      );
+      await settle(tester);
       expect(find.text(_archived.title), findsNothing);
     },
   );
@@ -234,21 +239,21 @@ void main() {
       final refresh = key.currentState!.refresh();
       await tester.pump();
       await selectMove(tester, _chat.title);
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.tap(
         find.descendant(
           of: row(_chat.title),
           matching: find.byTooltip(l10n.chat_actions),
         ),
       );
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.tap(find.text(l10n.rename));
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.pump(kThemeAnimationDuration);
-      await tester.pumpAndSettle();
+      await settle(tester);
       await tester.enterText(find.byType(TextFormField), 'Renamed during move');
       await tester.tap(find.widgetWithText(FilledButton, l10n.rename));
-      await tester.pumpAndSettle();
+      await settle(tester);
       // The delayed response contains both unrelated new data and old ownership.
       held.complete(
         const WorkspaceSessionsData(
@@ -260,7 +265,7 @@ void main() {
         ),
       );
       await refresh;
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(find.text('Renamed during move'), findsOneWidget);
       expect(find.text(_other.title), findsOneWidget);
       expect(find.text('Other Project'), findsOneWidget);
@@ -286,11 +291,13 @@ void main() {
       expect(saved.lineageRootId, _chat.lineageRootId);
       expect(saved.archived, _chat.archived);
       expect(saved.isLocalDraft, _chat.isLocalDraft);
-      await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.unassigned));
-      await tester.pumpAndSettle();
+      await tester.tap(
+        find.widgetWithText(ConnectedButtonView, l10n.unassigned),
+      );
+      await settle(tester);
       expect(find.text('Renamed during move'), findsNothing);
       await tester.tap(find.widgetWithText(ConnectedButtonView, l10n.archived));
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(find.text('Renamed during move'), findsNothing);
       expect(find.text(_archived.title), findsOneWidget);
     },
@@ -325,7 +332,7 @@ void main() {
     await refresh;
     await tester.pump();
     pendingMove.complete('Project B');
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(find.text(_chat.title), findsNothing);
     expect(
       find.descendant(
@@ -381,7 +388,7 @@ void main() {
       gates['s2']!.complete('Project C');
       await tester.pump();
       gates['s1']!.complete('Project B');
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(
         find.descendant(of: row(_chat.title), matching: find.text('Project B')),
         findsOneWidget,
@@ -408,7 +415,7 @@ void main() {
         },
       );
       await selectMove(tester, _chat.title);
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(find.byType(SnackBar), findsNothing);
       expect(
         find.descendant(of: row(_chat.title), matching: find.text('Project A')),
@@ -416,7 +423,7 @@ void main() {
       );
       cancelled = false;
       await selectMove(tester, _chat.title);
-      await tester.pumpAndSettle();
+      await settle(tester);
       expect(
         find.descendant(of: row(_chat.title), matching: find.text('Project B')),
         findsOneWidget,
@@ -436,7 +443,7 @@ void main() {
     menu(tester, _chat.title).onSelected!('move');
     await tester.pumpWidget(const SizedBox());
     await tester.pump(kThemeAnimationDuration);
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(calls, 0);
     expect(tester.takeException(), isNull);
   });
@@ -453,7 +460,7 @@ void main() {
         } else {
           pending.complete('Project B');
         }
-        await tester.pumpAndSettle();
+        await settle(tester);
         expect(tester.takeException(), isNull);
       },
     );

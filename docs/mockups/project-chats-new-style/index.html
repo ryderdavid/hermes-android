@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project chats — new app style mockup</title>
+<style>
+  /* Hermes Android M3E tokens (lib/core/theme/hermes_theme.dart), light + blue seed 0xFF4285F4 */
+  :root {
+    --primary: #0b57d0;
+    --on-primary: #ffffff;
+    --primary-container: #d3e3fd;
+    --on-primary-container: #041e49;
+    --secondary-container: #d8e2f5;
+    --on-secondary-container: #131f33;
+    --surface: #f7f9ff;
+    --surface-container-lowest: #ffffff;
+    --surface-container-highest: #e4e9f3;   /* HermesCard raised fill */
+    --on-surface: #191c20;
+    --muted: #44474f;
+    --outline: #c5c9d4;
+    --running-fill: rgba(11, 87, 208, 0.14);
+    --done-fill: rgba(70, 100, 80, 0.14);
+    --done-ink: #2e6b46;
+    --r-card: 20px;      /* HermesRadius.lgPlus */
+    --r-chip: 12px;      /* HermesRadius.md */
+    --r-fab: 16px;
+    --sp-xs: 4px; --sp-sm: 8px; --sp-md: 12px; --sp-lg: 16px; --sp-xl: 24px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: #dfe3ea;
+    display: flex; align-items: center; justify-content: center;
+    font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* phone canvas: 412x892 logical (golden phone size) */
+  .phone {
+    width: 412px; height: 892px;
+    background: var(--surface);
+    border-radius: 36px;
+    box-shadow: 0 24px 60px rgba(20, 30, 60, .35);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .statusbar {
+    height: 44px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; font-size: 14px; font-weight: 600; color: var(--on-surface);
+    flex: none;
+  }
+  .statusbar .icons { letter-spacing: 4px; font-size: 12px; color: var(--on-surface); }
+  /* app bar */
+  .appbar {
+    display: flex; align-items: center; gap: 4px;
+    padding: 0 8px 0 4px; height: 64px; flex: none;
+  }
+  .iconbtn {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--on-surface); background: transparent; border: 0; cursor: pointer;
+  }
+  .appbar .title {
+    flex: 1; font-size: 22px; font-weight: 500; color: var(--on-surface);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .mark { flex: none; }
+  /* tab bar */
+  .tabs {
+    display: flex; height: 48px; flex: none;
+    border-bottom: 1px solid var(--outline);
+    padding: 0 var(--sp-lg);
+  }
+  .tab {
+    position: relative; display: flex; align-items: center; padding: 0 var(--sp-md);
+    font-size: 14px; font-weight: 500; color: var(--muted);
+  }
+  .tab.active { color: var(--primary); font-weight: 700; }
+  .tab.active::after {
+    content: ""; position: absolute; left: 50%; transform: translateX(-50%);
+    bottom: 6px; width: 32px; height: 3px; border-radius: 2px; background: var(--primary);
+  }
+  /* body */
+  .body { flex: 1; overflow: hidden; padding: 0 var(--sp-lg); position: relative; }
+  .search {
+    margin: var(--sp-md) 0 var(--sp-md);
+    height: 48px; border-radius: 24px;
+    background: var(--surface-container-highest);
+    display: flex; align-items: center; gap: var(--sp-md);
+    padding: 0 var(--sp-lg); color: var(--muted); font-size: 15px;
+    flex: none;
+  }
+  /* connected button group (filter chips) */
+  .filters {
+    display: flex; background: var(--surface-container-highest);
+    border-radius: 20px; padding: 4px; gap: 2px; width: max-content;
+    margin-bottom: var(--sp-sm);
+  }
+  .filters .fbtn {
+    border: 0; background: transparent; color: var(--on-surface);
+    font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 16px;
+    cursor: pointer; font-family: inherit;
+  }
+  .filters .fbtn.sel { background: var(--primary-container); color: var(--on-primary-container); }
+  /* date group header */
+  .group-title {
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    padding: var(--sp-md) 4px var(--sp-sm);
+  }
+  /* chat row: HermesCard */
+  .row {
+    background: var(--surface-container-highest);
+    border-radius: var(--r-card);
+    padding: var(--sp-md) var(--sp-lg);
+    display: flex; align-items: flex-start; gap: var(--sp-lg);
+    margin-bottom: var(--sp-sm);
+  }
+  .row .texts { flex: 1; min-width: 0; }
+  .row .title {
+    font-size: 16px; font-weight: 600; color: var(--on-surface);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .row .preview {
+    font-size: 13px; color: var(--muted); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .row .meta { display: flex; align-items: center; gap: var(--sp-sm); margin-top: 6px; flex-wrap: wrap; }
+  .chip {
+    font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: var(--r-chip);
+  }
+  .chip.running { background: var(--running-fill); color: var(--primary); }
+  .chip.done { background: var(--done-fill); color: var(--done-ink); }
+  .chip.meta { background: transparent; color: var(--muted); font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+  .time { font-size: 11px; color: var(--muted); font-weight: 500; }
+  /* M3E extended FAB */
+  .fab {
+    position: absolute; right: var(--sp-lg); bottom: var(--sp-xl);
+    background: var(--primary-container); color: var(--on-primary-container);
+    border: 0; border-radius: var(--r-fab);
+    height: 56px; padding: 0 20px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 15px; font-weight: 600; font-family: inherit;
+    box-shadow: 0 6px 16px rgba(11, 87, 208, .28);
+  }
+  /* system nav bar */
+  .navbar {
+    height: 48px; flex: none; display: flex; align-items: center; justify-content: space-around;
+    color: var(--on-surface); font-size: 20px;
+    background: var(--surface);
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar">
+    <span>16:17</span>
+    <span class="icons">◔ ▲ ▪ ▮ 5G ▂▄▆ 55</span>
+  </div>
+  <div class="appbar">
+    <button class="iconbtn" aria-label="Back">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20v-2z" fill="currentColor"/></svg>
+    </button>
+    <div class="title">Hermes Android</div>
+    <span class="mark" id="projectMark"></span>
+    <button class="iconbtn" aria-label="More">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+    </button>
+  </div>
+  <div class="tabs">
+    <div class="tab active">Chats</div>
+    <div class="tab">Overview</div>
+    <div class="tab">Files</div>
+    <div class="tab">Assets</div>
+    <div class="tab">Activity</div>
+  </div>
+  <div class="body">
+    <div class="search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" fill="currentColor"/></svg>
+      Search chats
+    </div>
+    <div class="filters">
+      <button class="fbtn sel">All</button>
+      <button class="fbtn">Recent</button>
+      <button class="fbtn">Unassigned</button>
+      <button class="fbtn">Archived</button>
+    </div>
+    <div class="group-title">Today</div>
+    <div id="rows"></div>
+    <button class="fab">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      New chat
+    </button>
+  </div>
+  <div class="navbar">
+    <span>▮▮▮</span><span>○</span><span>◁</span>
+  </div>
+</div>
+
+<script>
+// ExpressiveShape polar outline, mirroring lib/core/expressive/shapes.dart:
+// r(θ) = R·(1 + amplitude·cos(lobes·θ)) / (1 + amplitude)
+function blobPath(size, lobes, amplitude, rotation) {
+  const c = size / 2, R = size / 2, steps = 180;
+  let d = "";
+  for (let i = 0; i <= steps; i++) {
+    const a = (i * 2 * Math.PI) / steps;
+    const r = (R * (1 + amplitude * Math.cos(lobes * a))) / (1 + amplitude);
+    const t = a + rotation;
+    const x = c + Math.cos(t) * r, y = c + Math.sin(t) * r;
+    d += (i === 0 ? "M" : "L") + x.toFixed(2) + " " + y.toFixed(2);
+  }
+  return d + "Z";
+}
+// MarkStyle tones -> M3 container/on-container pairs (light, blue seed)
+const tones = {
+  primary:   ["#d3e3fd", "#041e49"],
+  secondary: ["#d8e2f5", "#131f33"],
+  tertiary:  ["#e9dff9", "#2e1f45"],
+};
+// shape, lobes, amplitude, rotation  (ExpressiveShape constants)
+const shapes = {
+  cookie:  [9, 0.07, 0],
+  cookie6: [6, 0.09, 0],
+  cookie4: [4, 0.13, Math.PI / 4],
+  clover:  [4, 0.22, 0],
+  sunny:   [8, 0.05, 0],
+  burst:   [12, 0.08, 0],
+  flower:  [6, 0.14, 0],
+  soft:    [4, 0.06, 0],
+};
+const chatMarks = ["cookie", "cookie6", "cookie4", "clover", "sunny", "burst", "flower"];
+// morph sequence for the busy mark: cookie -> clover -> burst -> flower -> sunny
+const morphSeq = ["cookie", "clover", "burst", "flower", "sunny"];
+
+function markSVG(shapeName, tone, size, iconPath, animate) {
+  const [fill, ink] = tones[tone];
+  const [lobes, amp, rot] = shapes[shapeName];
+  const id = "b" + Math.random().toString(36).slice(2);
+  const paths = animate ? morphSeq.map(s => {
+    const [l, a, r] = shapes[s];
+    return `<path d="${blobPath(size, l, a, r)}" fill="${fill}"/>`;
+  }) : [`<path d="${blobPath(size, lobes, amp, rot)}" fill="${fill}"/>`];
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="marksvg" data-id="${id}" data-animate="${animate ? 1 : 0}">
+    <g class="blob">${paths.join("")}</g>
+    ${iconPath ? `<g transform="translate(${(size - size * 0.5) / 2} ${(size - size * 0.5) / 2}) scale(${size * 0.5 / 24})"><path d="${iconPath}" fill="${ink}"/></g>` : ""}
+  </svg>`;
+}
+
+const chatIcon = "M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"; // chat bubble
+const pinIcon = "M16 9V4h1a1 1 0 0 0 0-2H7a1 1 0 0 0 0 2h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z";
+const openIcon = "M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7zM5 5h6v2H7v10h10v-4h2v6H5V5z";
+
+const rows = [
+  { title: "In the chat list, if a chat is working the sa…", preview: "in the chat list, if a chat is working the same animated ico…", status: "running", time: "2m", mark: "clover", tone: "primary", busy: true, icon: chatIcon },
+  { title: "Rather than popping up a brand new spinner in…", preview: "rather than popping up a brand new spinner in the corner of …", status: "done", time: "1h", mark: "cookie6", tone: "secondary", icon: chatIcon },
+  { title: "I thought you fixed the coordinator mode issue", preview: "I thought you fixed the coordinator mode issue", status: "done", time: "3h", mark: "sunny", tone: "tertiary", icon: chatIcon, group: "Earlier" },
+  { title: "Why is the use as coordinator option back to…", preview: "", status: "done", time: "1d", mark: "burst", tone: "primary", icon: chatIcon, group: "Earlier", pinned: true },
+];
+
+const wrap = document.getElementById("rows");
+let html = "";
+let currentGroup = "Today";
+for (const r of rows) {
+  if (r.group && r.group !== currentGroup) {
+    currentGroup = r.group;
+    html += `<div class="group-title">${r.group}</div>`;
+  }
+  const chip = r.status === "running"
+    ? `<span class="chip running">Running</span>`
+    : `<span class="chip done">Done</span>`;
+  const pin = r.pinned ? `<span class="chip meta"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="${pinIcon}"/></svg></span>` : "";
+  html += `<div class="row">
+    <span class="mark">${markSVG(r.mark, r.tone, 44, r.icon, r.busy)}</span>
+    <div class="texts">
+      <div class="title">${r.title}</div>
+      ${r.preview ? `<div class="preview">${r.preview}</div>` : ""}
+      <div class="meta">${chip}${pin}<span class="time">${r.time}</span>
+        <button class="iconbtn" style="width:32px;height:32px;margin-left:auto" aria-label="Open">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="${openIcon}"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+wrap.innerHTML = html;
+document.getElementById("projectMark").innerHTML = markSVG("cookie", "primary", 40, chatIcon, false);
+
+// Animate the busy mark through the morph sequence, like _MorphingShapeMark.
+const busy = document.querySelector('.marksvg[data-animate="1"] .blob');
+if (busy) {
+  const kids = busy.children;
+  let start = performance.now();
+  const cycle = 650 * kids.length;
+  (function tick(now) {
+    const p = ((now - start) % cycle) / cycle;
+    const scaled = p * kids.length;
+    const idx = Math.floor(scaled) % kids.length;
+    for (let i = 0; i < kids.length; i++) kids[i].style.display = i === idx ? "" : "none";
+    requestAnimationFrame(tick);
+  })(start);
+}
+</script>
+</body>
+</html>
